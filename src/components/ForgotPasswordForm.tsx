@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Mail, Info } from 'lucide-react';
+import { forgetPassword } from '../api/auth';
+import { Loader2, ArrowLeft, Mail, Info } from 'lucide-react';
 
 interface ForgotPasswordFormProps {
   onContinue: (email: string) => void;
@@ -9,17 +10,33 @@ interface ForgotPasswordFormProps {
 
 const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onContinue, onBack }) => {
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      onContinue(email);
+    if (!email) return;
+
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const res = await forgetPassword(email);
+      if (res.isSuccess) {
+        onContinue(email);
+      } else {
+        setError(res.message || 'Failed to send reset code');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-      <button 
+      <button
         onClick={onBack}
         className="group flex items-center text-slate-400 hover:text-slate-900 mb-8 transition-colors text-sm font-bold"
       >
@@ -43,6 +60,11 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onContinue, onB
       </div>
 
       <form className="space-y-8" onSubmit={handleSubmit}>
+        {error && (
+          <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm font-medium border border-red-100">
+            {error}
+          </div>
+        )}
         <div className="space-y-1.5">
           <label className="block text-sm font-bold text-slate-700 ml-1">
             Professional Email
@@ -51,8 +73,8 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onContinue, onB
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
               <Mail size={18} />
             </div>
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -62,11 +84,12 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onContinue, onB
           </div>
         </div>
 
-        <button 
-          type="submit" 
-          className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-[0_8px_30px_rgb(37,99,235,0.2)] hover:bg-blue-700 active:scale-[0.98] transition-all"
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full flex justify-center items-center bg-blue-600 text-white font-bold py-4 rounded-xl shadow-[0_8px_30px_rgb(37,99,235,0.2)] hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          Send Verification Code
+          {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Send Verification Code"}
         </button>
       </form>
 

@@ -4,7 +4,7 @@ import { ArrowLeft, Clock, Mail } from 'lucide-react';
 
 interface OtpVerificationFormProps {
   email: string;
-  onVerify: () => void;
+  onVerify: (otp: string) => void;
   onBack: () => void;
 }
 
@@ -35,10 +35,10 @@ const OtpVerificationForm: React.FC<OtpVerificationFormProps> = ({ email, onVeri
     if (element.value !== "" && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
-    
+
     // Auto-submit if all filled
     if (newOtp.every(val => val !== "")) {
-      setTimeout(onVerify, 400);
+      setTimeout(() => onVerify(newOtp.join('')), 400);
     }
   };
 
@@ -50,7 +50,7 @@ const OtpVerificationForm: React.FC<OtpVerificationFormProps> = ({ email, onVeri
 
   return (
     <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-      <button 
+      <button
         onClick={onBack}
         className="group flex items-center text-slate-400 hover:text-slate-900 mb-8 transition-colors text-sm font-bold"
       >
@@ -104,9 +104,9 @@ const OtpVerificationForm: React.FC<OtpVerificationFormProps> = ({ email, onVeri
             00:{timer < 10 ? `0${timer}` : timer}
           </span>
         </div>
-        
+
         <p className="text-sm text-slate-500 font-medium">
-          Didn't receive code? <button 
+          Didn't receive code? <button
             disabled={timer > 0}
             className={`font-bold transition-colors ${timer > 0 ? 'text-slate-300 cursor-not-allowed' : 'text-blue-600 hover:text-blue-800'}`}
           >
@@ -115,8 +115,8 @@ const OtpVerificationForm: React.FC<OtpVerificationFormProps> = ({ email, onVeri
         </p>
       </div>
 
-      <button 
-        onClick={onVerify}
+      <button
+        onClick={() => onVerify(otp.join(''))}
         className="w-full mt-8 bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-[0.98] transition-all"
       >
         Verify Account

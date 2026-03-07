@@ -17,11 +17,11 @@ const App: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigateTo = (step: AuthStep, email: string = authState.email) => {
+  const navigateTo = (step: AuthStep, email: string = authState.email, otp?: string) => {
     setIsLoading(true);
-    // Simulate API latency for a professional feel
+    // Simulate API latency for a professional feel during transitions not involving actual fetch
     setTimeout(() => {
-      setAuthState({ step, email });
+      setAuthState({ step, email, otp: otp || authState.otp });
       setIsLoading(false);
     }, 600);
   };
@@ -41,22 +41,24 @@ const App: React.FC = () => {
         return <LoginForm onForgotPassword={() => navigateTo(AuthStep.FORGOT_PASSWORD)} />;
       case AuthStep.FORGOT_PASSWORD:
         return (
-          <ForgotPasswordForm 
-            onContinue={(email) => navigateTo(AuthStep.VERIFY_OTP, email)} 
+          <ForgotPasswordForm
+            onContinue={(email) => navigateTo(AuthStep.VERIFY_OTP, email)}
             onBack={() => navigateTo(AuthStep.LOGIN)}
           />
         );
       case AuthStep.VERIFY_OTP:
         return (
-          <OtpVerificationForm 
-            email={authState.email} 
-            onVerify={() => navigateTo(AuthStep.RESET_PASSWORD)}
+          <OtpVerificationForm
+            email={authState.email}
+            onVerify={(otp) => navigateTo(AuthStep.RESET_PASSWORD, authState.email, otp)}
             onBack={() => navigateTo(AuthStep.FORGOT_PASSWORD)}
           />
         );
       case AuthStep.RESET_PASSWORD:
         return (
-          <ResetPasswordForm 
+          <ResetPasswordForm
+            email={authState.email}
+            otp={authState.otp || ''}
             onContinue={() => navigateTo(AuthStep.SUCCESS)}
             onBack={() => navigateTo(AuthStep.VERIFY_OTP)}
           />
