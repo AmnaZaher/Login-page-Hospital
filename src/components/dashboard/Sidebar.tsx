@@ -6,10 +6,16 @@ import {
     Building2,
     ReceiptText,
     Settings,
-    LogOut
+    LogOut,
+    X
 } from 'lucide-react';
 
-const Sidebar = () => {
+interface SidebarProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', active: true },
         { icon: Users, label: 'User Management', active: false },
@@ -21,7 +27,15 @@ const Sidebar = () => {
     ];
 
     return (
-        <aside className="w-[100px] bg-[#097FE7] flex flex-col items-center py-8 text-white h-screen sticky top-0 shrink-0 shadow-lg z-20 transition-colors">
+        <aside className={`w-[100px] bg-[#097FE7] flex flex-col items-center py-8 text-white h-screen shrink-0 shadow-lg z-30 transition-transform duration-300 absolute md:relative ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} top-0 left-0`}>
+            {/* Close button for mobile */}
+            <button
+                onClick={onClose}
+                className="absolute top-4 right-4 md:hidden text-white/70 hover:text-white"
+            >
+                <X size={24} />
+            </button>
+
             <div className="flex-1 w-full space-y-6 flex flex-col mt-4">
                 {navItems.map((item, index) => (
                     <button

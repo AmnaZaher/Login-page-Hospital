@@ -20,7 +20,7 @@ const data = [
 const renderLegend = (props: any) => {
     const { payload } = props;
     return (
-        <ul className="flex items-center justify-center gap-6 mt-6 pb-2">
+        <ul className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-6 pb-2">
             {payload.map((entry: any, index: number) => (
                 <li key={`item-${index}`} className="flex items-center text-xs font-bold text-slate-500 uppercase tracking-wider">
                     <span className="w-2.5 h-2.5 rounded-full mr-2" style={{ backgroundColor: entry.color }} />
@@ -36,10 +36,10 @@ interface ActivitiesChartProps { }
 const ActivitiesChart: React.FC<ActivitiesChartProps> = () => {
     return (
         <StandardCard className="h-[450px] flex flex-col">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
                 <h3 className="text-lg font-extrabold text-slate-900">Activities</h3>
 
-                <div className="flex items-center bg-slate-100/80 p-1 rounded-xl">
+                <div className="flex flex-wrap items-center bg-slate-100/80 p-1 rounded-xl gap-1 md:gap-0">
                     {['12 Months', '6 Months', '30 Days', '7 Days'].map((filter, i) => (
                         <button
                             key={filter}

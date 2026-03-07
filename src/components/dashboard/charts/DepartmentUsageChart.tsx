@@ -14,8 +14,8 @@ const data = [
 const DepartmentUsageChart = () => {
     return (
         <StandardCard className="h-[350px] flex flex-col">
-            <div className="flex items-center justify-between mb-8">
-                <h3 className="text-lg font-extrabold text-slate-900 flex-1 pl-6">Most booked departments</h3>
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4 w-full">
+                <h3 className="text-lg font-extrabold text-slate-900 md:pl-6">Most booked departments</h3>
 
                 <button className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold transition-colors border border-slate-200">
                     Export PDF

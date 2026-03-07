@@ -19,10 +19,10 @@ const data = [
 const AppointmentTrendChart = () => {
     return (
         <StandardCard className="h-[300px] flex flex-col">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
                 <h3 className="text-lg font-extrabold text-slate-900">Monthly appointments</h3>
 
-                <div className="flex items-center bg-slate-100/80 p-1 rounded-xl">
+                <div className="flex flex-wrap items-center bg-slate-100/80 p-1 rounded-xl gap-1 md:gap-0">
                     {['12 Months', '6 Months', '30 Days', '7 Days'].map((filter, i) => (
                         <button
                             key={filter}
