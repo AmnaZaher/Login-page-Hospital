@@ -39,7 +39,10 @@ const App: React.FC = () => {
 
     switch (authState.step) {
       case AuthStep.LOGIN:
-        return <LoginForm onForgotPassword={() => navigateTo(AuthStep.FORGOT_PASSWORD)} />;
+        return <LoginForm
+          onForgotPassword={() => navigateTo(AuthStep.FORGOT_PASSWORD)}
+          onLoginSuccess={() => navigateTo(AuthStep.DASHBOARD)}
+        />;
       case AuthStep.FORGOT_PASSWORD:
         return (
           <ForgotPasswordForm
@@ -69,7 +72,10 @@ const App: React.FC = () => {
       case AuthStep.DASHBOARD:
         return <Dashboard />;
       default:
-        return <LoginForm onForgotPassword={() => navigateTo(AuthStep.FORGOT_PASSWORD)} />;
+        return <LoginForm
+          onForgotPassword={() => navigateTo(AuthStep.FORGOT_PASSWORD)}
+          onLoginSuccess={() => navigateTo(AuthStep.DASHBOARD)}
+        />;
     }
   };
 

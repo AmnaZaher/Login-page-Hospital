@@ -5,10 +5,10 @@ import { Loader2, Eye, EyeOff, User, Lock } from 'lucide-react';
 
 interface LoginFormProps {
   onForgotPassword: () => void;
-  // Let App handle the routing after successful login. Instead of navigating we might just reload or change global state, but for now we can just alert or pass a callback.
+  onLoginSuccess: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -28,10 +28,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword }) => {
         if (res.data.refreshToken) {
           localStorage.setItem('refreshToken', res.data.refreshToken);
         }
-        // Instead of redirecting for now, we'll just show an alert or let it be. App doesn't have a main dashboard yet in types.
-        // Assuming there isn't an onLoginSuccess, we'll just alert success.
-        alert('Login successful!');
-        window.location.reload(); // Quick hack for a generic app
+        onLoginSuccess();
       } else {
         setError(res.message || 'Invalid credentials');
       }

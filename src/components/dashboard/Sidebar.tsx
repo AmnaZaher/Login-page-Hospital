@@ -21,7 +21,7 @@ const Sidebar = () => {
     ];
 
     return (
-        <aside className="w-[100px] bg-slate-500 flex flex-col items-center py-8 text-white h-screen sticky top-0 shrink-0 shadow-lg z-20 transition-colors">
+        <aside className="w-[100px] bg-[#097FE7] flex flex-col items-center py-8 text-white h-screen sticky top-0 shrink-0 shadow-lg z-20 transition-colors">
             <div className="flex-1 w-full space-y-6 flex flex-col mt-4">
                 {navItems.map((item, index) => (
                     <button
