@@ -12,19 +12,21 @@ import {
 
 interface SidebarProps {
     isOpen: boolean;
+    activeTab?: string;
     onClose: () => void;
     onLogout: () => void;
+    onTabChange?: (tab: string) => void;
 }
 
-const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
+const Sidebar = ({ isOpen, activeTab = 'dashboard', onClose, onLogout, onTabChange }: SidebarProps) => {
     const navItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', active: true },
-        { icon: Users, label: 'User Management', active: false },
-        { icon: FileBox, label: 'Reports', active: false },
-        { icon: CalendarCheck, label: 'Appointments', active: false },
-        { icon: Building2, label: 'Departments', active: false },
-        { icon: ReceiptText, label: 'Billing', active: false },
-        { icon: Settings, label: 'Setting', active: false },
+        { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { id: 'users', icon: Users, label: 'User Management' },
+        { id: 'reports', icon: FileBox, label: 'Reports' },
+        { id: 'appointments', icon: CalendarCheck, label: 'Appointments' },
+        { id: 'departments', icon: Building2, label: 'Departments' },
+        { id: 'billing', icon: ReceiptText, label: 'Billing' },
+        { id: 'settings', icon: Settings, label: 'Setting' },
     ];
 
     return (
@@ -38,11 +40,12 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
             </button>
 
             <div className="flex-1 w-full space-y-6 flex flex-col mt-4">
-                {navItems.map((item, index) => (
+                {navItems.map((item) => (
                     <button
-                        key={index}
+                        key={item.id}
+                        onClick={() => onTabChange && onTabChange(item.id)}
                         className={`flex flex-col items-center justify-center w-full py-3 gap-1.5 transition-all
-              ${item.active ? 'opacity-100 bg-white/10 border-l-4 border-white' : 'opacity-60 hover:opacity-100 hover:bg-white/5 border-l-4 border-transparent'}`}
+              ${activeTab === item.id ? 'opacity-100 bg-white/10 border-l-4 border-white' : 'opacity-60 hover:opacity-100 hover:bg-white/5 border-l-4 border-transparent'}`}
                     >
                         <item.icon size={28} strokeWidth={1.5} />
                         <span className="text-[10px] uppercase font-bold tracking-widest">{item.label}</span>
