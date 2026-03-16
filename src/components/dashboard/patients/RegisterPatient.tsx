@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Search, Bell, Plus, User, ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import MedicalHistoryForm, { MedicalRecord } from './MedicalHistoryForm';
+import { useState } from 'react';
+import { Search, Bell, Plus, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import MedicalHistoryForm from './MedicalHistoryForm';
+import type { MedicalRecord } from './MedicalHistoryForm';
 
 const RegisterPatient = () => {
     const [step, setStep] = useState(2);
@@ -60,20 +61,20 @@ const RegisterPatient = () => {
                                 <div className={`h-full bg-slate-200 w-2/3 transition-all duration-300`}></div>
                             </div>
 
-                            {steps.map((s, i) => {
+                            {steps.map((s) => {
                                 const isCompleted = s.num < step;
                                 const isActive = s.num === step;
                                 return (
                                     <div key={s.num} className="flex-1 flex flex-col items-center">
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm mb-3 transition-colors ${isCompleted ? 'bg-green-100 text-green-600 border-2 border-green-500' :
-                                                isActive ? 'bg-blue-600 text-white shadow-md shadow-blue-200' :
-                                                    'bg-white text-slate-400 border-2 border-slate-200'
+                                            isActive ? 'bg-blue-600 text-white shadow-md shadow-blue-200' :
+                                                'bg-white text-slate-400 border-2 border-slate-200'
                                             }`}>
                                             {isCompleted ? <Check className="w-5 h-5" /> : s.num}
                                         </div>
                                         <span className={`text-xs font-bold ${isCompleted ? 'text-green-500' :
-                                                isActive ? 'text-blue-600' :
-                                                    'text-slate-400'
+                                            isActive ? 'text-blue-600' :
+                                                'text-slate-400'
                                             }`}>
                                             {s.label}
                                         </span>
@@ -105,8 +106,8 @@ const RegisterPatient = () => {
                             onClick={() => step > 1 && setStep(step - 1)}
                             disabled={step === 1}
                             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-colors ${step === 1
-                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                 }`}
                         >
                             <ArrowLeft className="w-4 h-4" />
