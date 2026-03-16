@@ -2,9 +2,11 @@ import { Search, Bell, Plus, ChevronDown, Menu } from 'lucide-react';
 
 interface TopBarProps {
     onMenuClick: () => void;
+    title?: string;
+    breadcrumb?: string;
 }
 
-const TopBar = ({ onMenuClick }: TopBarProps) => {
+const TopBar = ({ onMenuClick, title = 'Dashboard', breadcrumb }: TopBarProps) => {
     return (
         <header className="px-4 md:px-10 py-4 md:py-6 flex items-center justify-between border-b border-slate-100 bg-white sticky top-0 z-10 w-full overflow-hidden">
             <div className="flex items-center gap-4 md:gap-12 flex-1 min-w-0">
@@ -14,7 +16,15 @@ const TopBar = ({ onMenuClick }: TopBarProps) => {
                 >
                     <Menu size={24} />
                 </button>
-                <h1 className="text-xl md:text-3xl font-extrabold text-slate-900 tracking-tight shrink-0 truncate">Dashboard</h1>
+                <div className="flex items-center gap-2 md:gap-3 shrink-0 truncate">
+                    <h1 className="text-xl md:text-3xl font-extrabold text-slate-900 tracking-tight">{title}</h1>
+                    {breadcrumb && (
+                        <>
+                            <span className="text-slate-300 md:text-xl font-light">›</span>
+                            <span className="text-sm md:text-lg text-slate-400 font-medium mt-1">{breadcrumb}</span>
+                        </>
+                    )}
+                </div>
 
                 <div className="relative max-w-md w-full ml-10 hidden md:block">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">

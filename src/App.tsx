@@ -9,11 +9,12 @@ import OtpVerificationForm from './components/OtpVerificationForm';
 import ResetPasswordForm from './components/ResetPasswordForm';
 import SuccessScreen from './components/SuccessScreen';
 import Dashboard from './components/dashboard/Dashboard';
+import RegisterPatient from './components/RegisterPatient';
 import { Loader2 } from 'lucide-react';
 
 const App: React.FC = () => {
   const [authState, setAuthState] = useState<AuthState>({
-    step: AuthStep.LOGIN,
+    step: AuthStep.REGISTER_PATIENT,
     email: '',
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +44,8 @@ const App: React.FC = () => {
           onForgotPassword={() => navigateTo(AuthStep.FORGOT_PASSWORD)}
           onLoginSuccess={() => navigateTo(AuthStep.DASHBOARD)}
         />;
+      case AuthStep.REGISTER_PATIENT:
+        return <RegisterPatient />;
       case AuthStep.FORGOT_PASSWORD:
         return (
           <ForgotPasswordForm
@@ -79,7 +82,7 @@ const App: React.FC = () => {
     }
   };
 
-  if (authState.step === AuthStep.DASHBOARD) {
+  if (authState.step === AuthStep.DASHBOARD || authState.step === AuthStep.REGISTER_PATIENT) {
     return renderForm();
   }
 
