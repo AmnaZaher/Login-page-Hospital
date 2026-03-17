@@ -2,9 +2,25 @@ import { useState } from 'react';
 import { Search, Bell, Plus, ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import MedicalHistoryForm from './MedicalHistoryForm';
 import type { MedicalRecord } from './MedicalHistoryForm';
+import PersonalInfoForm from './PersonalInfoForm';
+import type { PersonalInfo } from './PersonalInfoForm';
 
 const RegisterPatient = () => {
-    const [step, setStep] = useState(2);
+    const [step, setStep] = useState(1);
+    const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        dateOfBirth: '',
+        gender: '1',
+        nationalId: '',
+        phoneNumber: '',
+        email: '',
+        address: '',
+        emergencyContactName: '',
+        emergencyContactPhone: '',
+        bloodGroup: '1'
+    });
     const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
 
     const handleAddRecord = (record: MedicalRecord) => {
@@ -57,8 +73,8 @@ const RegisterPatient = () => {
                         <div className="flex items-center justify-center mb-12 relative max-w-3xl mx-auto">
                             {/* Connecting lines */}
                             <div className="absolute top-5 left-8 right-8 h-[2px] bg-slate-200 -z-10 flex">
-                                <div className="h-full bg-green-500 w-1/3 transition-all duration-300"></div>
-                                <div className={`h-full bg-slate-200 w-2/3 transition-all duration-300`}></div>
+                                <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}></div>
+                                <div className={`h-full bg-slate-200 transition-all duration-300`} style={{ width: `${(1 - (step - 1) / (steps.length - 1)) * 100}%` }}></div>
                             </div>
 
                             {steps.map((s) => {
@@ -86,6 +102,12 @@ const RegisterPatient = () => {
 
                     {/* Step Content */}
                     <div className="mb-8">
+                        {step === 1 && (
+                            <PersonalInfoForm
+                                info={personalInfo}
+                                onChange={setPersonalInfo}
+                            />
+                        )}
                         {step === 2 && (
                             <MedicalHistoryForm
                                 records={medicalRecords}
@@ -93,9 +115,9 @@ const RegisterPatient = () => {
                             />
                         )}
                         {/* Add other steps here if needed */}
-                        {step !== 2 && (
+                        {step !== 1 && step !== 2 && (
                             <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500">
-                                This step content is not yet implemented. Please view Step 2 for the requested changes.
+                                This step content is not yet implemented. Please view Step 1 and 2 for the requested changes.
                             </div>
                         )}
                     </div>

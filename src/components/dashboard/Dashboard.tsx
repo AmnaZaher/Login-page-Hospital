@@ -107,7 +107,10 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                 }}
             />
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                {activeTab !== 'users' && <TopBar onMenuClick={() => setIsSidebarOpen(true)} />}
+                {activeTab !== 'users' && <TopBar
+                    onMenuClick={() => setIsSidebarOpen(true)}
+                    onAddUserClick={() => setActiveTab('users')}
+                />}
 
                 {activeTab === 'users' ? (
                     <div className="flex-1 overflow-y-auto">
