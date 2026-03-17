@@ -76,16 +76,14 @@ const TopBar = ({ onMenuClick, onAddUserClick }: TopBarProps) => {
                                 >
                                     Patient
                                 </button>
-                                <button className="w-full py-3 px-4 text-left border-b border-slate-200 hover:bg-blue-500 hover:text-white transition-colors">
+                                <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">
                                     Hospital Staff
                                 </button>
-                            </div>
-                            <div className="flex flex-col text-slate-500 text-sm font-medium bg-slate-50">
-                                <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-blue-500 hover:text-white transition-colors">Doctor</button>
-                                <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-blue-500 hover:text-white transition-colors">Nurse</button>
-                                <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-blue-500 hover:text-white transition-colors">Lab Technician</button>
-                                <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-blue-500 hover:text-white transition-colors">Radiologist</button>
-                                <button className="w-full py-2.5 px-6 text-left hover:bg-blue-500 hover:text-white transition-colors">Pharmacist</button>
+                                <button className="w-full py-3 pr-4 pl-8 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Doctor</button>
+                                <button className="w-full py-3 pr-4 pl-8 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Nurse</button>
+                                <button className="w-full py-3 pr-4 pl-8 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Lab Technician</button>
+                                <button className="w-full py-3 pr-4 pl-8 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Radiologist</button>
+                                <button className="w-full py-3 pr-4 pl-8 text-left hover:bg-blue-500 hover:text-white transition-colors">Pharmacist</button>
                             </div>
                         </div>
                     )}
