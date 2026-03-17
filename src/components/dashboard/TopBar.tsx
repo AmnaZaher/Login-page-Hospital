@@ -79,11 +79,11 @@ const TopBar = ({ onMenuClick, onAddUserClick }: TopBarProps) => {
                                 <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">
                                     Hospital Staff
                                 </button>
-                                <button className="w-full py-3 pr-4 pl-8 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Doctor</button>
-                                <button className="w-full py-3 pr-4 pl-8 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Nurse</button>
-                                <button className="w-full py-3 pr-4 pl-8 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Lab Technician</button>
-                                <button className="w-full py-3 pr-4 pl-8 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Radiologist</button>
-                                <button className="w-full py-3 pr-4 pl-8 text-left hover:bg-blue-500 hover:text-white transition-colors">Pharmacist</button>
+                                <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Doctor</button>
+                                <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Nurse</button>
+                                <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Lab Technician</button>
+                                <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Radiologist</button>
+                                <button className="w-full py-3 px-4 text-left hover:bg-blue-500 hover:text-white transition-colors">Pharmacist</button>
                             </div>
                         </div>
                     )}
