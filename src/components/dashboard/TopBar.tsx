@@ -66,7 +66,7 @@ const TopBar = ({ onMenuClick, onAddUserClick }: TopBarProps) => {
 
                     {isDropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden flex flex-col z-50">
-                            <div className="flex flex-col text-slate-600 text-sm font-semibold">
+                            <div className="flex flex-col text-slate-500 text-sm font-medium">
                                 <button
                                     className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors"
                                     onClick={() => {
@@ -76,11 +76,11 @@ const TopBar = ({ onMenuClick, onAddUserClick }: TopBarProps) => {
                                 >
                                     Patient
                                 </button>
-                                <button className="w-full py-3 px-4 text-left border-b border-slate-200 bg-slate-50 hover:bg-blue-500 hover:text-white transition-colors">
+                                <button className="w-full py-3 px-4 text-left border-b border-slate-200 hover:bg-blue-500 hover:text-white transition-colors">
                                     Hospital Staff
                                 </button>
                             </div>
-                            <div className="flex flex-col text-slate-400 text-sm font-medium bg-slate-50">
+                            <div className="flex flex-col text-slate-500 text-sm font-medium bg-slate-50">
                                 <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-blue-500 hover:text-white transition-colors">Doctor</button>
                                 <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-blue-500 hover:text-white transition-colors">Nurse</button>
                                 <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-blue-500 hover:text-white transition-colors">Lab Technician</button>
