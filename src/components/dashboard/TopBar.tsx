@@ -66,9 +66,9 @@ const TopBar = ({ onMenuClick, onAddUserClick }: TopBarProps) => {
 
                     {isDropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden flex flex-col z-50">
-                            <div className="p-2 space-y-2 pb-0">
+                            <div className="flex flex-col text-slate-600 text-sm font-semibold">
                                 <button
-                                    className="w-full bg-[#5294D2] hover:bg-blue-500 text-white font-semibold py-2 rounded-md text-sm transition-colors"
+                                    className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors"
                                     onClick={() => {
                                         setIsDropdownOpen(false);
                                         if (onAddUserClick) onAddUserClick();
@@ -76,16 +76,16 @@ const TopBar = ({ onMenuClick, onAddUserClick }: TopBarProps) => {
                                 >
                                     Patient
                                 </button>
-                                <button className="w-full bg-[#5294D2] hover:bg-blue-500 text-white font-semibold py-2 rounded-t-md text-sm transition-colors">
+                                <button className="w-full py-3 px-4 text-left border-b border-slate-200 bg-slate-50 hover:bg-blue-500 hover:text-white transition-colors">
                                     Hospital Staff
                                 </button>
                             </div>
-                            <div className="flex flex-col text-slate-400 text-sm font-medium bg-slate-50 border-t border-slate-200 mt-0 mx-2 mb-2 rounded-b-md">
-                                <button className="w-full py-2 border-b border-slate-200 hover:bg-slate-100 transition-colors">Doctor</button>
-                                <button className="w-full py-2 border-b border-slate-200 hover:bg-slate-100 transition-colors">Nurse</button>
-                                <button className="w-full py-2 border-b border-slate-200 hover:bg-slate-100 transition-colors">Lab Technician</button>
-                                <button className="w-full py-2 border-b border-slate-200 hover:bg-slate-100 transition-colors">Radiologist</button>
-                                <button className="w-full py-2 rounded-b-md hover:bg-slate-100 transition-colors">Pharmacist</button>
+                            <div className="flex flex-col text-slate-400 text-sm font-medium bg-slate-50">
+                                <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-slate-100 transition-colors">Doctor</button>
+                                <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-slate-100 transition-colors">Nurse</button>
+                                <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-slate-100 transition-colors">Lab Technician</button>
+                                <button className="w-full py-2.5 px-6 text-left border-b border-slate-200 hover:bg-slate-100 transition-colors">Radiologist</button>
+                                <button className="w-full py-2.5 px-6 text-left hover:bg-slate-100 transition-colors">Pharmacist</button>
                             </div>
                         </div>
                     )}
