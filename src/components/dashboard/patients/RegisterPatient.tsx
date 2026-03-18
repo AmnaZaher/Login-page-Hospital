@@ -6,8 +6,6 @@ import PersonalInfoForm from './PersonalInfoForm';
 import type { PersonalInfo } from './PersonalInfoForm';
 import AllergiesForm from './AllergiesForm';
 import type { AllergyRecord } from './AllergiesForm';
-import ChronicDiseasesForm from './ChronicDiseasesForm';
-import type { ChronicDiseaseRecord } from './ChronicDiseasesForm';
 
 const RegisterPatient = () => {
     const [step, setStep] = useState(1);
@@ -27,7 +25,6 @@ const RegisterPatient = () => {
     });
     const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
     const [allergyRecords, setAllergyRecords] = useState<AllergyRecord[]>([]);
-    const [chronicDiseaseRecords, setChronicDiseaseRecords] = useState<ChronicDiseaseRecord[]>([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isStaffOpen, setIsStaffOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -58,20 +55,10 @@ const RegisterPatient = () => {
     const handleRemoveAllergy = (index: number) => {
         setAllergyRecords(allergyRecords.filter((_, i) => i !== index));
     };
-
-    const handleAddChronicDisease = (record: ChronicDiseaseRecord) => {
-        setChronicDiseaseRecords([...chronicDiseaseRecords, record]);
-    };
-
-    const handleRemoveChronicDisease = (index: number) => {
-        setChronicDiseaseRecords(chronicDiseaseRecords.filter((_, i) => i !== index));
-    };
-
     const steps = [
         { num: 1, label: 'Personal Info' },
         { num: 2, label: 'Medical History' },
-        { num: 3, label: 'Allergies' },
-        { num: 4, label: 'Chronic Diseases' }
+        { num: 3, label: 'Allergies' }
     ];
 
     return (
@@ -220,13 +207,6 @@ const RegisterPatient = () => {
                                 onRemoveRecord={handleRemoveAllergy}
                             />
                         )}
-                        {step === 4 && (
-                            <ChronicDiseasesForm
-                                records={chronicDiseaseRecords}
-                                onAddRecord={handleAddChronicDisease}
-                                onRemoveRecord={handleRemoveChronicDisease}
-                            />
-                        )}
                     </div>
 
                     {/* Bottom Navigation Toolbar */}
@@ -244,14 +224,14 @@ const RegisterPatient = () => {
                         </button>
 
                         <div className="flex items-center gap-1.5 mx-4">
-                            <span className="text-slate-400 text-sm font-semibold mr-2">Step {step} of 4</span>
-                            {[1, 2, 3, 4].map(num => (
+                            <span className="text-slate-400 text-sm font-semibold mr-2">Step {step} of 3</span>
+                            {[1, 2, 3].map(num => (
                                 <div key={num} className={`h-2 rounded-full transition-all ${num === step ? 'w-6 bg-blue-600' : 'w-2 bg-slate-200'
                                     }`} />
                             ))}
                         </div>
 
-                        {step < 4 ? (
+                        {step < 3 ? (
                             <button
                                 onClick={() => setStep(step + 1)}
                                 className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
