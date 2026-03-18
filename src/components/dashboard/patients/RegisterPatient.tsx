@@ -4,6 +4,8 @@ import MedicalHistoryForm from './MedicalHistoryForm';
 import type { MedicalRecord } from './MedicalHistoryForm';
 import PersonalInfoForm from './PersonalInfoForm';
 import type { PersonalInfo } from './PersonalInfoForm';
+import AllergiesForm from './AllergiesForm';
+import type { AllergyRecord } from './AllergiesForm';
 
 const RegisterPatient = () => {
     const [step, setStep] = useState(1);
@@ -22,9 +24,18 @@ const RegisterPatient = () => {
         bloodGroup: '1'
     });
     const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+    const [allergyRecords, setAllergyRecords] = useState<AllergyRecord[]>([]);
 
     const handleAddRecord = (record: MedicalRecord) => {
         setMedicalRecords([...medicalRecords, record]);
+    };
+
+    const handleAddAllergy = (record: AllergyRecord) => {
+        setAllergyRecords([...allergyRecords, record]);
+    };
+
+    const handleRemoveAllergy = (index: number) => {
+        setAllergyRecords(allergyRecords.filter((_, i) => i !== index));
     };
 
     const steps = [
@@ -114,10 +125,16 @@ const RegisterPatient = () => {
                                 onAddRecord={handleAddRecord}
                             />
                         )}
-                        {/* Add other steps here if needed */}
-                        {step !== 1 && step !== 2 && (
+                        {step === 3 && (
+                            <AllergiesForm
+                                records={allergyRecords}
+                                onAddRecord={handleAddAllergy}
+                                onRemoveRecord={handleRemoveAllergy}
+                            />
+                        )}
+                        {step === 4 && (
                             <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500">
-                                This step content is not yet implemented. Please view Step 1 and 2 for the requested changes.
+                                This step content is not yet implemented. Please view Step 1, 2, and 3 for the requested changes.
                             </div>
                         )}
                     </div>
