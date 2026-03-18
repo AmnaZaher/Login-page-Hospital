@@ -122,13 +122,22 @@ const RegisterPatient = () => {
                             ))}
                         </div>
 
-                        <button
-                            onClick={() => step < 4 && setStep(step + 1)}
-                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
-                        >
-                            Next Step: {step < 4 ? steps[step].label : 'Finish'}
-                            <ArrowRight className="w-4 h-4 border-l border-blue-500 pl-2 ml-1" />
-                        </button>
+                        {step < 4 ? (
+                            <button
+                                onClick={() => setStep(step + 1)}
+                                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
+                            >
+                                Next Step: {steps[step].label}
+                                <ArrowRight className="w-4 h-4 border-l border-blue-500 pl-2 ml-1" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => alert('Registration complete! Data ready to send to API.')}
+                                className="flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors shadow-[0_4px_14px_rgba(37,99,235,0.2)]"
+                            >
+                                Save
+                            </button>
+                        )}
                     </div>
 
                 </div>
