@@ -6,6 +6,8 @@ import PersonalInfoForm from './PersonalInfoForm';
 import type { PersonalInfo } from './PersonalInfoForm';
 import AllergiesForm from './AllergiesForm';
 import type { AllergyRecord } from './AllergiesForm';
+import ChronicDiseasesForm from './ChronicDiseasesForm';
+import type { ChronicDiseaseRecord } from './ChronicDiseasesForm';
 
 const RegisterPatient = () => {
     const [step, setStep] = useState(1);
@@ -25,6 +27,7 @@ const RegisterPatient = () => {
     });
     const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
     const [allergyRecords, setAllergyRecords] = useState<AllergyRecord[]>([]);
+    const [chronicDiseaseRecords, setChronicDiseaseRecords] = useState<ChronicDiseaseRecord[]>([]);
 
     const handleAddRecord = (record: MedicalRecord) => {
         setMedicalRecords([...medicalRecords, record]);
@@ -36,6 +39,14 @@ const RegisterPatient = () => {
 
     const handleRemoveAllergy = (index: number) => {
         setAllergyRecords(allergyRecords.filter((_, i) => i !== index));
+    };
+
+    const handleAddChronicDisease = (record: ChronicDiseaseRecord) => {
+        setChronicDiseaseRecords([...chronicDiseaseRecords, record]);
+    };
+
+    const handleRemoveChronicDisease = (index: number) => {
+        setChronicDiseaseRecords(chronicDiseaseRecords.filter((_, i) => i !== index));
     };
 
     const steps = [
@@ -133,9 +144,11 @@ const RegisterPatient = () => {
                             />
                         )}
                         {step === 4 && (
-                            <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500">
-                                This step content is not yet implemented. Please view Step 1, 2, and 3 for the requested changes.
-                            </div>
+                            <ChronicDiseasesForm
+                                records={chronicDiseaseRecords}
+                                onAddRecord={handleAddChronicDisease}
+                                onRemoveRecord={handleRemoveChronicDisease}
+                            />
                         )}
                     </div>
 
@@ -161,13 +174,22 @@ const RegisterPatient = () => {
                             ))}
                         </div>
 
-                        <button
-                            onClick={() => step < 4 && setStep(step + 1)}
-                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
-                        >
-                            Next Step: {step < 4 ? steps[step].label : 'Finish'}
-                            <ArrowRight className="w-4 h-4 border-l border-blue-500 pl-2 ml-1" />
-                        </button>
+                        {step < 4 ? (
+                            <button
+                                onClick={() => setStep(step + 1)}
+                                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
+                            >
+                                Next Step: {steps[step].label}
+                                <ArrowRight className="w-4 h-4 border-l border-blue-500 pl-2 ml-1" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => alert('Registration complete! Data ready to send to API.')}
+                                className="flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors shadow-[0_4px_14px_rgba(37,99,235,0.2)]"
+                            >
+                                Save
+                            </button>
+                        )}
                     </div>
 
                 </div>
