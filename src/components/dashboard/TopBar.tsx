@@ -65,31 +65,72 @@ const TopBar = ({ onMenuClick, onAddUserClick }: TopBarProps) => {
                     </button>
 
                     {isDropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden flex flex-col z-50">
-                            <div className="flex flex-col text-slate-500 text-sm font-medium">
-                                <button
-                                    className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors"
-                                    onClick={() => {
-                                        setIsDropdownOpen(false);
-                                        if (onAddUserClick) onAddUserClick();
-                                    }}
-                                >
-                                    Patient
-                                </button>
-                                <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">
-                                    Hospital Staff
-                                </button>
-                                <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Doctor</button>
-                                <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Nurse</button>
-                                <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Lab Technician</button>
-                                <button className="w-full py-3 px-4 text-left border-b border-slate-100 hover:bg-blue-500 hover:text-white transition-colors">Radiologist</button>
-                                <button className="w-full py-3 px-4 text-left hover:bg-blue-500 hover:text-white transition-colors">Pharmacist</button>
-                            </div>
-                        </div>
+                        <DropdownMenu
+                            onPatientClick={() => {
+                                setIsDropdownOpen(false);
+                                if (onAddUserClick) onAddUserClick();
+                            }}
+                            onClose={() => setIsDropdownOpen(false)}
+                        />
                     )}
                 </div>
             </div>
         </header>
+    );
+};
+
+const DropdownMenu = ({ onPatientClick, onClose }: { onPatientClick: () => void; onClose: () => void }) => {
+    const [isStaffOpen, setIsStaffOpen] = useState(false);
+
+    return (
+        <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.12)] border border-slate-100 py-2 z-50 overflow-hidden">
+            {/* Patient option */}
+            <button
+                onClick={onPatientClick}
+                className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-blue-600 hover:text-white transition-colors flex items-center gap-2"
+            >
+                Patient
+            </button>
+
+            {/* Divider */}
+            <div className="border-t border-slate-100 my-1" />
+
+            {/* Hospital Staff expandable */}
+            <button
+                onClick={() => setIsStaffOpen(!isStaffOpen)}
+                className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-between"
+            >
+                <span>Hospital Staff</span>
+                <svg
+                    className={`w-4 h-4 text-slate-400 transition-transform ${isStaffOpen ? 'rotate-90' : ''}`}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+
+            {/* Staff sub-options */}
+            {isStaffOpen && (
+                <div className="bg-slate-50 border-t border-slate-100">
+                    {[
+                        { label: 'Doctor', desc: 'Physician / Specialist' },
+                        { label: 'Nurse', desc: 'RN / LPN / NP' },
+                        { label: 'Admin', desc: 'Administrative staff' },
+                        { label: 'Pharmacist', desc: 'Pharmacy staff' },
+                        { label: 'Lab Technician', desc: 'Laboratory staff' },
+                    ].map((role) => (
+                        <button
+                            key={role.label}
+                            onClick={onClose}
+                            className="w-full text-left pl-7 pr-4 py-2 hover:bg-blue-600 hover:text-white transition-colors group"
+                        >
+                            <span className="text-sm font-semibold text-slate-700 group-hover:text-white block">{role.label}</span>
+                            <span className="text-[11px] text-slate-400 group-hover:text-blue-100">{role.desc}</span>
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 };
 
