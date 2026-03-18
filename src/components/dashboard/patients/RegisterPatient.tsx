@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Search, Bell, Plus, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Search, Bell, Plus, ArrowLeft, ArrowRight, Check, ChevronDown } from 'lucide-react';
 import MedicalHistoryForm from './MedicalHistoryForm';
 import type { MedicalRecord } from './MedicalHistoryForm';
 import PersonalInfoForm from './PersonalInfoForm';
@@ -28,6 +28,19 @@ const RegisterPatient = () => {
     const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
     const [allergyRecords, setAllergyRecords] = useState<AllergyRecord[]>([]);
     const [chronicDiseaseRecords, setChronicDiseaseRecords] = useState<ChronicDiseaseRecord[]>([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleAddRecord = (record: MedicalRecord) => {
         setMedicalRecords([...medicalRecords, record]);
@@ -78,10 +91,34 @@ const RegisterPatient = () => {
                         <Bell className="w-5 h-5" />
                         <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
                     </button>
-                    <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-                        <Plus className="w-4 h-4" />
-                        Add New User
-                    </button>
+                    <div className="relative" ref={dropdownRef}>
+                        <button
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add New User
+                            <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {isDropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-slate-100 py-2 z-50 overflow-hidden">
+                                <button
+                                    onClick={() => {
+                                        setIsDropdownOpen(false);
+                                    }}
+                                    className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-blue-600 hover:text-white flex flex-col transition-colors"
+                                >
+                                    <span>Patient</span>
+                                </button>
+
+                                <button className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-blue-600 hover:text-white flex flex-col transition-colors border-t border-slate-50">
+                                    <span>Hospital Staff</span>
+                                    <span className="text-[10px] opacity-70 font-medium">Doctor, Nurse, Admin</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
