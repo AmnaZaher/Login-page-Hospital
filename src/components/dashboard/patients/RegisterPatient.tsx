@@ -47,6 +47,10 @@ const RegisterPatient = () => {
         setMedicalRecords([...medicalRecords, record]);
     };
 
+    const handleRemoveMedicalRecord = (index: number) => {
+        setMedicalRecords(medicalRecords.filter((_, i) => i !== index));
+    };
+
     const handleAddAllergy = (record: AllergyRecord) => {
         setAllergyRecords([...allergyRecords, record]);
     };
@@ -206,6 +210,7 @@ const RegisterPatient = () => {
                             <MedicalHistoryForm
                                 records={medicalRecords}
                                 onAddRecord={handleAddRecord}
+                                onRemoveRecord={handleRemoveMedicalRecord}
                             />
                         )}
                         {step === 3 && (
