@@ -1,0 +1,322 @@
+import { useState, useRef, useEffect } from 'react';
+import { Search, Bell, Plus, ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Loader2 } from 'lucide-react';
+import { registerPatient } from '../../../api/auth';
+import MedicalHistoryForm from './MedicalHistoryForm';
+import type { MedicalRecord } from './MedicalHistoryForm';
+import PersonalInfoForm from './PersonalInfoForm';
+import type { PersonalInfo } from './PersonalInfoForm';
+import AllergiesForm from './AllergiesForm';
+import type { AllergyRecord } from './AllergiesForm';
+import ChronicDiseasesForm from './ChronicDiseasesForm';
+import type { ChronicDiseaseRecord } from './ChronicDiseasesForm';
+
+const RegisterPatient = () => {
+    const [step, setStep] = useState(1);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+    const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        dateOfBirth: '',
+        gender: '1',
+        nationalId: '',
+        phoneNumber: '',
+        email: '',
+        address: '',
+        emergencyContactName: '',
+        emergencyContactPhone: '',
+        bloodGroup: '1'
+    });
+    const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+    const [allergyRecords, setAllergyRecords] = useState<AllergyRecord[]>([]);
+    const [chronicDiseaseRecords, setChronicDiseaseRecords] = useState<ChronicDiseaseRecord[]>([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isStaffOpen, setIsStaffOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleAddRecord = (record: MedicalRecord) => {
+        setMedicalRecords([...medicalRecords, record]);
+    };
+
+    const handleRemoveMedicalRecord = (index: number) => {
+        setMedicalRecords(medicalRecords.filter((_, i) => i !== index));
+    };
+
+    const handleAddAllergy = (record: AllergyRecord) => {
+        setAllergyRecords([...allergyRecords, record]);
+    };
+
+    const handleRemoveAllergy = (index: number) => {
+        setAllergyRecords(allergyRecords.filter((_, i) => i !== index));
+    };
+
+    const handleAddChronicDisease = (record: ChronicDiseaseRecord) => {
+        setChronicDiseaseRecords([...chronicDiseaseRecords, record]);
+    };
+
+    const handleRemoveChronicDisease = (index: number) => {
+        setChronicDiseaseRecords(chronicDiseaseRecords.filter((_, i) => i !== index));
+    };
+
+    const steps = [
+        { num: 1, label: 'Personal Info' },
+        { num: 2, label: 'Medical History' },
+        { num: 3, label: 'Allergies' },
+        { num: 4, label: 'Chronic Diseases' }
+    ];
+
+    const handleSave = async () => {
+        setIsSubmitting(true);
+        setSubmitMessage(null);
+        try {
+            const payload = {
+                fullNameEnglish: [personalInfo.firstName, personalInfo.middleName, personalInfo.lastName].filter(Boolean).join(' '),
+                fullNameArabic: '',
+                nationalId: personalInfo.nationalId,
+                gender: parseInt(personalInfo.gender, 10) || 1,
+                dateOfBirth: personalInfo.dateOfBirth ? `${personalInfo.dateOfBirth}T00:00:00` : null,
+                email: personalInfo.email,
+                address: personalInfo.address,
+                city: '',
+                country: '',
+                phoneNumber: personalInfo.phoneNumber
+            };
+            const res = await registerPatient(payload);
+            if (res.isSuccess) {
+                setSubmitMessage({ type: 'success', text: 'Registration completed successfully' });
+                setTimeout(() => {
+                    // Reset form or redirect if needed
+                }, 2000);
+            } else {
+                setSubmitMessage({ type: 'error', text: res.message || 'Registration failed' });
+            }
+        } catch (err: any) {
+            setSubmitMessage({ type: 'error', text: err.message || 'Network error occurred' });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="flex flex-col h-full bg-slate-50 font-sans">
+            {/* Topbar for the registration view */}
+            <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-10">
+                <div className="flex items-center gap-2 text-sm">
+                    <span className="font-bold text-slate-900">Add New User</span>
+                    <span className="text-slate-400">›</span>
+                    <span className="text-slate-500">Patient</span>
+                </div>
+                <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                            type="text"
+                            placeholder="Search users..."
+                            className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
+                        />
+                    </div>
+                    <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors relative">
+                        <Bell className="w-5 h-5" />
+                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
+                    </button>
+                    <div className="relative" ref={dropdownRef}>
+                        <button
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add New User
+                            <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {isDropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.12)] border border-slate-100 py-2 z-50 overflow-hidden">
+                                {/* Patient option */}
+                                <button
+                                    onClick={() => {
+                                        setIsDropdownOpen(false);
+                                        setIsStaffOpen(false);
+                                    }}
+                                    className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-blue-600 hover:text-white transition-colors flex items-center gap-2"
+                                >
+                                    <span>Patient</span>
+                                </button>
+
+                                {/* Divider */}
+                                <div className="border-t border-slate-100 my-1" />
+
+                                {/* Hospital Staff expandable */}
+                                <button
+                                    onClick={() => setIsStaffOpen(!isStaffOpen)}
+                                    className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-between"
+                                >
+                                    <span>Hospital Staff</span>
+                                    <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isStaffOpen ? 'rotate-90' : ''}`} />
+                                </button>
+
+                                {/* Staff sub-options */}
+                                {isStaffOpen && (
+                                    <div className="bg-slate-50 border-t border-slate-100">
+                                        {[
+                                            { label: 'Doctor', desc: 'Physician / Specialist' },
+                                            { label: 'Nurse', desc: 'RN / LPN / NP' },
+                                            { label: 'Admin', desc: 'Administrative staff' },
+                                            { label: 'Pharmacist', desc: 'Pharmacy staff' },
+                                            { label: 'Lab Technician', desc: 'Laboratory staff' },
+                                        ].map((role) => (
+                                            <button
+                                                key={role.label}
+                                                onClick={() => {
+                                                    setIsDropdownOpen(false);
+                                                    setIsStaffOpen(false);
+                                                }}
+                                                className="w-full text-left pl-7 pr-4 py-2 hover:bg-blue-600 hover:text-white transition-colors group"
+                                            >
+                                                <span className="text-sm font-semibold text-slate-700 group-hover:text-white block">{role.label}</span>
+                                                <span className="text-[11px] text-slate-400 group-hover:text-blue-100">{role.desc}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                <div className="max-w-[1000px] mx-auto">
+                    {/* Header */}
+                    <div className="mb-8 pl-2">
+                        <h1 className="text-2xl font-extrabold text-slate-900 mb-8">Register New Patient</h1>
+
+                        {submitMessage && (
+                            <div className={`mb-8 p-4 rounded-xl text-sm font-semibold border ${submitMessage.type === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
+                                }`}>
+                                {submitMessage.text}
+                            </div>
+                        )}
+
+                        {/* Stepper */}
+                        <div className="flex items-center justify-center mb-12 relative max-w-3xl mx-auto">
+                            {/* Connecting lines */}
+                            <div className="absolute top-5 left-8 right-8 h-[2px] bg-slate-200 -z-10 flex">
+                                <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}></div>
+                                <div className={`h-full bg-slate-200 transition-all duration-300`} style={{ width: `${(1 - (step - 1) / (steps.length - 1)) * 100}%` }}></div>
+                            </div>
+
+                            {steps.map((s) => {
+                                const isCompleted = s.num < step;
+                                const isActive = s.num === step;
+                                return (
+                                    <div key={s.num} className="flex-1 flex flex-col items-center">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm mb-3 transition-colors ${isCompleted ? 'bg-green-100 text-green-600 border-2 border-green-500' :
+                                            isActive ? 'bg-blue-600 text-white shadow-md shadow-blue-200' :
+                                                'bg-white text-slate-400 border-2 border-slate-200'
+                                            }`}>
+                                            {isCompleted ? <Check className="w-5 h-5" /> : s.num}
+                                        </div>
+                                        <span className={`text-xs font-bold ${isCompleted ? 'text-green-500' :
+                                            isActive ? 'text-blue-600' :
+                                                'text-slate-400'
+                                            }`}>
+                                            {s.label}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Step Content */}
+                    <div className="mb-8">
+                        {step === 1 && (
+                            <PersonalInfoForm
+                                info={personalInfo}
+                                onChange={setPersonalInfo}
+                            />
+                        )}
+                        {step === 2 && (
+                            <MedicalHistoryForm
+                                records={medicalRecords}
+                                onAddRecord={handleAddRecord}
+                                onRemoveRecord={handleRemoveMedicalRecord}
+                            />
+                        )}
+                        {step === 3 && (
+                            <AllergiesForm
+                                records={allergyRecords}
+                                onAddRecord={handleAddAllergy}
+                                onRemoveRecord={handleRemoveAllergy}
+                            />
+                        )}
+                        {step === 4 && (
+                            <ChronicDiseasesForm
+                                records={chronicDiseaseRecords}
+                                onAddRecord={handleAddChronicDisease}
+                                onRemoveRecord={handleRemoveChronicDisease}
+                            />
+                        )}
+                    </div>
+
+                    {/* Bottom Navigation Toolbar */}
+                    <div className="bg-white rounded-2xl border border-slate-200 p-4 md:p-6 shadow-sm flex items-center justify-between">
+                        <button
+                            onClick={() => step > 1 && setStep(step - 1)}
+                            disabled={step === 1}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-colors ${step === 1
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                }`}
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            Previous
+                        </button>
+
+                        <div className="flex items-center gap-1.5 mx-4">
+                            <span className="text-slate-400 text-sm font-semibold mr-2">Step {step} of 4</span>
+                            {[1, 2, 3, 4].map(num => (
+                                <div key={num} className={`h-2 rounded-full transition-all ${num === step ? 'w-6 bg-blue-600' : 'w-2 bg-slate-200'
+                                    }`} />
+                            ))}
+                        </div>
+
+                        {step < 4 ? (
+                            <button
+                                onClick={() => setStep(step + 1)}
+                                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
+                            >
+                                Next Step: {steps[step].label}
+                                <ArrowRight className="w-4 h-4 border-l border-blue-500 pl-2 ml-1" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleSave}
+                                disabled={isSubmitting}
+                                className="flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors shadow-[0_4px_14px_rgba(37,99,235,0.2)] disabled:opacity-70 disabled:cursor-not-allowed"
+                            >
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save'}
+                            </button>
+                        )}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default RegisterPatient;

@@ -7,6 +7,8 @@ import ActivitiesChart from './charts/ActivitiesChart';
 import AppointmentTrendChart from './charts/AppointmentTrendChart';
 import DepartmentUsageChart from './charts/DepartmentUsageChart';
 import { AlertStack, PatientFeed, AppointmentSummary } from './widgets/InfoWidgets';
+import RegisterPatient from './patients/RegisterPatient';
+import RegisterStaff from './staff/RegisterStaff';
 
 interface DashboardProps {
     onLogout?: () => void;
@@ -17,6 +19,9 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
     const [userName, setUserName] = useState<string>('User');
     const [currentDate, setCurrentDate] = useState<string>('');
     const [authError, setAuthError] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<string>('dashboard');
+    const [registerMode, setRegisterMode] = useState<'patient' | 'staff'>('patient');
+    const [registerRole, setRegisterRole] = useState<string>('Doctor');
 
     useEffect(() => {
         // Handle date formatting
@@ -94,37 +99,64 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                 />
             )}
 
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onLogout={() => { onLogout?.(); }} />
+            <Sidebar
+                isOpen={isSidebarOpen}
+                activeTab={activeTab}
+                onClose={() => setIsSidebarOpen(false)}
+                onLogout={() => { onLogout?.(); }}
+                onTabChange={(tab) => {
+                    setActiveTab(tab);
+                    setIsSidebarOpen(false);
+                }}
+            />
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                <TopBar onMenuClick={() => setIsSidebarOpen(true)} />
-                <main className="flex-1 overflow-y-auto p-4 md:p-8">
-                    <div className="max-w-[1600px] mx-auto space-y-8">
-                        <div className="mb-8">
-                            <p className="text-slate-500 font-medium mb-1">{currentDate}</p>
-                            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Welcome, {userName}</h2>
-                        </div>
+                {activeTab !== 'users' && <TopBar
+                    onMenuClick={() => setIsSidebarOpen(true)}
+                    onAddUserClick={(type, role) => {
+                        setActiveTab('users');
+                        setRegisterMode(type);
+                        if (role) setRegisterRole(role);
+                    }}
+                />}
 
-                        <StatCards />
-
-                        {/* Main Content Grid */}
-                        <div className="flex flex-col xl:flex-row gap-8">
-                            {/* Left Column - Charts */}
-                            <div className="flex-1 space-y-8 min-w-0">
-                                <ActivitiesChart />
-                                <AppointmentTrendChart />
-                                <DepartmentUsageChart />
-                            </div>
-
-                            {/* Right Column - Widgets */}
-                            <div className="w-full xl:w-[400px] shrink-0 space-y-8">
-                                <AlertStack />
-                                <PatientFeed />
-                                <AppointmentSummary />
-                            </div>
-                        </div>
-
+                {activeTab === 'users' ? (
+                    <div className="flex-1 overflow-y-auto">
+                        {registerMode === 'patient' ? (
+                            <RegisterPatient />
+                        ) : (
+                            <RegisterStaff initialRole={registerRole} />
+                        )}
                     </div>
-                </main>
+                ) : (
+                    <main className="flex-1 overflow-y-auto p-4 md:p-8">
+                        <div className="max-w-[1600px] mx-auto space-y-8">
+                            <div className="mb-8">
+                                <p className="text-slate-500 font-medium mb-1">{currentDate}</p>
+                                <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Welcome, {userName}</h2>
+                            </div>
+
+                            <StatCards />
+
+                            {/* Main Content Grid */}
+                            <div className="flex flex-col xl:flex-row gap-8">
+                                {/* Left Column - Charts */}
+                                <div className="flex-1 space-y-8 min-w-0">
+                                    <ActivitiesChart />
+                                    <AppointmentTrendChart />
+                                    <DepartmentUsageChart />
+                                </div>
+
+                                {/* Right Column - Widgets */}
+                                <div className="w-full xl:w-[400px] shrink-0 space-y-8">
+                                    <AlertStack />
+                                    <PatientFeed />
+                                    <AppointmentSummary />
+                                </div>
+                            </div>
+
+                        </div>
+                    </main>
+                )}
             </div>
         </div>
     );

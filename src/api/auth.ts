@@ -25,3 +25,30 @@ export const resetPassword = async (
         body: JSON.stringify({ email, otp, newPassword, confirmPassword }),
     });
 };
+
+export const logout = async (refreshToken: string) => {
+    return await fetchApi(`/Account/logout?RefreshToken=${refreshToken}`, {
+        method: 'POST'
+    });
+};
+
+export const registerPatient = async (payload: any) => {
+    return await fetchApi('/Account/NewPatient', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+};
+
+export const registerStaff = async (formData: FormData) => {
+    return await fetchApi('/Account/NewStaff', {
+        method: 'POST',
+        body: formData,
+    });
+};
+
+export const changePassword = async (formData: FormData) => {
+    return await fetchApi('/Account/ChangePasswrod', {
+        method: 'PATCH',
+        body: formData,
+    });
+};

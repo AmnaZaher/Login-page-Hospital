@@ -31,7 +31,14 @@ export const fetchApi = async <T = any>(
     const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-        throw new Error(data?.message || `API Error: ${response.status}`);
+        let errorMsg = data?.message || `API Error: ${response.status}`;
+        if (data?.errors) {
+            const validationErrors = Object.entries(data.errors)
+                .map(([field, msgs]) => `${field}: ${(msgs as string[]).join(', ')}`)
+                .join(' | ');
+            errorMsg = `${data.title || 'Validation Error'}: ${validationErrors}`;
+        }
+        throw new Error(errorMsg);
     }
 
     return data as ApiResponse<T>;
