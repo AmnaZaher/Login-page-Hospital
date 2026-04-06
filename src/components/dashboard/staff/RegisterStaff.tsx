@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, Search, Bell, Check } from 'lucide-react';
 import { registerStaff } from '../../../api/auth';
+import { AddUserButton } from '../shared/AddUserButton';
 import BasicInfoForm, { type StaffBasicInfo } from './BasicInfoForm';
 import RoleDetailsForm, { type StaffRoleDetails } from './RoleDetailsForm';
 import UploadDocumentsForm, { type StaffDocument } from './UploadDocumentsForm';
@@ -19,9 +20,10 @@ const initialDocuments: StaffDocument[] = [
 
 interface RegisterStaffProps {
     initialRole?: string;
+    onSwitchView?: (type: 'patient' | 'staff', role?: string) => void;
 }
 
-const RegisterStaff = ({ initialRole = 'Doctor' }: RegisterStaffProps) => {
+const RegisterStaff = ({ initialRole = 'Doctor', onSwitchView }: RegisterStaffProps) => {
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -130,15 +132,38 @@ const RegisterStaff = ({ initialRole = 'Doctor' }: RegisterStaffProps) => {
 
     return (
         <div className="flex flex-col h-full bg-slate-50 font-sans">
+            {/* Topbar for the registration view */}
+            <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-10">
+                <div className="flex items-center gap-2 text-sm">
+                    <span className="font-bold text-slate-900">Add New User</span>
+                    <span className="text-slate-400">›</span>
+                    <span className="text-slate-500">Hospital Staff</span>
+                </div>
+                <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                            type="text"
+                            placeholder="Search users..."
+                            className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
+                        />
+                    </div>
+                    <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors relative">
+                        <Bell className="w-5 h-5" />
+                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
+                    </button>
+                    <AddUserButton
+                        onClick={(type: 'patient' | 'staff', role?: string) => {
+                            if (onSwitchView) onSwitchView(type, role);
+                        }}
+                    />
+                </div>
+            </div>
+
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-[1240px] mx-auto">
                     {/* Header */}
                     <div className="mb-8 pl-2">
-                        <div className="flex items-center gap-2 text-sm mb-4">
-                            <span className="font-bold text-slate-900">Add New User</span>
-                            <span className="text-slate-400">›</span>
-                            <span className="text-slate-500">Hospital Staff</span>
-                        </div>
                         <h1 className="text-2xl font-extrabold text-slate-900 mb-8">Register New Staff Member</h1>
 
                         {submitMessage && (

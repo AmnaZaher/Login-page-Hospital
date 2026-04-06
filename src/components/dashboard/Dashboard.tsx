@@ -120,11 +120,17 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                 />}
 
                 {activeTab === 'users' ? (
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto w-full">
                         {registerMode === 'patient' ? (
-                            <RegisterPatient />
+                            <RegisterPatient onSwitchView={(type, role) => {
+                                setRegisterMode(type);
+                                if (role) setRegisterRole(role);
+                            }} />
                         ) : (
-                            <RegisterStaff initialRole={registerRole} />
+                            <RegisterStaff initialRole={registerRole} onSwitchView={(type, role) => {
+                                setRegisterMode(type);
+                                if (role) setRegisterRole(role);
+                            }} />
                         )}
                     </div>
                 ) : (

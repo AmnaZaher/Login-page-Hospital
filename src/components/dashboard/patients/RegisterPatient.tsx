@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
-import { Search, Bell, Plus, ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, ArrowRight, Check, Search, Bell, Loader2 } from 'lucide-react';
+import { AddUserButton } from '../shared/AddUserButton';
 import { registerPatient } from '../../../api/auth';
 import MedicalHistoryForm from './MedicalHistoryForm';
 import type { MedicalRecord } from './MedicalHistoryForm';
@@ -10,7 +11,11 @@ import type { AllergyRecord } from './AllergiesForm';
 import ChronicDiseasesForm from './ChronicDiseasesForm';
 import type { ChronicDiseaseRecord } from './ChronicDiseasesForm';
 
-const RegisterPatient = () => {
+interface RegisterPatientProps {
+    onSwitchView?: (type: 'patient' | 'staff', role?: string) => void;
+}
+
+const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -32,20 +37,6 @@ const RegisterPatient = () => {
     const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
     const [allergyRecords, setAllergyRecords] = useState<AllergyRecord[]>([]);
     const [chronicDiseaseRecords, setChronicDiseaseRecords] = useState<ChronicDiseaseRecord[]>([]);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [isStaffOpen, setIsStaffOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsDropdownOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     const handleAddRecord = (record: MedicalRecord) => {
         setMedicalRecords([...medicalRecords, record]);
@@ -132,68 +123,11 @@ const RegisterPatient = () => {
                         <Bell className="w-5 h-5" />
                         <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
                     </button>
-                    <div className="relative" ref={dropdownRef}>
-                        <button
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
-                        >
-                            <Plus className="w-4 h-4" />
-                            Add New User
-                            <ChevronDown className={`w-4 h-4 ml-1 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                        </button>
-
-                        {isDropdownOpen && (
-                            <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.12)] border border-slate-100 py-2 z-50 overflow-hidden">
-                                {/* Patient option */}
-                                <button
-                                    onClick={() => {
-                                        setIsDropdownOpen(false);
-                                        setIsStaffOpen(false);
-                                    }}
-                                    className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-blue-600 hover:text-white transition-colors flex items-center gap-2"
-                                >
-                                    <span>Patient</span>
-                                </button>
-
-                                {/* Divider */}
-                                <div className="border-t border-slate-100 my-1" />
-
-                                {/* Hospital Staff expandable */}
-                                <button
-                                    onClick={() => setIsStaffOpen(!isStaffOpen)}
-                                    className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-between"
-                                >
-                                    <span>Hospital Staff</span>
-                                    <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isStaffOpen ? 'rotate-90' : ''}`} />
-                                </button>
-
-                                {/* Staff sub-options */}
-                                {isStaffOpen && (
-                                    <div className="bg-slate-50 border-t border-slate-100">
-                                        {[
-                                            { label: 'Doctor', desc: 'Physician / Specialist' },
-                                            { label: 'Nurse', desc: 'RN / LPN / NP' },
-                                            { label: 'Admin', desc: 'Administrative staff' },
-                                            { label: 'Pharmacist', desc: 'Pharmacy staff' },
-                                            { label: 'Lab Technician', desc: 'Laboratory staff' },
-                                        ].map((role) => (
-                                            <button
-                                                key={role.label}
-                                                onClick={() => {
-                                                    setIsDropdownOpen(false);
-                                                    setIsStaffOpen(false);
-                                                }}
-                                                className="w-full text-left pl-7 pr-4 py-2 hover:bg-blue-600 hover:text-white transition-colors group"
-                                            >
-                                                <span className="text-sm font-semibold text-slate-700 group-hover:text-white block">{role.label}</span>
-                                                <span className="text-[11px] text-slate-400 group-hover:text-blue-100">{role.desc}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                    <AddUserButton
+                        onClick={(type: 'patient' | 'staff', role?: string) => {
+                            if (onSwitchView) onSwitchView(type, role);
+                        }}
+                    />
                 </div>
             </div>
 
