@@ -15,6 +15,14 @@ const mockStaff = [
     { id: '5', name: 'Dr. Ali Mohamed', subtitle: '1232-3422', username: 'Amohamed-s', role: 'Doctor', lastLogin: 'Jan 12, 2024', dept: 'Cardiology', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=15' },
 ];
 
+const mockPatients = [
+    { id: '1', name: 'Sara Magdy', subtitle: '1232-3422', patientId: '#P-45', demographics: 'Female, 32', lastVisit: 'Jan 12, 2024', upcoming: 'Feb 15, 2024', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=5' },
+    { id: '2', name: 'Sara Magdy', subtitle: '1232-3422', patientId: '#P-45', demographics: 'Female, 32', lastVisit: 'Jan 12, 2024', upcoming: '-', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=9' },
+    { id: '3', name: 'Sara Magdy', subtitle: '1232-3422', patientId: '#P-45', demographics: 'Female, 32', lastVisit: 'Jan 12, 2024', upcoming: 'Feb 15, 2024', status: 'Disabled', avatar: 'https://i.pravatar.cc/150?img=10' },
+    { id: '4', name: 'Sara Magdy', subtitle: '1232-3422', patientId: '#P-45', demographics: 'Female, 32', lastVisit: 'Jan 12, 2024', upcoming: 'Feb 15, 2024', status: 'Disabled', avatar: 'https://i.pravatar.cc/150?img=12' },
+    { id: '5', name: 'Sara Magdy', subtitle: '1232-3422', patientId: '#P-45', demographics: 'Female, 32', lastVisit: 'Jan 12, 2024', upcoming: 'Feb 15, 2024', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=16' },
+];
+
 const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListProps) => {
     const [activeTab, setActiveTab] = useState<'patient' | 'staff'>('staff');
 
@@ -22,6 +30,7 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
         <div className="flex flex-col h-full bg-slate-50 relative font-sans">
             <TopBar
                 title="User Management"
+                searchPlaceholder={activeTab === 'patient' ? "Search patients by name, ID or phone..." : "Search staff by name, username or ID..."}
                 onMenuClick={onMenuClick}
                 onAddUserClick={onAddUserClick}
             />
@@ -46,6 +55,82 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                     </div>
 
                     {/* Filters */}
+                    {activeTab === 'staff' ? (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-slate-500 font-bold text-sm">Role</label>
+                                <div className="relative">
+                                    <select className="w-full appearance-none bg-white border border-slate-200 text-slate-500 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
+                                        <option>All Roles</option>
+                                        <option>Doctor</option>
+                                        <option>Nurse</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-slate-500 font-bold text-sm">Status</label>
+                                <div className="relative">
+                                    <select className="w-full appearance-none bg-white border border-slate-200 text-slate-500 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
+                                        <option>All Statuses</option>
+                                        <option>Active</option>
+                                        <option>Disabled</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-slate-500 font-bold text-sm">Department</label>
+                                <div className="relative">
+                                    <select className="w-full appearance-none bg-white border border-slate-200 text-slate-500 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
+                                        <option>All Departments</option>
+                                        <option>Cardiology</option>
+                                        <option>Emergency</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 px-2">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-slate-500 font-bold text-sm">Gender</label>
+                                <div className="relative">
+                                    <select className="w-full appearance-none bg-white border border-slate-200 text-slate-500 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
+                                        <option>All Genders</option>
+                                        <option>Female</option>
+                                        <option>Male</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-slate-500 font-bold text-sm">Status</label>
+                                <div className="relative">
+                                    <select className="w-full appearance-none bg-white border border-slate-200 text-slate-500 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
+                                        <option>All Statuses</option>
+                                        <option>Active</option>
+                                        <option>Disabled</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-slate-500 font-bold text-sm">Last Visit</label>
+                                <div className="relative">
+                                    <input type="text" placeholder="mm / dd / yy" className="w-full appearance-none bg-white border border-slate-200 text-slate-500 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium" />
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-slate-500 font-bold text-sm">Upcoming Appointment</label>
+                                <div className="relative">
+                                    <input type="text" placeholder="mm / dd / yy" className="w-full appearance-none bg-white border border-slate-200 text-slate-500 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium" />
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
                         <div className="flex flex-col gap-2">
                             <label className="text-slate-500 font-bold text-sm">Role</label>
@@ -87,6 +172,27 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse min-w-[900px]">
                                 <thead>
+                                    {activeTab === 'staff' ? (
+                                        <tr className="bg-[#f8fbff] text-slate-400 text-xs font-extrabold uppercase tracking-widest border-b border-slate-100">
+                                            <th className="px-6 py-5 rounded-tl-2xl">STAFF NAME</th>
+                                            <th className="px-6 py-5">USERNAME</th>
+                                            <th className="px-6 py-5">ROLE</th>
+                                            <th className="px-6 py-5">LAST LOGIN</th>
+                                            <th className="px-6 py-5">DEPT</th>
+                                            <th className="px-6 py-5">STATUS</th>
+                                            <th className="px-6 py-5 rounded-tr-2xl">ACTIONS</th>
+                                        </tr>
+                                    ) : (
+                                        <tr className="bg-[#f8fbff] text-slate-400 text-xs font-extrabold uppercase tracking-widest border-b border-slate-100">
+                                            <th className="px-6 py-5 rounded-tl-2xl">PATIENT NAME</th>
+                                            <th className="px-6 py-5">ID</th>
+                                            <th className="px-6 py-5">DEMOGRAPHICS</th>
+                                            <th className="px-6 py-5">LAST VISIT</th>
+                                            <th className="px-6 py-5">UPCOMING</th>
+                                            <th className="px-6 py-5">STATUS</th>
+                                            <th className="px-6 py-5 rounded-tr-2xl">ACTIONS</th>
+                                        </tr>
+                                    )}
                                     <tr className="bg-[#f8fbff] text-slate-400 text-xs font-extrabold uppercase tracking-widest border-b border-slate-100">
                                         <th className="px-6 py-5 rounded-tl-2xl">STAFF NAME</th>
                                         <th className="px-6 py-5">USERNAME</th>
@@ -126,6 +232,8 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${staff.status === 'Active'
+                                                        ? 'bg-emerald-100 text-emerald-600'
+                                                        : 'bg-slate-200 text-slate-500'
                                                             ? 'bg-emerald-100 text-emerald-600'
                                                             : 'bg-slate-200 text-slate-500'
                                                         }`}>
@@ -141,6 +249,49 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                                             </tr>
                                         ))
                                     ) : (
+                                        mockPatients.map((patient) => (
+                                            <tr key={patient.id} className="hover:bg-slate-50 transition-colors group">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <img src={patient.avatar} alt={patient.name} className="w-10 h-10 rounded-full object-cover border-2 border-slate-100 shadow-sm" />
+                                                        <div className="flex flex-col">
+                                                            <span className="font-extrabold text-slate-900">{patient.name}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-extrabold text-slate-900">{patient.patientId}</span>
+                                                        <span className="text-[10px] text-slate-400 font-bold tracking-wider">{patient.subtitle}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="font-bold text-slate-900">{patient.demographics}</span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="font-extrabold text-slate-900">{patient.lastVisit}</span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`font-bold ${patient.upcoming !== '-' ? 'text-blue-500 hover:text-blue-600 cursor-pointer' : 'text-slate-400'}`}>
+                                                        {patient.upcoming}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold tracking-wide ${patient.status === 'Active'
+                                                            ? 'bg-emerald-100 text-emerald-600'
+                                                            : 'bg-slate-200 text-slate-500'
+                                                        }`}>
+                                                        {patient.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col gap-1.5">
+                                                        <button className="text-blue-600 hover:text-blue-800 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">Edit</button>
+                                                        <button className="text-red-500 hover:text-red-700 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">Delete</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
                                         <tr>
                                             <td colSpan={7} className="px-6 py-12 text-center text-slate-500 font-medium">
                                                 No patients found.

@@ -3,10 +3,12 @@ import { AddUserButton } from './shared/AddUserButton';
 
 interface TopBarProps {
     title?: string;
+    searchPlaceholder?: string;
     onMenuClick: () => void;
     onAddUserClick?: (type: 'patient' | 'staff', role?: string) => void;
 }
 
+const TopBar = ({ title = 'Dashboard', searchPlaceholder = 'Search users...', onMenuClick, onAddUserClick }: TopBarProps) => {
 const TopBar = ({ title = 'Dashboard', onMenuClick, onAddUserClick }: TopBarProps) => {
     // No local state needed for Dropdown
 
@@ -27,7 +29,7 @@ const TopBar = ({ title = 'Dashboard', onMenuClick, onAddUserClick }: TopBarProp
                     </div>
                     <input
                         type="text"
-                        placeholder="Search users..."
+                        placeholder={searchPlaceholder}
                         className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-slate-900"
                     />
                 </div>
