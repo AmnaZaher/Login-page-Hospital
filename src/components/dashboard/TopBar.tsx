@@ -3,7 +3,7 @@ import { AddUserButton } from './shared/AddUserButton';
 
 interface TopBarProps {
     title?: string;
-    searchPlaceholder?: string;  
+    searchPlaceholder?: string;
     onMenuClick: () => void;
     onAddUserClick?: (type: 'patient' | 'staff', role?: string) => void;
 }
