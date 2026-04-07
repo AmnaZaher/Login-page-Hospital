@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TopBar from '../TopBar';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -25,6 +26,7 @@ const mockPatients = [
 
 const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListProps) => {
     const [activeTab, setActiveTab] = useState<'patient' | 'staff'>('staff');
+    const navigate = useNavigate();
 
     return (
         <div className="flex flex-col h-full bg-slate-50 relative font-sans">
@@ -164,7 +166,7 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                                 <tbody className="divide-y divide-slate-100">
                                     {activeTab === 'staff' ? (
                                         mockStaff.map((staff) => (
-                                            <tr key={staff.id} className="hover:bg-slate-50 transition-colors group">
+                                            <tr key={staff.id} onClick={() => navigate(`/users/${staff.id}`)} className="hover:bg-slate-50 transition-colors group cursor-pointer">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <img src={staff.avatar} alt={staff.name} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" />
@@ -198,15 +200,15 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col gap-1">
-                                                        <button className="text-blue-500 hover:text-blue-700 font-bold text-sm transition-colors text-left">Edit</button>
-                                                        <button className="text-red-500 hover:text-red-700 font-bold text-sm transition-colors text-left">Delete</button>
+                                                        <button onClick={(e) => e.stopPropagation()} className="text-blue-500 hover:text-blue-700 font-bold text-sm transition-colors text-left">Edit</button>
+                                                        <button onClick={(e) => e.stopPropagation()} className="text-red-500 hover:text-red-700 font-bold text-sm transition-colors text-left">Delete</button>
                                                     </div>
                                                 </td>
                                             </tr>
                                         ))
                                     ) : (
                                         mockPatients.map((patient) => (
-                                            <tr key={patient.id} className="hover:bg-slate-50 transition-colors group">
+                                            <tr key={patient.id} onClick={() => navigate(`/users/${patient.id}`)} className="hover:bg-slate-50 transition-colors group cursor-pointer">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <img src={patient.avatar} alt={patient.name} className="w-10 h-10 rounded-full object-cover border-2 border-slate-100 shadow-sm" />
@@ -242,8 +244,8 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col gap-1.5">
-                                                        <button className="text-blue-600 hover:text-blue-800 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">Edit</button>
-                                                        <button className="text-red-500 hover:text-red-700 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">Delete</button>
+                                                        <button onClick={(e) => e.stopPropagation()} className="text-blue-600 hover:text-blue-800 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">Edit</button>
+                                                        <button onClick={(e) => e.stopPropagation()} className="text-red-500 hover:text-red-700 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">Delete</button>
                                                     </div>
                                                 </td>
                                             </tr>
