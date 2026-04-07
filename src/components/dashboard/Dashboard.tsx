@@ -9,6 +9,7 @@ import DepartmentUsageChart from './charts/DepartmentUsageChart';
 import { AlertStack, PatientFeed, AppointmentSummary } from './widgets/InfoWidgets';
 import RegisterPatient from './patients/RegisterPatient';
 import RegisterStaff from './staff/RegisterStaff';
+import UserManagementList from './users/UserManagementList';
 
 interface DashboardProps {
     onLogout?: () => void;
@@ -20,6 +21,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
     const [currentDate, setCurrentDate] = useState<string>('');
     const [authError, setAuthError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<string>('dashboard');
+    const [userViewMode, setUserViewMode] = useState<'list' | 'register'>('list');
     const [registerMode, setRegisterMode] = useState<'patient' | 'staff'>('patient');
     const [registerRole, setRegisterRole] = useState<string>('Doctor');
 
@@ -106,6 +108,9 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                 onLogout={() => { onLogout?.(); }}
                 onTabChange={(tab) => {
                     setActiveTab(tab);
+                    if (tab === 'users') {
+                        setUserViewMode('list');
+                    }
                     setIsSidebarOpen(false);
                 }}
             />
@@ -114,23 +119,37 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                     onMenuClick={() => setIsSidebarOpen(true)}
                     onAddUserClick={(type, role) => {
                         setActiveTab('users');
+                        setUserViewMode('register');
                         setRegisterMode(type);
                         if (role) setRegisterRole(role);
                     }}
                 />}
 
                 {activeTab === 'users' ? (
-                    <div className="flex-1 overflow-y-auto w-full">
-                        {registerMode === 'patient' ? (
-                            <RegisterPatient onSwitchView={(type, role) => {
-                                setRegisterMode(type);
-                                if (role) setRegisterRole(role);
-                            }} />
+                    <div className="flex-1 flex flex-col w-full h-full overflow-hidden">
+                        {userViewMode === 'list' ? (
+                            <UserManagementList
+                                onMenuClick={() => setIsSidebarOpen(true)}
+                                onAddUserClick={(type, role) => {
+                                    setUserViewMode('register');
+                                    setRegisterMode(type);
+                                    if (role) setRegisterRole(role);
+                                }}
+                            />
                         ) : (
-                            <RegisterStaff initialRole={registerRole} onSwitchView={(type, role) => {
-                                setRegisterMode(type);
-                                if (role) setRegisterRole(role);
-                            }} />
+                            <div className="flex-1 overflow-y-auto w-full">
+                                {registerMode === 'patient' ? (
+                                    <RegisterPatient onSwitchView={(type, role) => {
+                                        setRegisterMode(type);
+                                        if (role) setRegisterRole(role);
+                                    }} />
+                                ) : (
+                                    <RegisterStaff initialRole={registerRole} onSwitchView={(type, role) => {
+                                        setRegisterMode(type);
+                                        if (role) setRegisterRole(role);
+                                    }} />
+                                )}
+                            </div>
                         )}
                     </div>
                 ) : (

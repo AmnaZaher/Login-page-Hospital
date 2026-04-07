@@ -2,11 +2,12 @@ import { Search, Bell, Menu } from 'lucide-react';
 import { AddUserButton } from './shared/AddUserButton';
 
 interface TopBarProps {
+    title?: string;
     onMenuClick: () => void;
     onAddUserClick?: (type: 'patient' | 'staff', role?: string) => void;
 }
 
-const TopBar = ({ onMenuClick, onAddUserClick }: TopBarProps) => {
+const TopBar = ({ title = 'Dashboard', onMenuClick, onAddUserClick }: TopBarProps) => {
     // No local state needed for Dropdown
 
     return (
@@ -18,7 +19,7 @@ const TopBar = ({ onMenuClick, onAddUserClick }: TopBarProps) => {
                 >
                     <Menu size={24} />
                 </button>
-                <h1 className="text-xl md:text-3xl font-extrabold text-slate-900 tracking-tight shrink-0 truncate">Dashboard</h1>
+                <h1 className="text-xl md:text-3xl font-extrabold text-slate-900 tracking-tight shrink-0 truncate">{title}</h1>
 
                 <div className="relative max-w-md w-full ml-10 hidden md:block">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
