@@ -118,7 +118,7 @@ const BasicInfoForm = ({ info, onChange }: BasicInfoFormProps) => {
                             name="fullNameEng"
                             value={info.fullNameEng}
                             onChange={handleChange}
-                            placeholder="sara magdy mohamed"
+                            placeholder="Enter full name"
                             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 font-medium"
                         />
                     </div>
@@ -154,7 +154,7 @@ const BasicInfoForm = ({ info, onChange }: BasicInfoFormProps) => {
                             name="fullNameAr"
                             value={info.fullNameAr}
                             onChange={handleChange}
-                            placeholder="ساره مجدي محمد"
+                            placeholder="ادخل الاسم كامل"
                             dir="rtl"
                             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 font-medium"
                         />
