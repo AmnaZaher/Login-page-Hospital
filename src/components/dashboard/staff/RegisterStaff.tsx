@@ -101,6 +101,7 @@ const RegisterStaff = ({ initialRole = 'Doctor', onSwitchView }: RegisterStaffPr
             if (basicInfo.profilePhoto) formData.append('ProfilePhoto', basicInfo.profilePhoto);
 
             formData.append('Role', roleDetails.role);
+            formData.append('Password', 'P@ssw0rd123'); // Default password for new accounts
 
             const natIdDoc = documents.find(d => d.id === '1');
             if (natIdDoc?.file) formData.append('NationalIdFile', natIdDoc.file);
