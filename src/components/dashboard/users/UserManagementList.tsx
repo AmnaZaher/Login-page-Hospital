@@ -131,41 +131,7 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                             </div>
                         </div>
                     )}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-                        <div className="flex flex-col gap-2">
-                            <label className="text-slate-500 font-bold text-sm">Role</label>
-                            <div className="relative">
-                                <select className="w-full appearance-none bg-white border border-slate-200 text-slate-500 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
-                                    <option>All Roles</option>
-                                    <option>Doctor</option>
-                                    <option>Nurse</option>
-                                </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-slate-500 font-bold text-sm">Status</label>
-                            <div className="relative">
-                                <select className="w-full appearance-none bg-white border border-slate-200 text-slate-500 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
-                                    <option>All Statuses</option>
-                                    <option>Active</option>
-                                    <option>Disabled</option>
-                                </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-slate-500 font-bold text-sm">Department</label>
-                            <div className="relative">
-                                <select className="w-full appearance-none bg-white border border-slate-200 text-slate-500 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
-                                    <option>All Departments</option>
-                                    <option>Cardiology</option>
-                                    <option>Emergency</option>
-                                </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
-                            </div>
-                        </div>
-                    </div>
+
 
                     {/* Table Container */}
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
@@ -193,15 +159,7 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                                             <th className="px-6 py-5 rounded-tr-2xl">ACTIONS</th>
                                         </tr>
                                     )}
-                                    <tr className="bg-[#f8fbff] text-slate-400 text-xs font-extrabold uppercase tracking-widest border-b border-slate-100">
-                                        <th className="px-6 py-5 rounded-tl-2xl">STAFF NAME</th>
-                                        <th className="px-6 py-5">USERNAME</th>
-                                        <th className="px-6 py-5">ROLE</th>
-                                        <th className="px-6 py-5">LAST LOGIN</th>
-                                        <th className="px-6 py-5">DEPT</th>
-                                        <th className="px-6 py-5">STATUS</th>
-                                        <th className="px-6 py-5 rounded-tr-2xl">ACTIONS</th>
-                                    </tr>
+
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {activeTab === 'staff' ? (
