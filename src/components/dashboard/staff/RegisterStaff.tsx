@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Loader2, Search, Bell, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, Search, Bell } from 'lucide-react';
 import { registerStaff } from '../../../api/auth';
 import { AddUserButton } from '../shared/AddUserButton';
 import BasicInfoForm, { type StaffBasicInfo } from './BasicInfoForm';
