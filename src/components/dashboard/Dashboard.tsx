@@ -11,6 +11,7 @@ import RegisterPatient from './patients/RegisterPatient';
 import RegisterStaff from './staff/RegisterStaff';
 import UserManagementList from './users/UserManagementList';
 import UserProfileDetail from './users/UserProfileDetail';
+import PatientProfileDetail from './patients/PatientProfileDetail';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 interface DashboardProps {
@@ -136,6 +137,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
 
                 <Routes>
                     <Route path="/users/:id" element={<UserProfileDetail onMenuClick={() => setIsSidebarOpen(true)} />} />
+                    <Route path="/patients/:id" element={<PatientProfileDetail onMenuClick={() => setIsSidebarOpen(true)} />} />
                     <Route path="/users" element={
                         <div className="flex-1 flex flex-col w-full h-full overflow-hidden">
                             {userViewMode === 'list' ? (

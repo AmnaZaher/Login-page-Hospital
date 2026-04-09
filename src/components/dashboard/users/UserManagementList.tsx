@@ -208,7 +208,7 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                                         ))
                                     ) : (
                                         mockPatients.map((patient) => (
-                                            <tr key={patient.id} onClick={() => navigate(`/users/${patient.id}`)} className="hover:bg-slate-50 transition-colors group cursor-pointer">
+                                            <tr key={patient.id} onClick={() => navigate(`/patients/${patient.id}`)} className="hover:bg-slate-50 transition-colors group cursor-pointer">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <img src={patient.avatar} alt={patient.name} className="w-10 h-10 rounded-full object-cover border-2 border-slate-100 shadow-sm" />
