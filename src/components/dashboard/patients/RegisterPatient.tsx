@@ -84,6 +84,8 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
                 city: '',
                 country: '',
                 phoneNumber: personalInfo.phoneNumber,
+                // TODO: Remove once backend /Account/NewPatient no longer requires a password
+                password: 'Hospital@Admin1'
             };
             const res = await registerPatient(payload);
             if (res.isSuccess) {
