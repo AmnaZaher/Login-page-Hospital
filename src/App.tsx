@@ -10,6 +10,7 @@ import ResetPasswordForm from './components/ResetPasswordForm';
 import SuccessScreen from './components/SuccessScreen';
 import Dashboard from './components/dashboard/Dashboard';
 import { Loader2 } from 'lucide-react';
+import { BrowserRouter } from 'react-router-dom';
 
 const App: React.FC = () => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -80,15 +81,21 @@ const App: React.FC = () => {
   };
 
   if (authState.step === AuthStep.DASHBOARD) {
-    return renderForm();
+    return (
+      <BrowserRouter>
+        {renderForm()}
+      </BrowserRouter>
+    );
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 md:p-8 bg-slate-50">
-      <AuthLayout>
-        {renderForm()}
-      </AuthLayout>
-    </div>
+    <BrowserRouter>
+      <div className="flex items-center justify-center min-h-screen p-4 md:p-8 bg-slate-50">
+        <AuthLayout>
+          {renderForm()}
+        </AuthLayout>
+      </div>
+    </BrowserRouter>
   );
 };
 

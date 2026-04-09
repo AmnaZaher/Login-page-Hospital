@@ -10,6 +10,8 @@ import { AlertStack, PatientFeed, AppointmentSummary } from './widgets/InfoWidge
 import RegisterPatient from './patients/RegisterPatient';
 import RegisterStaff from './staff/RegisterStaff';
 import UserManagementList from './users/UserManagementList';
+import UserProfileDetail from './users/UserProfileDetail';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 interface DashboardProps {
     onLogout?: () => void;
@@ -24,6 +26,9 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
     const [userViewMode, setUserViewMode] = useState<'list' | 'register'>('list');
     const [registerMode, setRegisterMode] = useState<'patient' | 'staff'>('patient');
     const [registerRole, setRegisterRole] = useState<string>('Doctor');
+
+    const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         // Handle date formatting
@@ -110,78 +115,82 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                     setActiveTab(tab);
                     if (tab === 'users') {
                         setUserViewMode('list');
+                        navigate('/users');
+                    } else if (tab === 'dashboard') {
+                        navigate('/');
                     }
                     setIsSidebarOpen(false);
                 }}
             />
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                {activeTab !== 'users' && <TopBar
+                {activeTab !== 'users' && !location.pathname.startsWith('/users') && <TopBar
                     onMenuClick={() => setIsSidebarOpen(true)}
                     onAddUserClick={(type, role) => {
                         setActiveTab('users');
                         setUserViewMode('register');
                         setRegisterMode(type);
                         if (role) setRegisterRole(role);
+                        navigate('/users');
                     }}
                 />}
 
-                {activeTab === 'users' ? (
-                    <div className="flex-1 flex flex-col w-full h-full overflow-hidden">
-                        {userViewMode === 'list' ? (
-                            <UserManagementList
-                                onMenuClick={() => setIsSidebarOpen(true)}
-                                onAddUserClick={(type, role) => {
-                                    setUserViewMode('register');
-                                    setRegisterMode(type);
-                                    if (role) setRegisterRole(role);
-                                }}
-                            />
-                        ) : (
-                            <div className="flex-1 overflow-y-auto w-full">
-                                {registerMode === 'patient' ? (
-                                    <RegisterPatient onSwitchView={(type, role) => {
+                <Routes>
+                    <Route path="/users/:id" element={<UserProfileDetail onMenuClick={() => setIsSidebarOpen(true)} />} />
+                    <Route path="/users" element={
+                        <div className="flex-1 flex flex-col w-full h-full overflow-hidden">
+                            {userViewMode === 'list' ? (
+                                <UserManagementList
+                                    onMenuClick={() => setIsSidebarOpen(true)}
+                                    onAddUserClick={(type, role) => {
+                                        setUserViewMode('register');
                                         setRegisterMode(type);
                                         if (role) setRegisterRole(role);
-                                    }} />
-                                ) : (
-                                    <RegisterStaff initialRole={registerRole} onSwitchView={(type, role) => {
-                                        setRegisterMode(type);
-                                        if (role) setRegisterRole(role);
-                                    }} />
-                                )}
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <main className="flex-1 overflow-y-auto p-4 md:p-8">
-                        <div className="max-w-[1600px] mx-auto space-y-8">
-                            <div className="mb-8">
-                                <p className="text-slate-500 font-medium mb-1">{currentDate}</p>
-                                <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Welcome, {userName}</h2>
-                            </div>
-
-                            <StatCards />
-
-                            {/* Main Content Grid */}
-                            <div className="flex flex-col xl:flex-row gap-8">
-                                {/* Left Column - Charts */}
-                                <div className="flex-1 space-y-8 min-w-0">
-                                    <ActivitiesChart />
-                                    <AppointmentTrendChart />
-                                    <DepartmentUsageChart />
+                                    }}
+                                />
+                            ) : (
+                                <div className="flex-1 overflow-y-auto w-full">
+                                    {registerMode === 'patient' ? (
+                                        <RegisterPatient onSwitchView={(type, role) => {
+                                            setRegisterMode(type);
+                                            if (role) setRegisterRole(role);
+                                        }} />
+                                    ) : (
+                                        <RegisterStaff initialRole={registerRole} onSwitchView={(type, role) => {
+                                            setRegisterMode(type);
+                                            if (role) setRegisterRole(role);
+                                        }} />
+                                    )}
                                 </div>
-
-                                {/* Right Column - Widgets */}
-                                <div className="w-full xl:w-[400px] shrink-0 space-y-8">
-                                    <AlertStack />
-                                    <PatientFeed />
-                                    <AppointmentSummary />
-                                </div>
-                            </div>
-
+                            )}
                         </div>
-                    </main>
-                )}
+                    } />
+                    <Route path="*" element={
+                        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+                            <div className="max-w-[1600px] mx-auto space-y-8">
+                                <div className="mb-8">
+                                    <p className="text-slate-500 font-medium mb-1">{currentDate}</p>
+                                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Welcome, {userName}</h2>
+                                </div>
+
+                                <StatCards />
+
+                                <div className="flex flex-col xl:flex-row gap-8">
+                                    <div className="flex-1 space-y-8 min-w-0">
+                                        <ActivitiesChart />
+                                        <AppointmentTrendChart />
+                                        <DepartmentUsageChart />
+                                    </div>
+
+                                    <div className="w-full xl:w-[400px] shrink-0 space-y-8">
+                                        <AlertStack />
+                                        <PatientFeed />
+                                        <AppointmentSummary />
+                                    </div>
+                                </div>
+                            </div>
+                        </main>
+                    } />
+                </Routes>
             </div>
         </div>
     );
