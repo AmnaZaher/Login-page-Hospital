@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AuthStep } from './types';
 import type { AuthState } from './types';
