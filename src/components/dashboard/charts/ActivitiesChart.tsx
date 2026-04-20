@@ -1,5 +1,5 @@
-import React from 'react';
-import { StandardCard } from '../shared/UIComponents';
+import React, { useState } from 'react';
+import { Card, ChartHeader } from '../../ui';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const data = [
@@ -31,29 +31,16 @@ const renderLegend = (props: any) => {
     );
 };
 
-interface ActivitiesChartProps { }
+const ActivitiesChart: React.FC = () => {
+    const [activeFilter, setActiveFilter] = useState('12m');
 
-const ActivitiesChart: React.FC<ActivitiesChartProps> = () => {
     return (
-        <StandardCard className="h-[450px] flex flex-col">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-                <h3 className="text-lg font-extrabold text-slate-900">Activities</h3>
-
-                <div className="flex flex-wrap items-center bg-slate-100/80 p-1 rounded-xl gap-1 md:gap-0">
-                    {['12 Months', '6 Months', '30 Days', '7 Days'].map((filter, i) => (
-                        <button
-                            key={filter}
-                            className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${i === 0 ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                        >
-                            {filter}
-                        </button>
-                    ))}
-                </div>
-
-                <button className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold transition-colors border border-slate-200">
-                    Export PDF
-                </button>
-            </div>
+        <Card className="h-[450px] flex flex-col">
+            <ChartHeader
+                title="Activities"
+                activeFilter={activeFilter}
+                onFilterChange={setActiveFilter}
+            />
 
             <div className="flex-1 w-full min-h-0">
                 <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
@@ -73,7 +60,7 @@ const ActivitiesChart: React.FC<ActivitiesChartProps> = () => {
                     </BarChart>
                 </ResponsiveContainer>
             </div>
-        </StandardCard>
+        </Card>
     );
 };
 

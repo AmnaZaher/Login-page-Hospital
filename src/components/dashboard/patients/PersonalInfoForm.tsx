@@ -22,8 +22,6 @@ interface PersonalInfoFormProps {
 
 const PersonalInfoForm = ({ info, onChange }: PersonalInfoFormProps) => {
 
-    const today = new Date().toISOString().split('T')[0];
-
     const handleChange = (field: keyof PersonalInfo, value: string) => {
         onChange({ ...info, [field]: value });
     };
@@ -82,7 +80,6 @@ const PersonalInfoForm = ({ info, onChange }: PersonalInfoFormProps) => {
                                 type="date"
                                 className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-600"
                                 value={info.dateOfBirth}
-                                max={today}
                                 onChange={(e) => handleChange('dateOfBirth', e.target.value)}
                             />
                         </div>

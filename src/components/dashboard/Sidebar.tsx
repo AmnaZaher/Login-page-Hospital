@@ -1,3 +1,4 @@
+import React from 'react';
 import {
     LayoutDashboard,
     Users,
@@ -7,9 +8,30 @@ import {
     ReceiptText,
     Settings,
     LogOut,
-    X
+    X,
+    type LucideIcon
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { logout as apiLogout } from '../../api/auth';
+import { PATHS } from '../../routes/routePaths';
+
+interface NavItem {
+    id: string;
+    icon: LucideIcon;
+    label: string;
+    path: string;
+}
+
+const navItems: NavItem[] = [
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: PATHS.DASHBOARD },
+    { id: 'users', icon: Users, label: 'User Management', path: PATHS.USER_MANAGEMENT },
+    { id: 'reports', icon: FileBox, label: 'Reports', path: PATHS.REPORTS },
+    { id: 'appointments', icon: CalendarCheck, label: 'Appointments', path: PATHS.APPOINTMENTS },
+    { id: 'departments', icon: Building2, label: 'Departments', path: PATHS.DEPARTMENTS },
+    { id: 'billing', icon: ReceiptText, label: 'Billing', path: PATHS.BILLING },
+    { id: 'settings', icon: Settings, label: 'Setting', path: PATHS.SETTINGS },
+];
 
 interface SidebarProps {
     isOpen: boolean;
@@ -19,19 +41,46 @@ interface SidebarProps {
     onTabChange?: (tab: string) => void;
 }
 
-const Sidebar = ({ isOpen, activeTab = 'dashboard', onClose, onLogout, onTabChange }: SidebarProps) => {
-    const navItems = [
-        { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-        { id: 'users', icon: Users, label: 'User Management' },
-        { id: 'reports', icon: FileBox, label: 'Reports' },
-        { id: 'appointments', icon: CalendarCheck, label: 'Appointments' },
-        { id: 'departments', icon: Building2, label: 'Departments' },
-        { id: 'billing', icon: ReceiptText, label: 'Billing' },
-        { id: 'settings', icon: Settings, label: 'Setting' },
-    ];
+const Sidebar: React.FC<SidebarProps> = ({
+    isOpen,
+    activeTab = 'dashboard',
+    onClose,
+    onLogout,
+    onTabChange,
+}) => {
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const handleNavClick = (item: NavItem) => {
+        onTabChange?.(item.id);
+        navigate(item.path);
+        onClose();
+    };
+
+    const handleLogout = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refreshToken');
+            if (refreshToken) {
+                await apiLogout(refreshToken);
+            }
+        } catch (e) {
+            console.error('Logout error', e);
+        } finally {
+            logout();
+            onLogout();
+        }
+    };
 
     return (
-        <aside className={`w-[100px] bg-[#097FE7] flex flex-col items-center py-4 text-white h-screen shrink-0 shadow-lg z-30 transition-transform duration-300 absolute md:relative ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} top-0 left-0`}>
+        <aside
+            className={`
+                w-[100px] bg-[#097FE7] flex flex-col items-center py-4 text-white
+                h-screen shrink-0 shadow-lg z-30 transition-transform duration-300
+                absolute md:relative
+                ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                top-0 left-0
+            `}
+        >
             {/* Close button for mobile */}
             <button
                 onClick={onClose}
@@ -40,39 +89,37 @@ const Sidebar = ({ isOpen, activeTab = 'dashboard', onClose, onLogout, onTabChan
                 <X size={20} />
             </button>
 
+            {/* Navigation Items */}
             <nav className="flex-1 w-full flex flex-col overflow-y-auto mt-2 scrollbar-none">
                 {navItems.map((item) => (
                     <button
                         key={item.id}
-                        onClick={() => onTabChange && onTabChange(item.id)}
-                        className={`flex flex-col items-center justify-center w-full py-2.5 gap-1 transition-all shrink-0
-              ${activeTab === item.id ? 'opacity-100 bg-white/10 border-l-4 border-white' : 'opacity-60 hover:opacity-100 hover:bg-white/5 border-l-4 border-transparent'}`}
+                        onClick={() => handleNavClick(item)}
+                        className={`
+                            flex flex-col items-center justify-center w-full py-2.5 gap-1 transition-all shrink-0
+                            ${activeTab === item.id
+                                ? 'opacity-100 bg-white/10 border-l-4 border-white'
+                                : 'opacity-60 hover:opacity-100 hover:bg-white/5 border-l-4 border-transparent'
+                            }
+                        `}
                     >
                         <item.icon size={22} strokeWidth={1.5} />
-                        <span className="text-[9px] uppercase font-bold tracking-wider leading-tight text-center px-1">{item.label}</span>
+                        <span className="text-[9px] uppercase font-bold tracking-wider leading-tight text-center px-1">
+                            {item.label}
+                        </span>
                     </button>
                 ))}
             </nav>
 
+            {/* Logout Button */}
             <button
-                onClick={async () => {
-                    try {
-                        const refreshToken = localStorage.getItem('refreshToken');
-                        if (refreshToken) {
-                            await apiLogout(refreshToken);
-                        }
-                    } catch (e) {
-                        console.error('Logout error', e);
-                    } finally {
-                        localStorage.removeItem('accessToken');
-                        localStorage.removeItem('refreshToken');
-                        onLogout();
-                    }
-                }}
+                onClick={handleLogout}
                 className="flex flex-col items-center justify-center w-full py-3 opacity-60 hover:opacity-100 hover:text-red-300 transition-colors shrink-0 cursor-pointer"
             >
                 <LogOut size={22} strokeWidth={1.5} />
-                <span className="text-[9px] uppercase font-bold tracking-wider mt-1">Log out</span>
+                <span className="text-[9px] uppercase font-bold tracking-wider mt-1">
+                    Log out
+                </span>
             </button>
         </aside>
     );

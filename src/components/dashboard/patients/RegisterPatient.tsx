@@ -84,7 +84,7 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
                 city: '',
                 country: '',
                 phoneNumber: personalInfo.phoneNumber,
-                password: personalInfo.nationalId
+                password: 'P@ssw0rd123' // default temporary password to satisfy ASP.NET identity
             };
             const res = await registerPatient(payload);
             if (res.isSuccess) {
