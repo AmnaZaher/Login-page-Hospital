@@ -32,5 +32,7 @@ export interface StaffProfile {
 export interface StaffFilters {
     role: string;
     status: string;
-    department: string;
+    sort: string;
+    lastLoginFrom: string;
+    lastLoginTo: string;
 }

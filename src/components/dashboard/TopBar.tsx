@@ -7,6 +7,7 @@ interface TopBarProps {
     searchPlaceholder?: string;
     onMenuClick: () => void;
     onAddUserClick?: (type: 'patient' | 'staff', role?: string) => void;
+    onSearch?: (query: string) => void;
     showSearch?: boolean;
     showNotifications?: boolean;
     showAddUser?: boolean;
@@ -17,6 +18,7 @@ const TopBar: React.FC<TopBarProps> = ({
     searchPlaceholder = 'Search users...',
     onMenuClick,
     onAddUserClick,
+    onSearch,
     showSearch = true,
     showNotifications = true,
     showAddUser = true,
@@ -47,6 +49,7 @@ const TopBar: React.FC<TopBarProps> = ({
                         <input
                             type="text"
                             placeholder={searchPlaceholder}
+                            onChange={(e) => onSearch?.(e.target.value)}
                             className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-slate-900"
                         />
                     </div>

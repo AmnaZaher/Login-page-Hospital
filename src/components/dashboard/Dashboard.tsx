@@ -16,6 +16,9 @@ import RegisterStaff from "./staff/RegisterStaff";
 import UserManagementList from "./users/UserManagementList";
 import UserProfileDetail from "./users/UserProfileDetail";
 import PatientProfileDetail from "./users/PatientProfileDetail";
+import LabResultDetail from "./users/LabResultDetail";
+import RadiologyReportDetail from "./users/RadiologyReportDetail";
+import PrescriptionDetail from "./users/PrescriptionDetail";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 interface DashboardProps {
@@ -210,6 +213,36 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
             path="users/patient/:id"
             element={
               <PatientProfileDetail
+                onMenuClick={() => setIsSidebarOpen(true)}
+              />
+            }
+          />
+
+          {/* Lab Result Detail */}
+          <Route
+            path="users/patient/:id/lab/:labId"
+            element={
+              <LabResultDetail
+                onMenuClick={() => setIsSidebarOpen(true)}
+              />
+            }
+          />
+
+          {/* Radiology Report Detail */}
+          <Route
+            path="users/patient/:id/radiology/:radiologyId"
+            element={
+              <RadiologyReportDetail
+                onMenuClick={() => setIsSidebarOpen(true)}
+              />
+            }
+          />
+
+          {/* Prescription Detail */}
+          <Route
+            path="users/patient/:id/prescription/:prescriptionId"
+            element={
+              <PrescriptionDetail
                 onMenuClick={() => setIsSidebarOpen(true)}
               />
             }
