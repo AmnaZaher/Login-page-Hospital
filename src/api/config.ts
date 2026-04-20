@@ -1,10 +1,7 @@
-export const BASE_URL = 'https://nabd.runasp.net/api';
+// src/api/config.ts
+import type { ApiResponse } from '../types/api.types';
 
-export interface ApiResponse<T = any> {
-    isSuccess: boolean;
-    message: string;
-    data?: T;
-}
+export const BASE_URL = 'https://nabd.runasp.net/api';
 
 export const fetchApi = async <T = any>(
     endpoint: string,
@@ -17,7 +14,6 @@ export const fetchApi = async <T = any>(
         headers.set('Content-Type', 'application/json');
     }
 
-    // If we have a token stored, we can attach it here for authenticated requests
     const token = localStorage.getItem('accessToken');
     if (token) {
         headers.set('Authorization', `Bearer ${token}`);
