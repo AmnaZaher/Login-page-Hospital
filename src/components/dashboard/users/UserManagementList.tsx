@@ -271,14 +271,16 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                         4: 'Radiologist',
                         5: 'Pharmacist'
                     };
-                    const roleVal = typeof item.role === 'number' ? roles[item.role] : item.role;
+                    const rawRole = item.role !== undefined ? item.role : item.Role;
+                    const roleNum = typeof rawRole === 'string' ? parseInt(rawRole, 10) : rawRole;
+                    const roleVal = typeof roleNum === 'number' ? roles[roleNum] : rawRole;
 
                     return {
                         id: item.id || item.Id || item.nationalId || item.NationalId || '',
                         name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
                         subtitle: item.nationalId || item.NationalId || item.specialization || '',
                         username: item.username || item.userName || item.Email || item.email || '',
-                        role: roleVal || item.roleName || 'Staff',
+                        role: roleVal || item.roleName || item.RoleName || 'Staff',
                         lastLogin: item.lastLogin || item.LastLogin || 'N/A',
                         dept: item.dept || item.department || item.specialization || 'General',
                         status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),

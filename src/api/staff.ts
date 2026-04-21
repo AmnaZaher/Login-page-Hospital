@@ -54,13 +54,16 @@ export const staffApi = {
         4: 'Radiologist',
         5: 'Pharmacist'
       };
-      const roleVal = typeof item.role === 'number' ? roles[item.role] : item.role;
+      
+      const rawRole = item.role !== undefined ? item.role : item.Role;
+      const roleNum = typeof rawRole === 'string' ? parseInt(rawRole, 10) : rawRole;
+      const roleVal = typeof roleNum === 'number' ? roles[roleNum] : rawRole;
 
       // Safe mapping to prevent UI crashes if backend fields are missing or PascalCase
       return {
         id: item.id || item.Id || idOrNationalId,
         name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
-        role: roleVal || item.roleName || 'N/A',
+        role: roleVal || item.roleName || item.RoleName || 'Staff',
         department: item.dept || item.department || item.specialization || 'General',
         licenseId: item.licenseNumber || 'N/A',
         location: item.location || item.city || 'Hospital',
