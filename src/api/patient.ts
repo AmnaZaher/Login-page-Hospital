@@ -34,8 +34,48 @@ export const patientApi = {
     // Similarly, search patients using SearchKey (National ID is most reliable)
     try {
       const response = await fetchApi<PatientListResponse>(`/Admin/Patients?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=1`);
-      const matches = response.data?.patients || [];
-      return matches[0] ? (matches[0] as unknown as PatientProfile) : null;
+      
+      const list = response.data?.patients || (response.data as any)?.items || (response.data as any)?.data || [];
+      const item = list[0];
+      
+      if (!item) return null;
+
+      // Safe mapping to prevent UI crashes if backend fields are missing or PascalCase
+      return {
+        id: item.id || item.Id || idOrNationalId,
+        name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
+        nameArabic: item.fullNameArabic || item.FullNameArabic || '',
+        patientId: item.patientId || item.PatientId || idOrNationalId,
+        gender: item.gender || item.Gender || 'Not Specified',
+        age: item.age || 0,
+        dateOfBirth: item.dateOfBirth || item.DateOfBirth || 'N/A',
+        nationalId: item.nationalId || item.NationalId || idOrNationalId,
+        phone: item.phoneNumber || item.phone || item.PhoneNumber || 'N/A',
+        email: item.email || item.Email || 'No Email',
+        address: item.address || item.Address || 'N/A',
+        city: item.city || item.City || 'N/A',
+        country: item.country || item.Country || 'N/A',
+        bloodType: item.bloodType || 'N/A',
+        primaryLanguage: item.primaryLanguage || 'Arabic',
+        insuranceType: item.insuranceType || 'None',
+        status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),
+        lastVisit: item.lastVisit || 'N/A',
+        upcomingAppointment: item.upcoming || 'N/A',
+        nextOfKin: item.nextOfKin || null,
+        allergies: item.allergies || [],
+        chronicDiseases: item.chronicDiseases || [],
+        medications: item.medications || [],
+        visits: item.visits || [],
+        visitStats: item.visitStats || { totalVisits: 0, totalVisitsChange: '', departments: 0, departmentsLabel: '', avgVisitTime: '', avgVisitTimeLabel: '' },
+        labResults: item.labResults || [],
+        vitals: item.vitals || { heartRate: 0, heartRateStatus: 'Stable', heartRateHistory: [] },
+        avatar: item.avatar || item.PersonalPhotos || '',
+        radiology: item.radiology || [],
+        radiologySummary: item.radiologySummary || { totalScans: 0, activeReports: 0, pendingReview: 0, nextScan: { type: '', date: '' } },
+        prescriptions: item.prescriptions || [],
+        prescriptionSummary: item.prescriptionSummary || { totalPrescriptions: 0, activeTreatmentNote: '', recentNote: '' },
+        ...item
+      } as unknown as PatientProfile;
     } catch (error) {
       console.error('API getPatientById failed:', error);
       return null;
