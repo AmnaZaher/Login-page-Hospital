@@ -39,7 +39,7 @@ import {
     Bone,
     CircleAlert,
 } from 'lucide-react';
-import type { PatientProfile, Prescription, Visit, LabResult, RadiologyReport } from '../../../types/patient.types';
+import type { PatientProfile } from '../../../types/patient.types';
 import VisitDetailsView from './VisitDetailsView';
 
 // ====================================================================
@@ -56,10 +56,6 @@ const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
 ];
 
 // ==================== Mock Data Fallback ====================
-const emptyPrescriptionSummary = { totalPrescriptions: 0, activeTreatmentNote: '', recentNote: '' };
-const mockPatients: any[] = [
-    { id: '1', name: 'Sara Magdy', nameArabic: 'سارة مجدي', nationalId: '1234567890', patientId: '#P-45', demographics: 'Female, 32', age: 32, gender: 'Female', phone: '0123456789', email: 'sara@example.com', address: 'Cairo, Egypt', city: 'Cairo', country: 'Egypt', lastVisit: 'Jan 12, 2024', upcoming: 'Feb 15, 2024', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=5', prescriptions: [], prescriptionSummary: emptyPrescriptionSummary, visits: [], bloodType: 'A+', insuranceType: 'Premium', primaryLanguage: 'Arabic', nextOfKin: { name: 'Ahmed', relationship: 'Husband', phone: '0112233445' } },
-];
 
 // ====================================================================
 //                    SHARED HELPERS

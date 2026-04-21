@@ -10,9 +10,7 @@ import {
     UserRound, 
     History,
     CalendarPlus,
-    Activity,
     Info,
-    FlaskConical
 } from 'lucide-react';
 
 interface LabResultDetailProps {
