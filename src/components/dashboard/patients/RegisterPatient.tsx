@@ -24,12 +24,15 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
         firstName: '',
         middleName: '',
         lastName: '',
+        fullNameArabic: '',
         dateOfBirth: '',
         gender: '1',
         nationalId: '',
         phoneNumber: '',
         email: '',
         address: '',
+        city: '',
+        country: '',
         emergencyContactName: '',
         emergencyContactPhone: '',
         bloodGroup: '1'
@@ -75,27 +78,50 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
         try {
             const payload = {
                 fullNameEnglish: [personalInfo.firstName, personalInfo.middleName, personalInfo.lastName].filter(Boolean).join(' '),
-                fullNameArabic: '',
+                fullNameArabic: personalInfo.fullNameArabic || [personalInfo.firstName, personalInfo.middleName, personalInfo.lastName].filter(Boolean).join(' '),
                 nationalId: personalInfo.nationalId,
                 gender: parseInt(personalInfo.gender, 10) || 1,
                 dateOfBirth: personalInfo.dateOfBirth ? `${personalInfo.dateOfBirth}T00:00:00` : null,
                 email: personalInfo.email,
                 address: personalInfo.address,
-                city: '',
-                country: '',
+                city: personalInfo.city || '',
+                country: personalInfo.country || '',
                 phoneNumber: personalInfo.phoneNumber,
-                password: 'P@ssw0rd123' // default temporary password to satisfy ASP.NET identity
+                password: personalInfo.nationalId,
+                isActive: true,
+                bloodType: parseInt(personalInfo.bloodGroup, 10) || 1,
+                allergies: allergyRecords.map(a => ({
+                    allergenType: 1, // Defaulting to 1 as per Swagger
+                    allergenName: a.allergenName,
+                    severity: 1, // Defaulting to 1
+                    onSetDate: new Date().toISOString(),
+                    status: 1,
+                    notes: a.reactionDetails
+                })),
+                diseasesDto: chronicDiseaseRecords.map(d => ({
+                    diseaseName: d.diseaseName,
+                    diseaseCode: 'N/A',
+                    diagnosisDate: new Date().toISOString()
+                })),
+                historyDto: medicalRecords.map(m => ({
+                    condition: m.condition,
+                    diagnosisDate: m.diagnosisDate ? `${m.diagnosisDate}T00:00:00` : new Date().toISOString(),
+                    notes: m.notes
+                }))
             };
+            
             const res = await registerPatient(payload);
             if (res.isSuccess) {
-                setSubmitMessage({ type: 'success', text: 'Registration completed successfully' });
+                setSubmitMessage({ type: 'success', text: 'Patient registered successfully' });
+                // Reset form or navigate back after delay
                 setTimeout(() => {
-                    // Reset form or redirect if needed
+                    if (onSwitchView) onSwitchView('patient'); // Reset view
                 }, 2000);
             } else {
                 setSubmitMessage({ type: 'error', text: res.message || 'Registration failed' });
             }
         } catch (err: any) {
+            console.error('Patient registration error:', err);
             setSubmitMessage({ type: 'error', text: err.message || 'Network error occurred' });
         } finally {
             setIsSubmitting(false);

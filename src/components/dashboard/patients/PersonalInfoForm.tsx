@@ -4,12 +4,15 @@ export interface PersonalInfo {
     firstName: string;
     middleName: string;
     lastName: string;
+    fullNameArabic: string;
     dateOfBirth: string;
     gender: string;
     nationalId: string;
     phoneNumber: string;
     email: string;
     address: string;
+    city: string;
+    country: string;
     emergencyContactName: string;
     emergencyContactPhone: string;
     bloodGroup: string;
@@ -72,6 +75,17 @@ const PersonalInfoForm = ({ info, onChange }: PersonalInfoFormProps) => {
                                 value={info.lastName}
                                 onChange={(e) => handleChange('lastName', e.target.value)}
                                 placeholder="Doe"
+                            />
+                        </div>
+                        <div className="md:col-span-3">
+                            <label className="block text-sm font-semibold text-slate-700 mb-2 text-right">الإسم الكامل (باللغة العربية)</label>
+                            <input
+                                type="text"
+                                dir="rtl"
+                                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-600 font-medium text-right"
+                                value={info.fullNameArabic}
+                                onChange={(e) => handleChange('fullNameArabic', e.target.value)}
+                                placeholder="مثال: سارة مجدي أحمد"
                             />
                         </div>
                         <div>
@@ -143,6 +157,26 @@ const PersonalInfoForm = ({ info, onChange }: PersonalInfoFormProps) => {
                                 value={info.address}
                                 onChange={(e) => handleChange('address', e.target.value)}
                                 placeholder="123 Main St, Springfield, IL"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">City</label>
+                            <input
+                                type="text"
+                                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-600"
+                                value={info.city}
+                                onChange={(e) => handleChange('city', e.target.value)}
+                                placeholder="Cairo"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">Country</label>
+                            <input
+                                type="text"
+                                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-600"
+                                value={info.country}
+                                onChange={(e) => handleChange('country', e.target.value)}
+                                placeholder="Egypt"
                             />
                         </div>
                     </div>

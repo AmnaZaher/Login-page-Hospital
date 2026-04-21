@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TopBar from '../TopBar';
 import { Card, Badge, Button, Modal } from '../../ui';
+import { staffApi } from '../../../api/staff';
 import {
     MapPin,
     Mail,
@@ -14,51 +15,11 @@ import {
 import { PATHS } from '../../../routes/routePaths';
 import type { StaffProfile } from '../../../types/staff.types';
 
-// ==================== Mock Data (TODO: Replace with API) ====================
-const mockStaffData: Record<string, StaffProfile> = {
-    '1': {
-        id: '1',
-        name: 'Dr. Ali Mohamed Ahmed',
-        role: 'Senior Cardiologist',
-        department: 'Cardiology Department',
-        licenseId: '#MC-55635-2024',
-        location: 'Clinic Wing A, Room 23',
-        email: 'A.MOHAMED@host.com',
-        nationalId: 'XXX-XX-2343',
-        phone: '+1 (555) 334-8726',
-        address: '256 Oah Valley rd, Apartment 12B, Springfield, IL',
-        gender: 'Male',
-        experience: '12 Years',
-        qualifications: 'MD from Johns Hopkins University',
-        status: 'Active',
-        lastLogin: '2 hours ago from terminal B-12',
-        avatar: 'https://i.pravatar.cc/150?img=11',
-    },
-    '2': {
-        id: '2',
-        name: 'Nurse Amr Mohamed',
-        role: 'Senior Nurse',
-        department: 'Emergency Department',
-        licenseId: '#NR-22123-2023',
-        location: 'ER Ward, Station 2',
-        email: 'A.MOHAMED@host.com',
-        nationalId: 'XXX-XX-4421',
-        phone: '+1 (555) 442-1299',
-        address: '112 North Ave, Springfield, IL',
-        gender: 'Male',
-        experience: '8 Years',
-        qualifications: 'BSN from State University',
-        status: 'Disabled',
-        lastLogin: 'Jan 12, 2024',
-        avatar: 'https://i.pravatar.cc/150?img=12',
-    },
-};
-
 // ==================== Helper Components ====================
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
     <div>
         <p className="text-xs font-bold text-[#b0bec5] mb-1">{label}</p>
-        <p className="text-base font-bold text-slate-900 break-all">{value}</p>
+        <p className="text-base font-bold text-slate-900 break-all">{value || 'N/A'}</p>
     </div>
 );
 
@@ -98,16 +59,25 @@ const UserProfileDetail = ({ onMenuClick }: { onMenuClick: () => void }) => {
     const [isDeactivating, setIsDeactivating] = useState(false);
 
     useEffect(() => {
-        setLoading(true);
-        // TODO: Replace with API call — GET /Staff/:id
-        setTimeout(() => {
-            if (id && mockStaffData[id]) {
-                setUser(mockStaffData[id]);
-            } else {
-                setUser(mockStaffData['1']);
+        const fetchStaff = async () => {
+            if (!id) return;
+            setLoading(true);
+            try {
+                // Fetch staff by ID or Username (searching via SearchKey)
+                const data = await staffApi.getStaffById(id);
+                if (data) {
+                    setUser(data);
+                } else {
+                    console.error('Staff member not found');
+                }
+            } catch (error) {
+                console.error('Failed to fetch staff profile:', error);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
-        }, 400);
+        };
+
+        fetchStaff();
     }, [id]);
 
     const handleDeactivate = async () => {

@@ -183,15 +183,7 @@ const PatientProfileDetail = ({ onMenuClick }: { onMenuClick: () => void }) => {
               Edit
             </button>
 
-            <div className="relative shrink-0">
-              <div className="w-28 h-28 md:w-36 md:h-36 rounded-full p-2 border-2 border-blue-50">
-                <img src={patient.avatar} alt={patient.name} className="w-full h-full object-cover rounded-full bg-slate-100" />
-              </div>
-              {patient.status === 'Active' && (
-                <div className="absolute bottom-4 right-4 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-sm"></div>
-              )}
-            </div>
-
+            {/* Patient Info Header (No Photo) */}
             <div className="flex-1 text-center md:text-left pt-2 md:pt-0">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-2">
                 <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{patient.name}</h1>

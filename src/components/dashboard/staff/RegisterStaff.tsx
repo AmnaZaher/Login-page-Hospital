@@ -107,19 +107,25 @@ const RegisterStaff = ({ initialRole = 'Doctor', onSwitchView }: RegisterStaffPr
         try {
             const formData = new FormData();
             formData.append('FullNameEnglish', basicInfo.fullNameEng);
-            formData.append('FullNameArabic', basicInfo.fullNameAr);
+            formData.append('FullNameArabic', basicInfo.fullNameAr || basicInfo.fullNameEng); // Required field
             formData.append('Email', basicInfo.email);
             formData.append('NationalId', basicInfo.nationalId);
+            formData.append('Password', basicInfo.nationalId); // Use National ID as password
+            formData.append('Role', roleDetails.role === 'Doctor' ? '1' : roleDetails.role === 'Nurse' ? '2' : '3'); // Mapping to integer as per Swagger
+            formData.append('IsActive', 'true');
 
             if (basicInfo.phoneNumber) formData.append('PhoneNumber', basicInfo.phoneNumber);
-            if (basicInfo.gender) {
-                formData.append('Gender', basicInfo.gender === 'Female' ? '2' : '1');
-            }
-            if (basicInfo.profilePhoto) formData.append('ProfilePhoto', basicInfo.profilePhoto);
+            if (basicInfo.address) formData.append('Address', basicInfo.address);
+            if (basicInfo.city) formData.append('City', basicInfo.city);
+            if (basicInfo.country) formData.append('Country', basicInfo.country);
 
-            formData.append('Role', roleDetails.role);
-            formData.append('Password', 'P@ssw0rd123');
+            // Gender mapping: 1 for Male, 2 for Female ($int32)
+            const genderVal = basicInfo.gender === 'Female' ? '2' : '1';
+            formData.append('Gender', genderVal);
 
+            if (basicInfo.profilePhoto) formData.append('PersonalPhotos', basicInfo.profilePhoto);
+
+            // Document mapping (PascalCase)
             const natIdDoc = documents.find((d) => d.id === '1');
             if (natIdDoc?.file) formData.append('NationalIdFile', natIdDoc.file);
 
@@ -130,12 +136,18 @@ const RegisterStaff = ({ initialRole = 'Doctor', onSwitchView }: RegisterStaffPr
             if (medLicDoc?.file) formData.append('MedicalPracticeLicense', medLicDoc.file);
 
             const res = await registerStaff(formData);
+            
             if (res.isSuccess) {
-                setSubmitMessage({ type: 'success', text: 'Registration completed successfully' });
+                setSubmitMessage({ type: 'success', text: 'Staff member registered successfully' });
+                // Reset form or navigate back after delay
+                setTimeout(() => {
+                    if (onSwitchView) onSwitchView('staff', 'Doctor'); // Reset to list or default
+                }, 2000);
             } else {
                 setSubmitMessage({ type: 'error', text: res.message || 'Registration failed' });
             }
         } catch (err: any) {
+            console.error('Staff registration error:', err);
             setSubmitMessage({ type: 'error', text: err.message || 'Network error occurred' });
         } finally {
             setIsSubmitting(false);
