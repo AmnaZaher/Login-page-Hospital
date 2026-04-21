@@ -10,7 +10,6 @@ import {
     FlaskConical,
     Store,
     ClipboardCheck,
-    AlertCircle,
 } from 'lucide-react';
 import { Badge, Button } from '../../ui';
 

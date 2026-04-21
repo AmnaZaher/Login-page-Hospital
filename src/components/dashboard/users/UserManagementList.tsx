@@ -15,13 +15,6 @@ interface UserManagementListProps {
 }
 
 // ==================== Mock Data ====================
-const mockStaff: StaffMember[] = [
-    { id: '1', name: 'Dr. Ali Mohamed', subtitle: '1232-3422', username: 'Amohamed-s', role: 'Doctor', lastLogin: 'Jan 12, 2024', dept: 'Cardiology', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=11' },
-    { id: '2', name: 'Amr Mohamed', subtitle: '1232-3422', username: 'Amoed-aa', role: 'Nurse', lastLogin: 'Jan 12, 2024', dept: 'Emergency', status: 'Disabled', avatar: 'https://i.pravatar.cc/150?img=12' },
-    { id: '3', name: 'Dr. Ali Mohamed', subtitle: '1232-3422', username: 'Amohamed-s', role: 'Doctor', lastLogin: 'Jan 12, 2024', dept: 'Cardiology', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=13' },
-    { id: '4', name: 'Dr. Ali Mohamed', subtitle: '1232-3422', username: 'Amohamed-s', role: 'Doctor', lastLogin: 'Jan 12, 2024', dept: 'Cardiology', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=14' },
-    { id: '5', name: 'Dr. Ali Mohamed', subtitle: '1232-3422', username: 'Amohamed-s', role: 'Doctor', lastLogin: 'Jan 12, 2024', dept: 'Cardiology', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=15' },
-];
 
 const emptyPrescriptionSummary = { totalPrescriptions: 0, activeTreatmentNote: '', recentNote: '' };
 
