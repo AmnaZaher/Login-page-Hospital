@@ -75,7 +75,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
       const decoded: any = jwtDecode(token);
       const role =
         decoded[
-          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
         ] || decoded.role;
       const name =
         decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
@@ -293,7 +293,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                       {currentDate}
                     </p>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                      Good Morning {userName}
+                      Good Morning Dr. {userName}
                     </h2>
                   </div>
                   <StatCards />

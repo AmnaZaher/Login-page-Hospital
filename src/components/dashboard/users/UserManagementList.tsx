@@ -261,17 +261,30 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
             const list = data?.staffs || (data as any)?.items || (data as any)?.data || (Array.isArray(data) ? data : []);
             
             if (list && list.length > 0) {
-                const mappedStaff = list.map((item: any) => ({
-                    id: item.id || item.Id || item.nationalId || item.NationalId || '',
-                    name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
-                    subtitle: item.nationalId || item.NationalId || item.specialization || '',
-                    username: item.username || item.userName || item.Email || item.email || '',
-                    role: item.role || item.roleName || 'Staff',
-                    lastLogin: item.lastLogin || item.LastLogin || 'N/A',
-                    dept: item.dept || item.department || item.specialization || 'General',
-                    status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),
-                    avatar: item.avatar || item.PersonalPhotos || '',
-                }));
+                const mappedStaff = list.map((item: any) => {
+                    // Map Role integer to category string
+                    let roles: Record<number, string> = {
+                        0: 'Admin',
+                        1: 'Doctor',
+                        2: 'Nurse',
+                        3: 'Lab Technician',
+                        4: 'Radiologist',
+                        5: 'Pharmacist'
+                    };
+                    const roleVal = typeof item.role === 'number' ? roles[item.role] : item.role;
+
+                    return {
+                        id: item.id || item.Id || item.nationalId || item.NationalId || '',
+                        name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
+                        subtitle: item.nationalId || item.NationalId || item.specialization || '',
+                        username: item.username || item.userName || item.Email || item.email || '',
+                        role: roleVal || item.roleName || 'Staff',
+                        lastLogin: item.lastLogin || item.LastLogin || 'N/A',
+                        dept: item.dept || item.department || item.specialization || 'General',
+                        status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),
+                        avatar: item.avatar || item.PersonalPhotos || '',
+                    };
+                });
                 setStaffData(mappedStaff);
                 setTotalItems(data?.totalCount || mappedStaff.length);
             } else {

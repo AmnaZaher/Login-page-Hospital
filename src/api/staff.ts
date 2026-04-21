@@ -45,11 +45,22 @@ export const staffApi = {
       
       if (!item) return null;
 
+      // Map Role integer to category string
+      let roles: Record<number, string> = {
+        0: 'Admin',
+        1: 'Doctor',
+        2: 'Nurse',
+        3: 'Lab Technician',
+        4: 'Radiologist',
+        5: 'Pharmacist'
+      };
+      const roleVal = typeof item.role === 'number' ? roles[item.role] : item.role;
+
       // Safe mapping to prevent UI crashes if backend fields are missing or PascalCase
       return {
         id: item.id || item.Id || idOrNationalId,
         name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
-        role: item.role || item.roleName || 'N/A',
+        role: roleVal || item.roleName || 'N/A',
         department: item.dept || item.department || item.specialization || 'General',
         licenseId: item.licenseNumber || 'N/A',
         location: item.location || item.city || 'Hospital',
