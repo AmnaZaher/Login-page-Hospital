@@ -111,7 +111,16 @@ const RegisterStaff = ({ initialRole = 'Doctor', onSwitchView }: RegisterStaffPr
             formData.append('Email', basicInfo.email);
             formData.append('NationalId', basicInfo.nationalId);
             formData.append('Password', basicInfo.nationalId); // Use National ID as password
-            formData.append('Role', roleDetails.role === 'Doctor' ? '1' : roleDetails.role === 'Nurse' ? '2' : '3'); // Mapping to integer as per Swagger
+            let roleInt = '3';
+            switch(roleDetails.role) {
+                case 'Admin': roleInt = '0'; break;
+                case 'Doctor': roleInt = '1'; break;
+                case 'Nurse': roleInt = '2'; break;
+                case 'Lab Technician': roleInt = '3'; break;
+                case 'Radiologist': roleInt = '4'; break;
+                case 'Pharmacist': roleInt = '5'; break;
+            }
+            formData.append('Role', roleInt);
             formData.append('IsActive', 'true');
 
             if (basicInfo.phoneNumber) formData.append('PhoneNumber', basicInfo.phoneNumber);
