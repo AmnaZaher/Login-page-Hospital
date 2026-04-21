@@ -26,9 +26,12 @@ const staffFilterConfig: FilterConfig[] = [
         type: 'select',
         placeholder: 'All Roles',
         options: [
+            { value: 'Admin', label: 'Admin' },
             { value: 'Doctor', label: 'Doctor' },
             { value: 'Nurse', label: 'Nurse' },
-            { value: 'Admin', label: 'Admin' },
+            { value: 'Lab Technician', label: 'Lab Technician' },
+            { value: 'Radiologist', label: 'Radiologist' },
+            { value: 'Pharmacist', label: 'Pharmacist' },
         ],
     },
     {
@@ -235,6 +238,8 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
     const [patientData, setPatientData] = useState<PatientListItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [totalItems, setTotalItems] = useState(0);
+    const [currentStaffPage, setCurrentStaffPage] = useState(1);
+    const [currentPatientPage, setCurrentPatientPage] = useState(1);
     const navigate = useNavigate();
 
     const fetchStaff = useCallback(async () => {
@@ -255,37 +260,67 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                 sort: staffFilters.sort ? sortMap[staffFilters.sort] : undefined,
                 LastLoginFrom: staffFilters.lastLoginFrom,
                 LastLoginTo: staffFilters.lastLoginTo,
-                PageIndex: 0,
-                PageSize: 50
+                PageIndex: currentStaffPage - 1,
+                PageSize: 5
             });
             const list = data?.staffs || (data as any)?.items || (data as any)?.data || (Array.isArray(data) ? data : []);
             
             if (list && list.length > 0) {
                 const mappedStaff = list.map((item: any) => {
-                    // Map Role integer to category string
-                    let roles: Record<number, string> = {
-                        0: 'Admin',
-                        1: 'Doctor',
-                        2: 'Nurse',
-                        3: 'Lab Technician',
-                        4: 'Radiologist',
-                        5: 'Pharmacist'
+                    const rolesMap: Record<string, string> = {
+                        '0': 'Admin', '1': 'Doctor', '2': 'Nurse', '3': 'Lab Technician', '4': 'Radiologist', '5': 'Pharmacist',
+                        'Admin': 'Admin', 'Doctor': 'Doctor', 'Nurse': 'Nurse', 'Lab Technician': 'Lab Technician', 'Radiologist': 'Radiologist', 'Pharmacist': 'Pharmacist'
                     };
-                    const rawRole = item.role ?? item.Role ?? item.roleName ?? item.RoleName ?? item.specialization ?? item.Specialization;
-                    let roleVal = rawRole;
-                    const roleNum = parseInt(rawRole, 10);
-                    if (!isNaN(roleNum) && roles[roleNum]) {
-                        roleVal = roles[roleNum];
-                    }
+                    
+                    // Comprehensive search for role
+                    const findRole = () => {
+                        const direct = item.role ?? item.Role ?? item.roleId ?? item.RoleId ?? item.staffRole ?? item.StaffRole ?? item.roleName ?? item.RoleName;
+                        if (direct !== undefined && direct !== null) {
+                            if (typeof direct === 'object') return direct.name ?? direct.Name ?? rolesMap[direct.id ?? direct.Id] ?? 'Staff';
+                            const s = String(direct);
+                            return rolesMap[s] ?? (isNaN(parseInt(s)) ? s : 'Staff');
+                        }
+                        // Search all keys for "role"
+                        for (const k in item) {
+                            if (k.toLowerCase().includes('role')) {
+                                const val = item[k];
+                                if (val !== undefined && val !== null) {
+                                    if (typeof val === 'object') return val.name ?? val.Name ?? rolesMap[val.id ?? val.Id] ?? 'Staff';
+                                    const s = String(val);
+                                    return rolesMap[s] ?? (isNaN(parseInt(s)) ? s : 'Staff');
+                                }
+                            }
+                        }
+                        return item.specialization ?? item.Specialization ?? 'Staff';
+                    };
+
+                    const roleVal = findRole();
+
+                    // Comprehensive search for dept
+                    const findDept = () => {
+                        const direct = item.dept ?? item.department ?? item.deptName ?? item.Dept ?? item.Department ?? item.departmentName ?? item.DepartmentName;
+                        if (direct !== undefined && direct !== null) {
+                            if (typeof direct === 'object') return direct.name ?? direct.Name ?? 'General';
+                            return String(direct);
+                        }
+                        for (const k in item) {
+                            if (k.toLowerCase().includes('dept') || k.toLowerCase().includes('depart')) {
+                                const val = item[k];
+                                if (val) return typeof val === 'object' ? (val.name ?? val.Name) : String(val);
+                            }
+                        }
+                        return item.specialization ?? item.Specialization ?? 'General';
+                    };
+                    const deptVal = findDept();
 
                     return {
                         id: item.id || item.Id || item.nationalId || item.NationalId || '',
                         name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
                         subtitle: item.nationalId || item.NationalId || item.specialization || '',
                         username: item.username || item.userName || item.Email || item.email || '',
-                        role: roleVal || item.roleName || item.RoleName || 'Staff',
-                        lastLogin: item.lastLogin || item.LastLogin || 'N/A',
-                        dept: item.dept || item.department || item.specialization || 'General',
+                        role: roleVal,
+                        lastLogin: item.lastLogin || item.LastLogin || item.lastLoginDate || 'N/A',
+                        dept: deptVal,
                         status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),
                         avatar: item.avatar || item.PersonalPhotos || '',
                     };
@@ -302,7 +337,16 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
         } finally {
             setLoading(false);
         }
+    }, [searchQuery, staffFilters, currentStaffPage]);
+
+    // Reset page when filters change
+    useEffect(() => {
+        setCurrentStaffPage(1);
     }, [searchQuery, staffFilters]);
+
+    useEffect(() => {
+        setCurrentPatientPage(1);
+    }, [searchQuery, patientFilters]);
 
     const fetchPatients = useCallback(async () => {
         setLoading(true);
@@ -320,8 +364,8 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                 IsActive: patientFilters.status === 'Active' ? true : patientFilters.status === 'Disabled' ? false : undefined,
                 LastVisit: patientFilters.lastVisit,
                 sort: patientFilters.sort ? sortMap[patientFilters.sort] : undefined,
-                PageIndex: 0,
-                PageSize: 50
+                PageIndex: currentPatientPage - 1, // API is 0-indexed
+                PageSize: 5
             });
             const list = data?.patients || (data as any)?.items || (data as any)?.data || (Array.isArray(data) ? data : []);
             
@@ -351,7 +395,7 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
         } finally {
             setLoading(false);
         }
-    }, [searchQuery, patientFilters]);
+    }, [searchQuery, patientFilters, currentPatientPage]);
 
     useEffect(() => {
         if (activeTab === 'staff') {
@@ -433,6 +477,8 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                             columns={staffColumns}
                             data={staffData}
                             totalItems={totalItems}
+                            currentPage={currentStaffPage}
+                            onPageChange={setCurrentStaffPage}
                             onRowClick={(staff) => navigate(`/dashboard/users/staff/${staff.username || staff.id}`)}
                         />
                     ) : (
@@ -440,6 +486,8 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                             columns={patientColumns}
                             data={patientData}
                             totalItems={totalItems}
+                            currentPage={currentPatientPage}
+                            onPageChange={setCurrentPatientPage}
                             onRowClick={(patient) => navigate(`/dashboard/users/patient/${patient.patientId || patient.id}`)}
                         />
                     )}

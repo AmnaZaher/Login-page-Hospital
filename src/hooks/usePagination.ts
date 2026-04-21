@@ -31,6 +31,13 @@ export const usePagination = ({
 }: UsePaginationProps): UsePaginationReturn => {
     const [currentPage, setCurrentPage] = useState(initialPage);
 
+    // Sync state if initialPage changes (e.g. on search reset)
+    useMemo(() => {
+        if (initialPage !== undefined) {
+            setCurrentPage(initialPage);
+        }
+    }, [initialPage]);
+
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
     const startIndex = (currentPage - 1) * itemsPerPage;
