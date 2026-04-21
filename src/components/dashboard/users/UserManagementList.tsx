@@ -258,9 +258,22 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                 PageIndex: 0,
                 PageSize: 50
             });
-            if (data && data.staffs) {
-                setStaffData(data.staffs);
-                setTotalItems(data.totalCount || data.staffs.length);
+            const list = data?.staffs || (data as any)?.items || (data as any)?.data || (Array.isArray(data) ? data : []);
+            
+            if (list && list.length > 0) {
+                const mappedStaff = list.map((item: any) => ({
+                    id: item.id || item.Id || item.nationalId || item.NationalId || '',
+                    name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
+                    subtitle: item.nationalId || item.NationalId || item.specialization || '',
+                    username: item.username || item.userName || item.Email || item.email || '',
+                    role: item.role || item.roleName || 'Staff',
+                    lastLogin: item.lastLogin || item.LastLogin || 'N/A',
+                    dept: item.dept || item.department || item.specialization || 'General',
+                    status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),
+                    avatar: item.avatar || item.PersonalPhotos || '',
+                }));
+                setStaffData(mappedStaff);
+                setTotalItems(data?.totalCount || mappedStaff.length);
             } else {
                 setStaffData([]); 
                 setTotalItems(0);
@@ -292,9 +305,24 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                 PageIndex: 0,
                 PageSize: 50
             });
-            if (data && data.patients) {
-                setPatientData(data.patients);
-                setTotalItems(data.totalCount || data.patients.length);
+            const list = data?.patients || (data as any)?.items || (data as any)?.data || (Array.isArray(data) ? data : []);
+            
+            if (list && list.length > 0) {
+                const mappedPatients = list.map((item: any) => ({
+                    id: item.id || item.Id || item.nationalId || item.NationalId || '',
+                    patientId: item.patientId || item.PatientId || item.nationalId || item.NationalId || '',
+                    name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
+                    subtitle: item.nationalId || item.NationalId || item.phone || item.PhoneNumber || '',
+                    demographics: (item.gender || item.Gender || '') + (item.age ? `, ${item.age}` : ''),
+                    lastVisit: item.lastVisit || item.LastVisit || 'N/A',
+                    upcoming: item.upcoming || item.UpcomingAppointment || '-',
+                    status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),
+                    avatar: item.avatar || item.PersonalPhotos || '',
+                    prescriptions: item.prescriptions || [],
+                    prescriptionSummary: item.prescriptionSummary || { totalPrescriptions: 0, activeTreatmentNote: '', recentNote: '' },
+                }));
+                setPatientData(mappedPatients);
+                setTotalItems(data?.totalCount || mappedPatients.length);
             } else {
                 setPatientData([]);
                 setTotalItems(0);
