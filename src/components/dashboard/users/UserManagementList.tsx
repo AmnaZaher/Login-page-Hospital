@@ -271,9 +271,12 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                         4: 'Radiologist',
                         5: 'Pharmacist'
                     };
-                    const rawRole = item.role !== undefined ? item.role : item.Role;
-                    const roleNum = typeof rawRole === 'string' ? parseInt(rawRole, 10) : rawRole;
-                    const roleVal = typeof roleNum === 'number' ? roles[roleNum] : rawRole;
+                    const rawRole = item.role ?? item.Role ?? item.roleName ?? item.RoleName ?? item.specialization ?? item.Specialization;
+                    let roleVal = rawRole;
+                    const roleNum = parseInt(rawRole, 10);
+                    if (!isNaN(roleNum) && roles[roleNum]) {
+                        roleVal = roles[roleNum];
+                    }
 
                     return {
                         id: item.id || item.Id || item.nationalId || item.NationalId || '',
