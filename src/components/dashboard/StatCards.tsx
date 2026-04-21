@@ -1,44 +1,76 @@
 import React from 'react';
-import { Users, UserRoundCog, FileText, Calendar, FlaskConical } from 'lucide-react';
-import { Card } from '../ui';
+import { Users, UserRoundCog, Calendar, FlaskConical } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 interface StatItem {
     label: string;
     value: string;
     icon: LucideIcon;
-    color: string;
+    iconBg: string;
+    iconColor: string;
+    trend: string;
+    trendUp: boolean;
 }
 
 const stats: StatItem[] = [
-    { label: 'Total Patients', value: '1629', icon: Users, color: 'text-blue-600' },
-    { label: 'Total Doctors', value: '278', icon: UserRoundCog, color: 'text-indigo-600' },
-    { label: 'New Invoices', value: '39', icon: FileText, color: 'text-emerald-600' },
-    { label: "Today's Appointments", value: '55', icon: Calendar, color: 'text-amber-500' },
-    { label: 'Pending Lab / Radiology Requests', value: '100', icon: FlaskConical, color: 'text-rose-500' },
+    {
+        label: 'Total Patients',
+        value: '1.456',
+        icon: Users,
+        iconBg: 'bg-blue-100',
+        iconColor: 'text-blue-600',
+        trend: '+6.5% Since last week',
+        trendUp: true,
+    },
+    {
+        label: 'Total Doctors',
+        value: '276',
+        icon: UserRoundCog,
+        iconBg: 'bg-green-100',
+        iconColor: 'text-green-600',
+        trend: '+0.5% Since last week',
+        trendUp: true,
+    },
+    {
+        label: "Today's Appointments",
+        value: '55',
+        icon: Calendar,
+        iconBg: 'bg-pink-100',
+        iconColor: 'text-pink-600',
+        trend: '+6.5% Since last week',
+        trendUp: true,
+    },
+    {
+        label: 'Pending Lab / Radiology Requests',
+        value: '100',
+        icon: FlaskConical,
+        iconBg: 'bg-purple-100',
+        iconColor: 'text-purple-600',
+        trend: '-1% Since last week',
+        trendUp: false,
+    },
 ];
 
 const StatCards: React.FC = () => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
             {stats.map((stat, i) => (
-                <Card
+                <div
                     key={i}
-                    className="flex flex-col relative overflow-hidden group hover:border-blue-200 transition-colors"
+                    className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
                 >
-                    <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-sm font-bold text-slate-700 leading-tight pr-4">
-                            {stat.label}
-                        </h3>
-                        <stat.icon size={20} strokeWidth={2.5} className={`${stat.color} opacity-80`} />
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-slate-500 leading-snug">{stat.label}</p>
+                        <div className={`w-10 h-10 ${stat.iconBg} ${stat.iconColor} rounded-xl flex items-center justify-center shrink-0`}>
+                            <stat.icon size={20} strokeWidth={2} />
+                        </div>
                     </div>
-                    <p className="text-4xl font-extrabold text-slate-900 tracking-tight mt-auto">
-                        {stat.value}
+                    <p className="text-3xl font-extrabold text-slate-900 tracking-tight">{stat.value}</p>
+                    <p className={`text-xs font-semibold flex items-center gap-1 ${stat.trendUp ? 'text-green-500' : 'text-red-500'}`}>
+                        <span>{stat.trendUp ? '↑' : '↓'}</span>
+                        {stat.trend}
                     </p>
-                    <div className="absolute -bottom-6 -right-6 opacity-[0.03] group-hover:opacity-10 transition-opacity">
-                        <stat.icon size={100} />
-                    </div>
-                </Card>
+                </div>
             ))}
         </div>
     );

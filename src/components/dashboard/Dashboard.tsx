@@ -3,14 +3,10 @@ import { jwtDecode } from "jwt-decode";
 import Sidebar from "../../components/dashboard/Sidebar";
 import TopBar from "../../components/dashboard/TopBar";
 import StatCards from "../../components/dashboard/StatCards";
-import ActivitiesChart from "./charts/ActivitiesChart";
+
 import AppointmentTrendChart from "./charts/AppointmentTrendChart";
-import DepartmentUsageChart from "./charts/DepartmentUsageChart";
-import {
-  AlertStack,
-  PatientFeed,
-  AppointmentSummary,
-} from "./widgets/InfoWidgets";
+
+import { PatientFeed } from "./widgets/InfoWidgets";
 import RegisterPatient from "./patients/RegisterPatient";
 import RegisterStaff from "./staff/RegisterStaff";
 import UserManagementList from "./users/UserManagementList";
@@ -291,26 +287,24 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
             path="*"
             element={
               <main className="flex-1 overflow-y-auto p-4 md:p-8">
-                <div className="max-w-[1600px] mx-auto space-y-8">
-                  <div className="mb-8">
+                <div className="max-w-[1600px] mx-auto space-y-6">
+                  <div className="mb-6">
                     <p className="text-slate-500 font-medium mb-1">
                       {currentDate}
                     </p>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                      Welcome, {userName}
+                      Good Morning Dr. {userName}
                     </h2>
                   </div>
                   <StatCards />
-                  <div className="flex flex-col xl:flex-row gap-8">
-                    <div className="flex-1 space-y-8 min-w-0">
-                      <ActivitiesChart />
-                      <AppointmentTrendChart />
-                      <DepartmentUsageChart />
-                    </div>
-                    <div className="w-full xl:w-[400px] shrink-0 space-y-8">
-                      <AlertStack />
+                  <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Recent Patients — left column */}
+                    <div className="w-full lg:w-[260px] shrink-0">
                       <PatientFeed />
-                      <AppointmentSummary />
+                    </div>
+                    {/* Monthly Appointments Chart — right column */}
+                    <div className="flex-1 min-w-0">
+                      <AppointmentTrendChart />
                     </div>
                   </div>
                 </div>
