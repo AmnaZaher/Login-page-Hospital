@@ -326,7 +326,11 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                     };
                 });
                 setStaffData(mappedStaff);
-                setTotalItems(data?.totalCount || mappedStaff.length);
+                if (data?.totalCount !== undefined) {
+                    setTotalItems(data.totalCount);
+                } else if (currentStaffPage === 1) {
+                    setTotalItems(mappedStaff.length);
+                }
             } else {
                 setStaffData([]); 
                 setTotalItems(0);
@@ -384,7 +388,11 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                     prescriptionSummary: item.prescriptionSummary || { totalPrescriptions: 0, activeTreatmentNote: '', recentNote: '' },
                 }));
                 setPatientData(mappedPatients);
-                setTotalItems(data?.totalCount || mappedPatients.length);
+                if (data?.totalCount !== undefined) {
+                    setTotalItems(data.totalCount);
+                } else if (currentPatientPage === 1) {
+                    setTotalItems(mappedPatients.length);
+                }
             } else {
                 setPatientData([]);
                 setTotalItems(0);
