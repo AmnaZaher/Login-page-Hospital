@@ -15,6 +15,8 @@ interface DataTableProps<T> {
     data: T[];
     totalItems: number;
     itemsPerPage?: number;
+    currentPage?: number;
+    onPageChange?: (page: number) => void;
     onRowClick?: (item: T) => void;
     emptyMessage?: string;
     isLoading?: boolean;
@@ -25,6 +27,8 @@ function DataTable<T>({
     data,
     totalItems,
     itemsPerPage = 5,
+    currentPage: controlledPage,
+    onPageChange,
     onRowClick,
     emptyMessage = 'No data found',
     isLoading = false,
@@ -38,7 +42,32 @@ function DataTable<T>({
         nextPage,
         prevPage,
         totalPages,
-    } = usePagination({ totalItems, itemsPerPage });
+    } = usePagination({ 
+        totalItems, 
+        itemsPerPage, 
+        initialPage: controlledPage 
+    });
+
+    const handlePageChange = (page: number) => {
+        goToPage(page);
+        onPageChange?.(page);
+    };
+
+    const handleNext = () => {
+        const next = currentPage + 1;
+        if (next <= totalPages) {
+            nextPage();
+            onPageChange?.(next);
+        }
+    };
+
+    const handlePrev = () => {
+        const prev = currentPage - 1;
+        if (prev >= 1) {
+            prevPage();
+            onPageChange?.(prev);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -114,9 +143,9 @@ function DataTable<T>({
                 showingFrom={showingFrom}
                 showingTo={showingTo}
                 totalItems={totalItems}
-                onPageChange={goToPage}
-                onNext={nextPage}
-                onPrev={prevPage}
+                onPageChange={handlePageChange}
+                onNext={handleNext}
+                onPrev={handlePrev}
             />
         </div>
     );

@@ -95,6 +95,7 @@ const PersonalInfoForm = ({ info, onChange }: PersonalInfoFormProps) => {
                                 className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-600"
                                 value={info.dateOfBirth}
                                 onChange={(e) => handleChange('dateOfBirth', e.target.value)}
+                                max={new Date().toISOString().split('T')[0]}
                             />
                         </div>
                         <div>

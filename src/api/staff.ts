@@ -45,12 +45,58 @@ export const staffApi = {
       
       if (!item) return null;
 
+      const rolesMap: Record<string, string> = {
+        '0': 'Admin', '1': 'Doctor', '2': 'Nurse', '3': 'Lab Technician', '4': 'Radiologist', '5': 'Pharmacist',
+        'Admin': 'Admin', 'Doctor': 'Doctor', 'Nurse': 'Nurse', 'Lab Technician': 'Lab Technician', 'Radiologist': 'Radiologist', 'Pharmacist': 'Pharmacist'
+      };
+      
+      // Comprehensive search for role
+      const findRole = () => {
+        const direct = item.role ?? item.Role ?? item.roleId ?? item.RoleId ?? item.staffRole ?? item.StaffRole ?? item.roleName ?? item.RoleName;
+        if (direct !== undefined && direct !== null) {
+          if (typeof direct === 'object') return direct.name ?? direct.Name ?? rolesMap[direct.id ?? direct.Id] ?? 'Staff';
+          const s = String(direct);
+          return rolesMap[s] ?? (isNaN(parseInt(s)) ? s : 'Staff');
+        }
+        for (const k in item) {
+          if (k.toLowerCase().includes('role')) {
+            const val = item[k];
+            if (val !== undefined && val !== null) {
+              if (typeof val === 'object') return val.name ?? val.Name ?? rolesMap[val.id ?? val.Id] ?? 'Staff';
+              const s = String(val);
+              return rolesMap[s] ?? (isNaN(parseInt(s)) ? s : 'Staff');
+            }
+          }
+        }
+        return item.specialization ?? item.Specialization ?? 'Staff';
+      };
+
+      const roleVal = findRole();
+
+      // Comprehensive search for dept
+      const findDept = () => {
+        const direct = item.dept ?? item.department ?? item.deptName ?? item.Dept ?? item.Department ?? item.departmentName ?? item.DepartmentName;
+        if (direct !== undefined && direct !== null) {
+          if (typeof direct === 'object') return direct.name ?? direct.Name ?? 'General';
+          return String(direct);
+        }
+        for (const k in item) {
+          if (k.toLowerCase().includes('dept') || k.toLowerCase().includes('depart')) {
+            const val = item[k];
+            if (val) return typeof val === 'object' ? (val.name ?? val.Name) : String(val);
+          }
+        }
+        return item.specialization ?? item.Specialization ?? 'General';
+      };
+      
+      const deptVal = findDept();
+
       // Safe mapping to prevent UI crashes if backend fields are missing or PascalCase
       return {
         id: item.id || item.Id || idOrNationalId,
         name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
-        role: item.role || item.roleName || 'N/A',
-        department: item.dept || item.department || item.specialization || 'General',
+        role: roleVal,
+        department: deptVal,
         licenseId: item.licenseNumber || 'N/A',
         location: item.location || item.city || 'Hospital',
         email: item.email || item.Email || 'No Email',
