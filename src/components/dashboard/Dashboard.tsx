@@ -293,7 +293,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                       {currentDate}
                     </p>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                      Good Morning Dr. {userName}
+                      Good Morning {userName}
                     </h2>
                   </div>
                   <StatCards />
