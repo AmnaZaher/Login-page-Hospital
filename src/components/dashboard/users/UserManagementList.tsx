@@ -16,15 +16,7 @@ interface UserManagementListProps {
 
 // ==================== Mock Data ====================
 
-const emptyPrescriptionSummary = { totalPrescriptions: 0, activeTreatmentNote: '', recentNote: '' };
 
-const mockPatients: PatientListItem[] = [
-    { id: '1', name: 'Sara Magdy', subtitle: '1232-3422', patientId: '#P-45', demographics: 'Female, 32', lastVisit: 'Jan 12, 2024', upcoming: 'Feb 15, 2024', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=5', prescriptions: [], prescriptionSummary: emptyPrescriptionSummary },
-    { id: '2', name: 'Sara Magdy', subtitle: '1232-3422', patientId: '#P-45', demographics: 'Female, 32', lastVisit: 'Jan 12, 2024', upcoming: '-', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=9', prescriptions: [], prescriptionSummary: emptyPrescriptionSummary },
-    { id: '3', name: 'Sara Magdy', subtitle: '1232-3422', patientId: '#P-45', demographics: 'Female, 32', lastVisit: 'Jan 12, 2024', upcoming: 'Feb 15, 2024', status: 'Disabled', avatar: 'https://i.pravatar.cc/150?img=10', prescriptions: [], prescriptionSummary: emptyPrescriptionSummary },
-    { id: '4', name: 'Sara Magdy', subtitle: '1232-3422', patientId: '#P-45', demographics: 'Female, 32', lastVisit: 'Jan 12, 2024', upcoming: 'Feb 15, 2024', status: 'Disabled', avatar: 'https://i.pravatar.cc/150?img=12', prescriptions: [], prescriptionSummary: emptyPrescriptionSummary },
-    { id: '5', name: 'Sara Magdy', subtitle: '1232-3422', patientId: '#P-45', demographics: 'Female, 32', lastVisit: 'Jan 12, 2024', upcoming: 'Feb 15, 2024', status: 'Active', avatar: 'https://i.pravatar.cc/150?img=16', prescriptions: [], prescriptionSummary: emptyPrescriptionSummary },
-];
 
 // ==================== Filter Configs ====================
 const staffFilterConfig: FilterConfig[] = [
@@ -60,9 +52,9 @@ const staffFilterConfig: FilterConfig[] = [
             { value: 'Name A→Z', label: 'Name A→Z' },
             { value: 'Name Z→A', label: 'Name Z→A' },
         ],
+        hidePlaceholder: true,
     },
-    { key: 'lastLoginFrom', label: 'Last Login From', type: 'date', placeholder: 'mm / dd / yy' },
-    { key: 'lastLoginTo', label: 'Last Login To', type: 'date', placeholder: 'mm / dd / yy' },
+    { key: 'lastLogin', label: 'Last Login', type: 'dateRange' },
 ];
 
 const patientFilterConfig: FilterConfig[] = [
@@ -87,7 +79,19 @@ const patientFilterConfig: FilterConfig[] = [
         ],
     },
     { key: 'lastVisit', label: 'Last Visit', type: 'date', placeholder: 'mm / dd / yy' },
-    { key: 'upcoming', label: 'Upcoming Appointment', type: 'date', placeholder: 'mm / dd / yy' },
+    {
+        key: 'sort',
+        label: 'Sort By',
+        type: 'select',
+        placeholder: 'Newest First',
+        options: [
+            { value: 'Newest', label: 'Newest' },
+            { value: 'Oldest', label: 'Oldest' },
+            { value: 'Name A→Z', label: 'Name A→Z' },
+            { value: 'Name Z→A', label: 'Name Z→A' },
+        ],
+        hidePlaceholder: true,
+    },
 ];
 
 // ==================== Column Definitions ====================
@@ -254,9 +258,22 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                 PageIndex: 0,
                 PageSize: 50
             });
-            if (data && data.staffs) {
-                setStaffData(data.staffs);
-                setTotalItems(data.totalCount || data.staffs.length);
+            const list = data?.staffs || (data as any)?.items || (data as any)?.data || (Array.isArray(data) ? data : []);
+            
+            if (list && list.length > 0) {
+                const mappedStaff = list.map((item: any) => ({
+                    id: item.id || item.Id || item.nationalId || item.NationalId || '',
+                    name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
+                    subtitle: item.nationalId || item.NationalId || item.specialization || '',
+                    username: item.username || item.userName || item.Email || item.email || '',
+                    role: item.role || item.roleName || 'Staff',
+                    lastLogin: item.lastLogin || item.LastLogin || 'N/A',
+                    dept: item.dept || item.department || item.specialization || 'General',
+                    status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),
+                    avatar: item.avatar || item.PersonalPhotos || '',
+                }));
+                setStaffData(mappedStaff);
+                setTotalItems(data?.totalCount || mappedStaff.length);
             } else {
                 setStaffData([]); 
                 setTotalItems(0);
@@ -272,25 +289,51 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
     const fetchPatients = useCallback(async () => {
         setLoading(true);
         try {
+            const sortMap: Record<string, number> = {
+                'Newest': 0,
+                'Oldest': 1,
+                'Name A→Z': 2,
+                'Name Z→A': 3
+            };
+
             const data = await patientApi.getPatients({
                 SearchKey: searchQuery,
+                Gender: patientFilters.gender,
+                IsActive: patientFilters.status === 'Active' ? true : patientFilters.status === 'Disabled' ? false : undefined,
+                LastVisit: patientFilters.lastVisit,
+                sort: patientFilters.sort ? sortMap[patientFilters.sort] : undefined,
                 PageIndex: 0,
                 PageSize: 50
             });
-            if (data && data.patients) {
-                setPatientData(data.patients);
-                setTotalItems(data.totalCount || data.patients.length);
+            const list = data?.patients || (data as any)?.items || (data as any)?.data || (Array.isArray(data) ? data : []);
+            
+            if (list && list.length > 0) {
+                const mappedPatients = list.map((item: any) => ({
+                    id: item.id || item.Id || item.nationalId || item.NationalId || '',
+                    patientId: item.patientId || item.PatientId || item.nationalId || item.NationalId || '',
+                    name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
+                    subtitle: item.nationalId || item.NationalId || item.phone || item.PhoneNumber || '',
+                    demographics: (item.gender || item.Gender || '') + (item.age ? `, ${item.age}` : ''),
+                    lastVisit: item.lastVisit || item.LastVisit || 'N/A',
+                    upcoming: item.upcoming || item.UpcomingAppointment || '-',
+                    status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),
+                    avatar: item.avatar || item.PersonalPhotos || '',
+                    prescriptions: item.prescriptions || [],
+                    prescriptionSummary: item.prescriptionSummary || { totalPrescriptions: 0, activeTreatmentNote: '', recentNote: '' },
+                }));
+                setPatientData(mappedPatients);
+                setTotalItems(data?.totalCount || mappedPatients.length);
             } else {
                 setPatientData([]);
                 setTotalItems(0);
             }
         } catch (error) {
             console.error('Failed to fetch patients:', error);
-            setPatientData(mockPatients);
+            setPatientData([]);
         } finally {
             setLoading(false);
         }
-    }, [searchQuery]);
+    }, [searchQuery, patientFilters]);
 
     useEffect(() => {
         if (activeTab === 'staff') {

@@ -38,8 +38,33 @@ export const staffApi = {
     // We use the SearchKey parameter to find the specific staff member
     try {
       const response = await fetchApi<StaffListResponse>(`/Admin/Staffs?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=1`);
-      const matches = response.data?.staffs || [];
-      return matches[0] ? (matches[0] as unknown as StaffProfile) : null;
+      
+      // Handle various pagination response shapes from backend (staffs, items, data, etc.)
+      const list = response.data?.staffs || (response.data as any)?.items || (response.data as any)?.data || [];
+      const item = list[0];
+      
+      if (!item) return null;
+
+      // Safe mapping to prevent UI crashes if backend fields are missing or PascalCase
+      return {
+        id: item.id || item.Id || idOrNationalId,
+        name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
+        role: item.role || item.roleName || 'N/A',
+        department: item.dept || item.department || item.specialization || 'General',
+        licenseId: item.licenseNumber || 'N/A',
+        location: item.location || item.city || 'Hospital',
+        email: item.email || item.Email || 'No Email',
+        nationalId: item.nationalId || item.NationalId || idOrNationalId,
+        phone: item.phoneNumber || item.phone || 'N/A',
+        address: item.address || item.Address || 'N/A',
+        gender: item.gender || 'Not Specified',
+        experience: item.experience || 'N/A',
+        qualifications: item.qualification || 'N/A',
+        status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),
+        lastLogin: item.lastLogin || 'N/A',
+        avatar: item.avatar || item.PersonalPhotos || '',
+        ...item
+      } as unknown as StaffProfile;
     } catch (error) {
       console.error('API getStaffById failed:', error);
       return null;
