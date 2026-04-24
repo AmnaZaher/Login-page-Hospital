@@ -57,7 +57,7 @@ const StatCards: React.FC = () => {
             {stats.map((stat, i) => (
                 <div
                     key={i}
-                    className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
+                    className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-2 hover:shadow-md transition-shadow"
                 >
                     <div className="flex items-center justify-between">
                         <p className="text-sm font-semibold text-slate-500 leading-snug">{stat.label}</p>
@@ -75,5 +75,7 @@ const StatCards: React.FC = () => {
         </div>
     );
 };
+
+
 
 export default StatCards;
