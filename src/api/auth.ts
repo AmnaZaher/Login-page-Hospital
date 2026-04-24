@@ -47,7 +47,7 @@ export const registerStaff = async (formData: FormData) => {
 };
 
 export const changePassword = async (formData: FormData) => {
-    return await fetchApi('/Account/ChangePasswrod', {
+    return await fetchApi('/Account/ChangePassword', {
         method: 'PATCH',
         body: formData,
     });

@@ -46,10 +46,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const decoded: any = jwtDecode(token);
 
-            const role =
+            const rawRole =
                 decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
                 decoded.role ||
                 '';
+
+            // Standardize integer roles to string roles
+            const rolesMap: Record<string, string> = {
+                '1': 'Admin', '2': 'Doctor', '3': 'Nurse', '4': 'Pharmacist', '5': 'Radiologist', '6': 'Lab Technician'
+            };
+            const role = rolesMap[String(rawRole)] || (isNaN(parseInt(String(rawRole))) ? String(rawRole) : 'Staff');
 
             const name =
                 decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||

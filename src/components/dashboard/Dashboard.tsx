@@ -77,18 +77,17 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
     try {
       const decoded: any = jwtDecode(token);
       const role =
-        decoded[
-        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-        ] || decoded.role;
+        decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
+        decoded.role ||
+        "";
       const name =
         decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
         decoded.unique_name ||
         decoded.name;
 
-      if (role !== "Admin") {
-        setAuthError(
-          "Access denied. This page is restricted to administrators.",
-        );
+      // If user is not admin (check for string "Admin" or integer 1), restricted access
+      if (role !== "Admin" && role !== "1") {
+        setAuthError("This dashboard is for administrative use only.");
         return;
       }
 

@@ -118,7 +118,7 @@ export const patientApi = {
   },
 
   getVisitHistory: async (): Promise<Visit[]> => {
-      const response = await fetchApi<Visit[]>('/MedicalRecorde/VisitHistory');
+      const response = await fetchApi<Visit[]>('/MedicalRecords/VisitHistory');
       return response.data!;
   },
 
