@@ -14,8 +14,6 @@ interface UserManagementListProps {
     onAddUserClick: (type: 'patient' | 'staff', role?: string) => void;
 }
 
-// ==================== Mock Data ====================
-
 
 
 // ==================== Filter Configs ====================
@@ -57,7 +55,6 @@ const staffFilterConfig: FilterConfig[] = [
         ],
         hidePlaceholder: true,
     },
-    { key: 'lastLogin', label: 'Last Login', type: 'dateRange' },
 ];
 
 const patientFilterConfig: FilterConfig[] = [
