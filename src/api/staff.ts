@@ -35,13 +35,18 @@ export const staffApi = {
   },
 
   getStaffById: async (idOrNationalId: string): Promise<StaffProfile | null> => {
-    // We use the SearchKey parameter to find the specific staff member
+    // We fetch a small batch and find the exact match to prevent partial search matches returning the wrong staff member
     try {
-      const response = await fetchApi<StaffListResponse>(`/Admin/Staffs?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=1`);
+      const response = await fetchApi<StaffListResponse>(`/Admin/Staffs?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=20`);
       
-      // Handle various pagination response shapes from backend (staffs, items, data, etc.)
       const list = response.data?.staffs || (response.data as any)?.items || (response.data as any)?.data || [];
-      const item = list[0];
+      
+      // Find the exact match in the returned search results
+      const item = list.find((s: any) => 
+        String(s.id || s.Id || '') === idOrNationalId || 
+        String(s.nationalId || s.NationalId || '') === idOrNationalId || 
+        String(s.username || s.userName || '') === idOrNationalId
+      ) || list[0];
       
       if (!item) return null;
 

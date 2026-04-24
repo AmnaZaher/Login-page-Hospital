@@ -314,7 +314,7 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                     const deptVal = findDept();
 
                     return {
-                        id: item.id || item.Id || item.nationalId || item.NationalId || '',
+                        id: item.nationalId || item.NationalId || item.id || item.Id || '',
                         name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
                         subtitle: item.nationalId || item.NationalId || item.specialization || '',
                         username: item.username || item.userName || item.Email || item.email || '',
@@ -375,8 +375,8 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
             
             if (list && list.length > 0) {
                 const mappedPatients = list.map((item: any) => ({
-                    id: item.id || item.Id || item.nationalId || item.NationalId || '',
-                    patientId: item.patientId || item.PatientId || item.nationalId || item.NationalId || '',
+                    id: item.nationalId || item.NationalId || item.id || item.Id || '',
+                    patientId: item.nationalId || item.NationalId || item.patientId || item.PatientId || '',
                     name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
                     subtitle: item.nationalId || item.NationalId || item.phone || item.PhoneNumber || '',
                     demographics: (item.gender || item.Gender || '') + (item.age ? `, ${item.age}` : ''),

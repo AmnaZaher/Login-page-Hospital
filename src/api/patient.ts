@@ -31,12 +31,18 @@ export const patientApi = {
   },
 
   getPatientById: async (idOrNationalId: string): Promise<PatientProfile | null> => {
-    // Similarly, search patients using SearchKey (National ID is most reliable)
+    // We fetch a small batch and find the exact match to prevent partial search matches returning the wrong patient
     try {
-      const response = await fetchApi<PatientListResponse>(`/Admin/Patients?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=1`);
+      const response = await fetchApi<PatientListResponse>(`/Admin/Patients?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=20`);
       
       const list = response.data?.patients || (response.data as any)?.items || (response.data as any)?.data || [];
-      const item = list[0];
+      
+      // Find the exact match in the returned search results
+      const item = list.find((p: any) => 
+        String(p.id || p.Id || '') === idOrNationalId || 
+        String(p.nationalId || p.NationalId || '') === idOrNationalId || 
+        String(p.patientId || p.PatientId || '') === idOrNationalId
+      ) || list[0];
       
       if (!item) return null;
 
