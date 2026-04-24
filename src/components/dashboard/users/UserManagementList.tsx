@@ -26,12 +26,12 @@ const staffFilterConfig: FilterConfig[] = [
         type: 'select',
         placeholder: 'All Roles',
         options: [
-            { value: 'Admin', label: 'Admin' },
-            { value: 'Doctor', label: 'Doctor' },
-            { value: 'Nurse', label: 'Nurse' },
-            { value: 'Lab Technician', label: 'Lab Technician' },
-            { value: 'Radiologist', label: 'Radiologist' },
-            { value: 'Pharmacist', label: 'Pharmacist' },
+            { value: '1', label: 'Admin' },
+            { value: '2', label: 'Doctor' },
+            { value: '3', label: 'Nurse' },
+            { value: '6', label: 'Lab Technician' },
+            { value: '5', label: 'Radiologist' },
+            { value: '4', label: 'Pharmacist' },
         ],
     },
     {
@@ -268,8 +268,8 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
             if (list && list.length > 0) {
                 const mappedStaff = list.map((item: any) => {
                     const rolesMap: Record<string, string> = {
-                        '0': 'Admin', '1': 'Doctor', '2': 'Nurse', '3': 'Lab Technician', '4': 'Radiologist', '5': 'Pharmacist',
-                        'Admin': 'Admin', 'Doctor': 'Doctor', 'Nurse': 'Nurse', 'Lab Technician': 'Lab Technician', 'Radiologist': 'Radiologist', 'Pharmacist': 'Pharmacist'
+                        '1': 'Admin', '2': 'Doctor', '3': 'Nurse', '4': 'Pharmacist', '5': 'Radiologist', '6': 'Lab Technician',
+                        'Admin': 'Admin', 'Doctor': 'Doctor', 'Nurse': 'Nurse', 'Pharmacist': 'Pharmacist', 'Radiologist': 'Radiologist', 'Lab Technician': 'Lab Technician'
                     };
                     
                     // Comprehensive search for role
