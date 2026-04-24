@@ -19,4 +19,10 @@ export const PATHS = {
   DEPARTMENTS: "/dashboard/departments",
   BILLING: "/dashboard/billing",
   SETTINGS: "/dashboard/settings",
+  DR_SCHEDULE: "/dashboard/dr-schedule",
+  LAB_TEST: "/dashboard/lab-test",
+  LAB_TEST_REQUEST: "/dashboard/lab-test-request",
+  RADIOLOGY: "/dashboard/radiology",
+  LAB_CATALOG: "/dashboard/lab-catalog",
+  CLINICS: "/dashboard/clinics",
 } as const;

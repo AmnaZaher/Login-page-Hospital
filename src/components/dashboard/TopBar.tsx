@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { AddUserButton } from './shared/AddUserButton';
 
 interface TopBarProps {
@@ -8,7 +8,6 @@ interface TopBarProps {
     onAddUserClick?: (type: 'patient' | 'staff', role?: string) => void;
     onSearch?: (query: string) => void;         // kept for compatibility
     searchPlaceholder?: string;                  // kept for compatibility
-    showNotifications?: boolean;
     showAddUser?: boolean;
 }
 
@@ -16,7 +15,6 @@ const TopBar: React.FC<TopBarProps> = ({
     title = 'Dashboard',
     onMenuClick,
     onAddUserClick,
-    showNotifications = true,
     showAddUser = true,
 }) => {
     return (
@@ -39,21 +37,6 @@ const TopBar: React.FC<TopBarProps> = ({
 
             {/* Right Side */}
             <div className="flex items-center gap-3 md:gap-6 shrink-0">
-                {/* Notifications */}
-                {showNotifications && (
-                    <button className="relative text-slate-500 hover:text-slate-800 transition-colors">
-                        <Bell size={24} />
-                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
-                            2
-                        </span>
-                    </button>
-                )}
-
-                {/* Divider */}
-                {showAddUser && showNotifications && (
-                    <div className="w-px h-6 md:h-8 bg-slate-200 mx-0 md:mx-1"></div>
-                )}
-
                 {/* Add User Button */}
                 {showAddUser && onAddUserClick && (
                     <AddUserButton
