@@ -49,7 +49,7 @@ const AppointmentTrendChart: React.FC = () => {
     const data = dataByRange[activeFilter];
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col gap-4">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-2">
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-base font-bold text-slate-900">Monthly appointments</h3>
