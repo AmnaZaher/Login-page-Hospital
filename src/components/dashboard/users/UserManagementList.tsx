@@ -82,6 +82,20 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                 </Badge>
             ),
         },
+        {
+            key: 'actions',
+            header: 'ACTIONS',
+            render: () => (
+                <div className="flex flex-col gap-1">
+                    <button onClick={(e) => e.stopPropagation()} className="text-blue-500 hover:text-blue-700 font-bold text-sm transition-colors text-left uppercase tracking-wide">
+                        Edit
+                    </button>
+                    <button onClick={(e) => e.stopPropagation()} className="text-red-500 hover:text-red-700 font-bold text-sm transition-colors text-left uppercase tracking-wide">
+                        Delete
+                    </button>
+                </div>
+            ),
+        },
     ], []);
 
     const patientColumns: Column<any>[] = useMemo(() => [
@@ -120,6 +134,20 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                 <Badge variant={patient.status === 'Active' ? 'success' : 'default'}>
                     {patient.status}
                 </Badge>
+            ),
+        },
+        {
+            key: 'actions',
+            header: 'ACTIONS',
+            render: () => (
+                <div className="flex flex-col gap-1.5">
+                    <button onClick={(e) => e.stopPropagation()} className="text-blue-600 hover:text-blue-800 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">
+                        Edit
+                    </button>
+                    <button onClick={(e) => e.stopPropagation()} className="text-red-500 hover:text-red-700 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">
+                        Delete
+                    </button>
+                </div>
             ),
         },
     ], []);

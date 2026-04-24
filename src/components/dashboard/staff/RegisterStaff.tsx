@@ -7,84 +7,91 @@ import RoleDetailsForm, { type StaffRoleDetails } from './RoleDetailsForm';
 import UploadDocumentsForm, { type StaffDocument } from './UploadDocumentsForm';
 
 const initialDocuments: StaffDocument[] = [
-    { id: '1', title: 'National ID', status: 'Not Uploaded' },
-    { id: '2', title: 'Qualification Certificate', status: 'Not Uploaded' },
-    { id: '3', title: 'Internship Certificate', status: 'Not Uploaded' },
-    { id: '4', title: 'Medical Practice License', status: 'Not Uploaded' },
-    { id: '5', title: 'Medical Fitness Certificate', status: 'Not Uploaded' },
-    { id: '6', title: 'Birth Certificate', status: 'Not Uploaded' },
-    { id: '7', title: 'Criminal Record Certificate', status: 'Not Uploaded' },
-    { id: '8', title: 'Certificate of Registration in the Medical Syndicate', status: 'Not Uploaded' },
-    { id: '9', title: 'Curriculum Vitae (CV)', status: 'Not Uploaded' },
+  { id: "1", title: "National ID", status: "Not Uploaded" },
+  { id: "2", title: "Qualification Certificate", status: "Not Uploaded" },
+  { id: "3", title: "Internship Certificate", status: "Not Uploaded" },
+  { id: "4", title: "Medical Practice License", status: "Not Uploaded" },
+  { id: "5", title: "Medical Fitness Certificate", status: "Not Uploaded" },
+  { id: "6", title: "Birth Certificate", status: "Not Uploaded" },
+  { id: "7", title: "Criminal Record Certificate", status: "Not Uploaded" },
+  {
+    id: "8",
+    title: "Certificate of Registration in the Medical Syndicate",
+    status: "Not Uploaded",
+  },
+  { id: "9", title: "Curriculum Vitae (CV)", status: "Not Uploaded" },
 ];
 
 const STEPS = [
-    { label: 'Basic Info' },
-    { label: 'Role Details' },
-    { label: 'Documents' },
+  { label: "Basic Info" },
+  { label: "Role Details" },
+  { label: "Documents" },
 ];
 
 interface RegisterStaffProps {
-    initialRole?: string;
-    onSwitchView?: (type: 'patient' | 'staff', role?: string) => void;
+  initialRole?: string;
+  onSwitchView?: (type: "patient" | "staff", role?: string) => void;
 }
 
-const RegisterStaff = ({ initialRole = 'Doctor', onSwitchView }: RegisterStaffProps) => {
-    const [step, setStep] = useState(1);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitMessage, setSubmitMessage] = useState<{
-        type: 'success' | 'error';
-        text: string;
-    } | null>(null);
+const RegisterStaff = ({
+  initialRole = "Doctor",
+  onSwitchView,
+}: RegisterStaffProps) => {
+  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
-    // Step 1 State
-    const [basicInfo, setBasicInfo] = useState<StaffBasicInfo>({
-        fullNameEng: '',
-        nationalId: '',
-        gender: '',
-        fullNameAr: '',
-        dateOfBirth: '',
-        email: '',
-        phoneNumber: '',
-        address: '',
-        city: '',
-        country: '',
-        accountStatus: true,
-    });
+  // Step 1 State
+  const [basicInfo, setBasicInfo] = useState<StaffBasicInfo>({
+    fullNameEng: "",
+    nationalId: "",
+    gender: "",
+    fullNameAr: "",
+    dateOfBirth: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
+    city: "",
+    country: "",
+    accountStatus: true,
+  });
 
-    // Step 2 State
-    const [roleDetails, setRoleDetails] = useState<StaffRoleDetails>({
-        role: initialRole,
-        educationalQualification: '',
-        medicalSyndicateNumber: '',
-        graduationYear: '',
-        specialization: '',
-        dateOfAppointment: '',
-        clinicId: '',
-        doctorId: '',
-        qualification: '',
-        syndicateRegistrationNumber: '',
-        nurseLevel: '',
-        nursingLicenseNumber: '',
-        ltLicenseNumber: '',
-        canPerformTests: false,
-        canApproveResults: false,
-        canManageEquipment: false,
-        radiologistLicenseNumber: '',
-        pharmacyDegree: '',
-        pharmacyLicenseNumber: '',
-        employmentDate: '',
-        shiftType: '',
-    });
+  // Step 2 State
+  const [roleDetails, setRoleDetails] = useState<StaffRoleDetails>({
+    role: initialRole,
+    educationalQualification: "",
+    medicalSyndicateNumber: "",
+    graduationYear: "",
+    specialization: "",
+    dateOfAppointment: "",
+    clinicId: "",
+    doctorId: "",
+    qualification: "",
+    syndicateRegistrationNumber: "",
+    nurseLevel: "",
+    nursingLicenseNumber: "",
+    ltLicenseNumber: "",
+    canPerformTests: false,
+    canApproveResults: false,
+    canManageEquipment: false,
+    radiologistLicenseNumber: "",
+    pharmacyDegree: "",
+    pharmacyLicenseNumber: "",
+    employmentDate: "",
+    shiftType: "",
+  });
 
-    // Step 3 State
-    const [documents, setDocuments] = useState<StaffDocument[]>(initialDocuments);
+  // Step 3 State
+  const [documents, setDocuments] = useState<StaffDocument[]>(initialDocuments);
 
     const handleUpload = (id: string, _file: File) => {
         setDocuments((docs) =>
             docs.map((d) =>
                 d.id === id
-                    ? { ...d, status: 'Uploaded', filename: 'resume_V2.pdf', filesize: '1.2MB' }
+                    ? { ...d, status: 'Uploaded', filename: 'resume_V2.pdf', filesize: '1.2MB', file: _file }
                     : d
             )
         );
@@ -166,7 +173,7 @@ const RegisterStaff = ({ initialRole = 'Doctor', onSwitchView }: RegisterStaffPr
         <div className="flex flex-col h-full bg-slate-50 font-sans">
             {/* Top Bar */}
             <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-10">
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-sm sm:text-lg">
                     <span className="font-bold text-slate-900">Add New User</span>
                     <span className="text-slate-400">›</span>
                     <span className="text-slate-500">Hospital Staff</span>

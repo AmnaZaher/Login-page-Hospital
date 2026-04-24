@@ -2,10 +2,11 @@ import React from 'react';
 import {
     LayoutDashboard,
     Users,
-    FileBox,
     CalendarCheck,
+    CalendarClock,
+    Microscope,
+    FlaskConical,
     Building2,
-    ReceiptText,
     Settings,
     LogOut,
     X,
@@ -26,10 +27,11 @@ interface NavItem {
 const navItems: NavItem[] = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: PATHS.DASHBOARD },
     { id: 'users', icon: Users, label: 'User Management', path: PATHS.USER_MANAGEMENT },
-    { id: 'reports', icon: FileBox, label: 'Reports', path: PATHS.REPORTS },
     { id: 'appointments', icon: CalendarCheck, label: 'Appointments', path: PATHS.APPOINTMENTS },
-    { id: 'departments', icon: Building2, label: 'Departments', path: PATHS.DEPARTMENTS },
-    { id: 'billing', icon: ReceiptText, label: 'Billing', path: PATHS.BILLING },
+    { id: 'dr-schedule', icon: CalendarClock, label: 'DR. Schedule', path: PATHS.DR_SCHEDULE },
+    { id: 'radiology', icon: Microscope, label: 'Radiology', path: PATHS.RADIOLOGY },
+    { id: 'lab-catalog', icon: FlaskConical, label: 'Lab Catalog', path: PATHS.LAB_CATALOG },
+    { id: 'clinics', icon: Building2, label: 'Clinics', path: PATHS.CLINICS },
     { id: 'settings', icon: Settings, label: 'Setting', path: PATHS.SETTINGS },
 ];
 
@@ -74,12 +76,15 @@ const Sidebar: React.FC<SidebarProps> = ({
     return (
         <aside
             className={`
-                w-[100px] bg-[#097FE7] flex flex-col items-center py-4 text-white
+                w-[100px] flex flex-col items-center py-4 text-white
                 h-screen shrink-0 shadow-lg z-30 transition-transform duration-300
                 absolute md:relative
                 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                 top-0 left-0
             `}
+            style={{
+                background: 'linear-gradient(180deg, #5BB8F5 0%, #1A6FC4 40%, #0D4A8A 100%)',
+            }}
         >
             {/* Close button for mobile */}
             <button
@@ -98,8 +103,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                         className={`
                             flex flex-col items-center justify-center w-full py-2.5 gap-1 transition-all shrink-0
                             ${activeTab === item.id
-                                ? 'opacity-100 bg-white/10 border-l-4 border-white'
-                                : 'opacity-60 hover:opacity-100 hover:bg-white/5 border-l-4 border-transparent'
+                                ? 'opacity-100 bg-white/25 border-l-4 border-white'
+                                : 'opacity-90 hover:opacity-100 hover:bg-white/15 border-l-4 border-transparent'
                             }
                         `}
                     >
