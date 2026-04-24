@@ -57,7 +57,7 @@ const staffFilterConfig: FilterConfig[] = [
         ],
         hidePlaceholder: true,
     },
-    { key: 'lastLogin', label: 'Last Login', type: 'dateRange' },
+    
 ];
 
 const patientFilterConfig: FilterConfig[] = [
