@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, Search, Bell, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
 import { AddUserButton } from '../shared/AddUserButton';
 import { registerPatient } from '../../../api/auth';
 import MedicalHistoryForm from './MedicalHistoryForm';
@@ -91,9 +91,9 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
                 isActive: true,
                 bloodType: parseInt(personalInfo.bloodGroup, 10) || 1,
                 allergies: allergyRecords.map(a => ({
-                    allergenType: 1, // Defaulting to 1 as per Swagger
+                    allergenType: 1,
                     allergenName: a.allergenName,
-                    severity: 1, // Defaulting to 1
+                    severity: 1,
                     onSetDate: new Date().toISOString(),
                     status: 1,
                     notes: a.reactionDetails
@@ -109,13 +109,12 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
                     notes: m.notes
                 }))
             };
-            
+
             const res = await registerPatient(payload);
             if (res.isSuccess) {
                 setSubmitMessage({ type: 'success', text: 'Patient registered successfully' });
-                // Reset form or navigate back after delay
                 setTimeout(() => {
-                    if (onSwitchView) onSwitchView('patient'); // Reset view
+                    if (onSwitchView) onSwitchView('patient');
                 }, 2000);
             } else {
                 setSubmitMessage({ type: 'error', text: res.message || 'Registration failed' });
@@ -130,32 +129,21 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
 
     return (
         <div className="flex flex-col h-full bg-slate-50 font-sans">
-            {/* Topbar for the registration view */}
-            <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-10">
-                <div className="flex items-center gap-2 text-sm">
-                    <span className="font-bold text-slate-900">Add New User</span>
-                    <span className="text-slate-400">›</span>
-                    <span className="text-slate-500">Patient</span>
+            {/* Topbar */}
+            <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+                {/* Breadcrumb - larger text */}
+                <div className="flex items-center gap-2 text-base">
+                    <span className="font-extrabold text-slate-900 text-lg">Add New User</span>
+                    <span className="text-slate-400 text-lg">›</span>
+                    <span className="text-slate-500 font-semibold text-base">Patient</span>
                 </div>
-                <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input
-                            type="text"
-                            placeholder="Search users..."
-                            className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
-                        />
-                    </div>
-                    <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors relative">
-                        <Bell className="w-5 h-5" />
-                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
-                    </button>
-                    <AddUserButton
-                        onClick={(type: 'patient' | 'staff', role?: string) => {
-                            if (onSwitchView) onSwitchView(type, role);
-                        }}
-                    />
-                </div>
+
+                {/* Add User Button only */}
+                <AddUserButton
+                    onClick={(type: 'patient' | 'staff', role?: string) => {
+                        if (onSwitchView) onSwitchView(type, role);
+                    }}
+                />
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
@@ -165,18 +153,16 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
                         <h1 className="text-2xl font-extrabold text-slate-900 mb-8">Register New Patient</h1>
 
                         {submitMessage && (
-                            <div className={`mb-8 p-4 rounded-xl text-sm font-semibold border ${submitMessage.type === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
-                                }`}>
+                            <div className={`mb-8 p-4 rounded-xl text-sm font-semibold border ${submitMessage.type === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
                                 {submitMessage.text}
                             </div>
                         )}
 
                         {/* Stepper */}
                         <div className="flex items-center justify-center mb-12 relative max-w-3xl mx-auto">
-                            {/* Connecting lines */}
                             <div className="absolute top-5 left-8 right-8 h-[2px] bg-slate-200 -z-10 flex">
                                 <div className="h-full bg-green-500 transition-all duration-300" style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}></div>
-                                <div className={`h-full bg-slate-200 transition-all duration-300`} style={{ width: `${(1 - (step - 1) / (steps.length - 1)) * 100}%` }}></div>
+                                <div className="h-full bg-slate-200 transition-all duration-300" style={{ width: `${(1 - (step - 1) / (steps.length - 1)) * 100}%` }}></div>
                             </div>
 
                             {steps.map((s) => {
@@ -205,10 +191,7 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
                     {/* Step Content */}
                     <div className="mb-8">
                         {step === 1 && (
-                            <PersonalInfoForm
-                                info={personalInfo}
-                                onChange={setPersonalInfo}
-                            />
+                            <PersonalInfoForm info={personalInfo} onChange={setPersonalInfo} />
                         )}
                         {step === 2 && (
                             <MedicalHistoryForm
@@ -250,8 +233,7 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
                         <div className="flex items-center gap-1.5 mx-4">
                             <span className="text-slate-400 text-sm font-semibold mr-2">Step {step} of 4</span>
                             {[1, 2, 3, 4].map(num => (
-                                <div key={num} className={`h-2 rounded-full transition-all ${num === step ? 'w-6 bg-blue-600' : 'w-2 bg-slate-200'
-                                    }`} />
+                                <div key={num} className={`h-2 rounded-full transition-all ${num === step ? 'w-6 bg-blue-600' : 'w-2 bg-slate-200'}`} />
                             ))}
                         </div>
 
@@ -273,7 +255,6 @@ const RegisterPatient = ({ onSwitchView }: RegisterPatientProps) => {
                             </button>
                         )}
                     </div>
-
                 </div>
             </div>
         </div>

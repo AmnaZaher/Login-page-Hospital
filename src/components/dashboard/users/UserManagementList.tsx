@@ -14,8 +14,6 @@ interface UserManagementListProps {
     onAddUserClick: (type: 'patient' | 'staff', role?: string) => void;
 }
 
-// ==================== Mock Data ====================
-
 
 
 // ==================== Filter Configs ====================
