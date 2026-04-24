@@ -17,7 +17,7 @@ const recentPatients: Patient[] = [
 export const PatientFeed: React.FC = () => {
     return (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col">
-            <h3 className="text-base font-bold text-slate-900 mb-5">Recent Patients</h3>
+            <h3 className="text-base font-bold text-slate-900 mb-6">Recent Patients</h3>
             <div className="space-y-5 flex-1">
                 {recentPatients.map((patient, i) => (
                     <div key={i} className="flex items-center gap-3 group cursor-pointer">

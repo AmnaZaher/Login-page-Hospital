@@ -7,6 +7,9 @@ import StatCards from "../../components/dashboard/StatCards";
 import AppointmentTrendChart from "./charts/AppointmentTrendChart";
 
 import { PatientFeed } from "./widgets/InfoWidgets";
+import StatusDistribution from "./widgets/StatusDistribution";
+import QuickActions from "./widgets/QuickActions";
+import DoctorStatus from "./widgets/DoctorStatus";
 import RegisterPatient from "./patients/RegisterPatient";
 import RegisterStaff from "./staff/RegisterStaff";
 import UserManagementList from "./users/UserManagementList";
@@ -286,9 +289,9 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
           <Route
             path="*"
             element={
-              <main className="flex-1 overflow-y-auto p-4 md:p-8">
-                <div className="max-w-[1600px] mx-auto space-y-6">
-                  <div className="mb-6">
+              <main className="flex-1 overflow-y-auto p-4 md:p-6">
+                <div className="max-w-[1600px] mx-auto space-y-4">
+                  <div className="mb-4">
                     <p className="text-slate-500 font-medium mb-1">
                       {currentDate}
                     </p>
@@ -296,21 +299,28 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                       Good Morning Dr. {userName}
                     </h2>
                   </div>
+                  
                   <StatCards />
-                  <div className="flex flex-col lg:flex-row gap-6">
-                    {/* Recent Patients — left column */}
-                    <div className="w-full lg:w-[260px] shrink-0">
-                      <PatientFeed />
-                    </div>
-                    {/* Monthly Appointments Chart — right column */}
-                    <div className="flex-1 min-w-0">
+                  
+                  <div className="flex flex-col lg:flex-row gap-4">
+                    {/* Left Column: Chart & Quick Actions */}
+                    <div className="flex-1 space-y-4 min-w-0">
                       <AppointmentTrendChart />
+                      <QuickActions />
+                    </div>
+
+                    {/* Right Column: Widgets */}
+                    <div className="w-full lg:w-[350px] shrink-0 space-y-4">
+                      <StatusDistribution />
+                      <DoctorStatus />
+                      <PatientFeed />
                     </div>
                   </div>
                 </div>
               </main>
             }
           />
+
         </Routes>
       </div>
     </div>
