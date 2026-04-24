@@ -35,19 +35,24 @@ export const staffApi = {
   },
 
   getStaffById: async (idOrNationalId: string): Promise<StaffProfile | null> => {
-    // We use the SearchKey parameter to find the specific staff member
+    // We fetch a small batch and find the exact match to prevent partial search matches returning the wrong staff member
     try {
-      const response = await fetchApi<StaffListResponse>(`/Admin/Staffs?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=1`);
+      const response = await fetchApi<StaffListResponse>(`/Admin/Staffs?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=20`);
       
-      // Handle various pagination response shapes from backend (staffs, items, data, etc.)
       const list = response.data?.staffs || (response.data as any)?.items || (response.data as any)?.data || [];
-      const item = list[0];
+      
+      // Find the exact match in the returned search results
+      const item = list.find((s: any) => 
+        String(s.id || s.Id || '') === idOrNationalId || 
+        String(s.nationalId || s.NationalId || '') === idOrNationalId || 
+        String(s.username || s.userName || '') === idOrNationalId
+      ) || list[0];
       
       if (!item) return null;
 
       const rolesMap: Record<string, string> = {
-        '0': 'Admin', '1': 'Doctor', '2': 'Nurse', '3': 'Lab Technician', '4': 'Radiologist', '5': 'Pharmacist',
-        'Admin': 'Admin', 'Doctor': 'Doctor', 'Nurse': 'Nurse', 'Lab Technician': 'Lab Technician', 'Radiologist': 'Radiologist', 'Pharmacist': 'Pharmacist'
+        '1': 'Admin', '2': 'Doctor', '3': 'Nurse', '4': 'Pharmacist', '5': 'Radiologist', '6': 'Lab Technician',
+        'Admin': 'Admin', 'Doctor': 'Doctor', 'Nurse': 'Nurse', 'Pharmacist': 'Pharmacist', 'Radiologist': 'Radiologist', 'Lab Technician': 'Lab Technician'
       };
       
       // Comprehensive search for role
@@ -92,24 +97,30 @@ export const staffApi = {
       const deptVal = findDept();
 
       // Safe mapping to prevent UI crashes if backend fields are missing or PascalCase
+      // Gender mapping: 1 for Male, 2 for Female ($int32)
+      const rawGender = item.gender ?? item.Gender;
+      const genderStr = rawGender === 1 || rawGender === '1' || String(rawGender).toLowerCase() === 'male' ? 'Male' : 
+                       rawGender === 2 || rawGender === '2' || String(rawGender).toLowerCase() === 'female' ? 'Female' : 'Not Specified';
+
+      // Safe mapping to prevent UI crashes if backend fields are missing or PascalCase
       return {
+        ...item, // Spread at top so our mappings can overwrite
         id: item.id || item.Id || idOrNationalId,
         name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
         role: roleVal,
         department: deptVal,
-        licenseId: item.licenseNumber || 'N/A',
+        licenseId: item.licenseNumber || item.licenseId || 'N/A',
         location: item.location || item.city || 'Hospital',
         email: item.email || item.Email || 'No Email',
         nationalId: item.nationalId || item.NationalId || idOrNationalId,
-        phone: item.phoneNumber || item.phone || 'N/A',
+        phone: item.phoneNumber || item.phone || item.PhoneNumber || 'N/A',
         address: item.address || item.Address || 'N/A',
-        gender: item.gender || 'Not Specified',
+        gender: genderStr,
         experience: item.experience || 'N/A',
-        qualifications: item.qualification || 'N/A',
+        qualifications: item.qualification || item.qualifications || 'N/A',
         status: item.isActive === false ? 'Disabled' : (item.status || 'Active'),
         lastLogin: item.lastLogin || 'N/A',
         avatar: item.avatar || item.PersonalPhotos || '',
-        ...item
       } as unknown as StaffProfile;
     } catch (error) {
       console.error('API getStaffById failed:', error);

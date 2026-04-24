@@ -24,12 +24,12 @@ const staffFilterConfig: FilterConfig[] = [
         type: 'select',
         placeholder: 'All Roles',
         options: [
-            { value: 'Admin', label: 'Admin' },
-            { value: 'Doctor', label: 'Doctor' },
-            { value: 'Nurse', label: 'Nurse' },
-            { value: 'Lab Technician', label: 'Lab Technician' },
-            { value: 'Radiologist', label: 'Radiologist' },
-            { value: 'Pharmacist', label: 'Pharmacist' },
+            { value: '1', label: 'Admin' },
+            { value: '2', label: 'Doctor' },
+            { value: '3', label: 'Nurse' },
+            { value: '6', label: 'Lab Technician' },
+            { value: '5', label: 'Radiologist' },
+            { value: '4', label: 'Pharmacist' },
         ],
     },
     {
@@ -55,6 +55,7 @@ const staffFilterConfig: FilterConfig[] = [
         ],
         hidePlaceholder: true,
     },
+    
 ];
 
 const patientFilterConfig: FilterConfig[] = [
@@ -265,8 +266,8 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
             if (list && list.length > 0) {
                 const mappedStaff = list.map((item: any) => {
                     const rolesMap: Record<string, string> = {
-                        '0': 'Admin', '1': 'Doctor', '2': 'Nurse', '3': 'Lab Technician', '4': 'Radiologist', '5': 'Pharmacist',
-                        'Admin': 'Admin', 'Doctor': 'Doctor', 'Nurse': 'Nurse', 'Lab Technician': 'Lab Technician', 'Radiologist': 'Radiologist', 'Pharmacist': 'Pharmacist'
+                        '1': 'Admin', '2': 'Doctor', '3': 'Nurse', '4': 'Pharmacist', '5': 'Radiologist', '6': 'Lab Technician',
+                        'Admin': 'Admin', 'Doctor': 'Doctor', 'Nurse': 'Nurse', 'Pharmacist': 'Pharmacist', 'Radiologist': 'Radiologist', 'Lab Technician': 'Lab Technician'
                     };
                     
                     // Comprehensive search for role
@@ -311,7 +312,7 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                     const deptVal = findDept();
 
                     return {
-                        id: item.id || item.Id || item.nationalId || item.NationalId || '',
+                        id: item.nationalId || item.NationalId || item.id || item.Id || '',
                         name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
                         subtitle: item.nationalId || item.NationalId || item.specialization || '',
                         username: item.username || item.userName || item.Email || item.email || '',
@@ -372,8 +373,8 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
             
             if (list && list.length > 0) {
                 const mappedPatients = list.map((item: any) => ({
-                    id: item.id || item.Id || item.nationalId || item.NationalId || '',
-                    patientId: item.patientId || item.PatientId || item.nationalId || item.NationalId || '',
+                    id: item.nationalId || item.NationalId || item.id || item.Id || '',
+                    patientId: item.nationalId || item.NationalId || item.patientId || item.PatientId || '',
                     name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
                     subtitle: item.nationalId || item.NationalId || item.phone || item.PhoneNumber || '',
                     demographics: (item.gender || item.Gender || '') + (item.age ? `, ${item.age}` : ''),

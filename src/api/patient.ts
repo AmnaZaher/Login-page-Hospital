@@ -31,24 +31,55 @@ export const patientApi = {
   },
 
   getPatientById: async (idOrNationalId: string): Promise<PatientProfile | null> => {
-    // Similarly, search patients using SearchKey (National ID is most reliable)
+    // We fetch a small batch and find the exact match to prevent partial search matches returning the wrong patient
     try {
-      const response = await fetchApi<PatientListResponse>(`/Admin/Patients?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=1`);
+      const response = await fetchApi<PatientListResponse>(`/Admin/Patients?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=20`);
       
       const list = response.data?.patients || (response.data as any)?.items || (response.data as any)?.data || [];
-      const item = list[0];
+      
+      // Find the exact match in the returned search results
+      const item = list.find((p: any) => 
+        String(p.id || p.Id || '') === idOrNationalId || 
+        String(p.nationalId || p.NationalId || '') === idOrNationalId || 
+        String(p.patientId || p.PatientId || '') === idOrNationalId
+      ) || list[0];
       
       if (!item) return null;
 
+      // Helper to calculate age if not provided by backend
+      const calculateAge = (dob: string) => {
+        if (!dob || dob === 'N/A') return 0;
+        try {
+          const birthDate = new Date(dob);
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const m = today.getMonth() - birthDate.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          return age;
+        } catch (e) { return 0; }
+      };
+
+      const dob = item.dateOfBirth || item.DateOfBirth || 'N/A';
+      const rawAge = item.age || item.Age;
+      const calculatedAge = rawAge && rawAge > 0 ? rawAge : calculateAge(dob);
+
+      // Gender mapping: 1 for Male, 2 for Female ($int32)
+      const rawGender = item.gender ?? item.Gender;
+      const genderStr = rawGender === 1 || rawGender === '1' || String(rawGender).toLowerCase() === 'male' ? 'Male' :
+        rawGender === 2 || rawGender === '2' || String(rawGender).toLowerCase() === 'female' ? 'Female' : 'Not Specified';
+
       // Safe mapping to prevent UI crashes if backend fields are missing or PascalCase
       return {
+        ...item, // Spread at top so our mappings can overwrite
         id: item.id || item.Id || idOrNationalId,
         name: item.name || item.fullNameEnglish || item.FullNameEnglish || 'Unknown',
         nameArabic: item.fullNameArabic || item.FullNameArabic || '',
         patientId: item.patientId || item.PatientId || idOrNationalId,
-        gender: item.gender || item.Gender || 'Not Specified',
-        age: item.age || 0,
-        dateOfBirth: item.dateOfBirth || item.DateOfBirth || 'N/A',
+        gender: genderStr,
+        age: calculatedAge,
+        dateOfBirth: dob,
         nationalId: item.nationalId || item.NationalId || idOrNationalId,
         phone: item.phoneNumber || item.phone || item.PhoneNumber || 'N/A',
         email: item.email || item.Email || 'No Email',
@@ -74,7 +105,6 @@ export const patientApi = {
         radiologySummary: item.radiologySummary || { totalScans: 0, activeReports: 0, pendingReview: 0, nextScan: { type: '', date: '' } },
         prescriptions: item.prescriptions || [],
         prescriptionSummary: item.prescriptionSummary || { totalPrescriptions: 0, activeTreatmentNote: '', recentNote: '' },
-        ...item
       } as unknown as PatientProfile;
     } catch (error) {
       console.error('API getPatientById failed:', error);
