@@ -28,27 +28,29 @@ const ClinicsList: React.FC<ClinicsListProps> = ({ onAddClinic, onEditClinic }) 
       ]);
       
       let validClinics: Clinic[] = [];
+      const anyRes = clinicsRes as any;
       const extractedList = 
-         clinicsRes?.data?.data || 
-         clinicsRes?.data?.clinics ||
-         clinicsRes?.clinics || 
-         clinicsRes?.items || 
-         clinicsRes?.data?.items ||
-         (Array.isArray(clinicsRes?.data) ? clinicsRes.data : []) ||
-         (Array.isArray(clinicsRes) ? clinicsRes : []);
+         anyRes?.data?.data || 
+         anyRes?.data?.clinics ||
+         anyRes?.clinics || 
+         anyRes?.items || 
+         anyRes?.data?.items ||
+         (Array.isArray(anyRes?.data) ? anyRes.data : []) ||
+         (Array.isArray(anyRes) ? anyRes : []);
          
       if (Array.isArray(extractedList)) {
          validClinics = extractedList;
       }
       
-      const totalPagesValue = clinicsRes?.data?.totalPages || clinicsRes?.totalPages;
+      const totalPagesValue = anyRes?.data?.totalPages || anyRes?.totalPages;
       if (totalPagesValue) {
          setTotalPages(totalPagesValue);
       }
       
       setClinics(validClinics);
       
-      setStats(statsRes?.data || statsRes || null);
+      const anyStats = statsRes as any;
+      setStats(anyStats?.data || anyStats || null);
     } catch (err) {
       console.error('Error fetching clinics data:', err);
     } finally {
