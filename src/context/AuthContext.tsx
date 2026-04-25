@@ -11,6 +11,7 @@ interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isAdmin: boolean;
+    isLoading: boolean;
     login: (accessToken: string, refreshToken: string) => void;
     logout: () => void;
 }
@@ -22,29 +23,54 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // On mount — check if token exists in localStorage
+        // On mount — check if token exists in localStorage
     useEffect(() => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            try {
-                const decoded = decodeToken(token);
-                if (decoded) {
-                    setUser(decoded);
-                    setIsAuthenticated(true);
+        const checkToken = () => {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                try {
+                    const decoded = decodeToken(token);
+                    if (decoded) {
+                        setUser(decoded);
+                        setIsAuthenticated(true);
+                    } else {
+                        throw new Error('Token decode returned null (likely expired)');
+                    }
+                } catch {
+                    // Invalid token — clear it
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    setUser(null);
+                    setIsAuthenticated(false);
                 }
-            } catch {
-                // Invalid token — clear it
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
             }
-        }
+            setIsLoading(false);
+        };
+
+        checkToken();
+
+        const handleUnauthorized = () => {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            setUser(null);
+            setIsAuthenticated(false);
+        };
+
+        window.addEventListener('auth:unauthorized', handleUnauthorized);
+        return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
     }, []);
 
     // Decode JWT token
     const decodeToken = (token: string): User | null => {
         try {
             const decoded: any = jwtDecode(token);
+
+            // Check if token is expired
+            if (decoded.exp && (decoded.exp * 1000) < Date.now()) {
+                return null;
+            }
 
             const rawRole =
                 decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
@@ -94,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const isAdmin = user?.role === 'Admin';
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, login, logout }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, isLoading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
