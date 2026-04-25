@@ -8,6 +8,8 @@ import type { StaffMember } from '../../../types/staff.types';
 import type { PatientListItem } from '../../../types/patient.types';
 import { staffApi } from '../../../api/staff';
 import { patientApi } from '../../../api/patient';
+import { EditUserModal } from './EditUserModal';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 interface UserManagementListProps {
     onMenuClick: () => void;
@@ -96,7 +98,7 @@ const patientFilterConfig: FilterConfig[] = [
 ];
 
 // ==================== Column Definitions ====================
-const staffColumns: Column<StaffMember>[] = [
+const getStaffColumns = (onEdit: (staff: StaffMember) => void, onDelete: (staff: StaffMember) => void): Column<StaffMember>[] => [
     {
         key: 'name',
         header: 'STAFF NAME',
@@ -146,12 +148,12 @@ const staffColumns: Column<StaffMember>[] = [
     {
         key: 'actions',
         header: 'ACTIONS',
-        render: () => (
+        render: (staff) => (
             <div className="flex flex-col gap-1">
-                <button onClick={(e) => e.stopPropagation()} className="text-blue-500 hover:text-blue-700 font-bold text-sm transition-colors text-left">
+                <button onClick={(e) => { e.stopPropagation(); onEdit(staff); }} className="text-blue-500 hover:text-blue-700 font-bold text-sm transition-colors text-left">
                     Edit
                 </button>
-                <button onClick={(e) => e.stopPropagation()} className="text-red-500 hover:text-red-700 font-bold text-sm transition-colors text-left">
+                <button onClick={(e) => { e.stopPropagation(); onDelete(staff); }} className="text-red-500 hover:text-red-700 font-bold text-sm transition-colors text-left">
                     Delete
                 </button>
             </div>
@@ -159,7 +161,7 @@ const staffColumns: Column<StaffMember>[] = [
     },
 ];
 
-const patientColumns: Column<PatientListItem>[] = [
+const getPatientColumns = (onEdit: (patient: PatientListItem) => void, onDelete: (patient: PatientListItem) => void): Column<PatientListItem>[] => [
     {
         key: 'name',
         header: 'PATIENT NAME',
@@ -213,12 +215,12 @@ const patientColumns: Column<PatientListItem>[] = [
     {
         key: 'actions',
         header: 'ACTIONS',
-        render: () => (
+        render: (patient) => (
             <div className="flex flex-col gap-1.5">
-                <button onClick={(e) => e.stopPropagation()} className="text-blue-600 hover:text-blue-800 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">
+                <button onClick={(e) => { e.stopPropagation(); onEdit(patient); }} className="text-blue-600 hover:text-blue-800 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">
                     Edit
                 </button>
-                <button onClick={(e) => e.stopPropagation()} className="text-red-500 hover:text-red-700 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">
+                <button onClick={(e) => { e.stopPropagation(); onDelete(patient); }} className="text-red-500 hover:text-red-700 font-extrabold text-xs transition-colors text-left uppercase tracking-wide">
                     Delete
                 </button>
             </div>
@@ -238,7 +240,36 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
     const [totalItems, setTotalItems] = useState(0);
     const [currentStaffPage, setCurrentStaffPage] = useState(1);
     const [currentPatientPage, setCurrentPatientPage] = useState(1);
+    
+    // Modal state
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [selectedUserName, setSelectedUserName] = useState('');
+    const [modalUserType, setModalUserType] = useState<'patient' | 'staff'>('staff');
+
     const navigate = useNavigate();
+
+    const handleEdit = useCallback((userType: 'patient' | 'staff', id: string) => {
+        setModalUserType(userType);
+        setSelectedUserId(id);
+        setEditModalOpen(true);
+    }, []);
+
+    const handleDelete = useCallback((userType: 'patient' | 'staff', id: string, name: string) => {
+        setModalUserType(userType);
+        setSelectedUserId(id);
+        setSelectedUserName(name);
+        setDeleteModalOpen(true);
+    }, []);
+
+    const onModalSuccess = useCallback(() => {
+        if (modalUserType === 'staff') {
+            fetchStaff();
+        } else {
+            fetchPatients();
+        }
+    }, [modalUserType]); // will add fetchStaff/fetchPatients to dependency array further below if needed, or disable rules 
 
     const fetchStaff = useCallback(async () => {
         setLoading(true);
@@ -473,14 +504,17 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                     {/* Table */}
                     {loading ? (
                         <div className="flex items-center justify-center p-20 bg-white rounded-3xl border border-slate-100">
-                           <div className="flex flex-col items-center gap-4">
+                            <div className="flex flex-col items-center gap-4">
                                <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
                                <p className="text-slate-400 font-bold text-sm tracking-widest uppercase">Loading Users...</p>
                            </div>
                         </div>
                     ) : activeTab === 'staff' ? (
                         <DataTable<StaffMember>
-                            columns={staffColumns}
+                            columns={getStaffColumns(
+                                (staff) => handleEdit('staff', staff.id),
+                                (staff) => handleDelete('staff', staff.id, staff.name)
+                            )}
                             data={staffData}
                             totalItems={totalItems}
                             currentPage={currentStaffPage}
@@ -489,7 +523,10 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                         />
                     ) : (
                         <DataTable<PatientListItem>
-                            columns={patientColumns}
+                            columns={getPatientColumns(
+                                (patient) => handleEdit('patient', patient.id),
+                                (patient) => handleDelete('patient', patient.id, patient.name)
+                            )}
                             data={patientData}
                             totalItems={totalItems}
                             currentPage={currentPatientPage}
@@ -499,6 +536,23 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                     )}
                 </div>
             </div>
+
+            <EditUserModal 
+                isOpen={editModalOpen} 
+                onClose={() => setEditModalOpen(false)} 
+                userType={modalUserType} 
+                userId={selectedUserId} 
+                onSuccess={onModalSuccess} 
+            />
+
+            <DeleteConfirmModal 
+                isOpen={deleteModalOpen} 
+                onClose={() => setDeleteModalOpen(false)} 
+                userType={modalUserType} 
+                userId={selectedUserId} 
+                userName={selectedUserName} 
+                onSuccess={onModalSuccess} 
+            />
         </div>
     );
 };

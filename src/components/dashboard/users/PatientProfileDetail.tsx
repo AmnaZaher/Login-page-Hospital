@@ -38,9 +38,12 @@ import {
     Scan,
     Bone,
     CircleAlert,
+    Trash2
 } from 'lucide-react';
 import type { PatientProfile } from '../../../types/patient.types';
 import VisitDetailsView from './VisitDetailsView';
+import { EditUserModal } from './EditUserModal';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 // ====================================================================
 //                    TAB CONFIG
@@ -265,34 +268,41 @@ const PatientProfileDetail = ({ onMenuClick }: { onMenuClick: () => void }) => {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<TabKey>('personal');
 
-    useEffect(() => {
-        const fetchPatient = async () => {
-            if (!id) return;
-            setLoading(true);
-            try {
-                // Fetch patient by ID or National ID (searching via SearchKey)
-                const data = await patientApi.getPatientById(id);
-                if (data) {
-                    // Supplement with visit history if available
-                    try {
-                        const visits = await patientApi.getVisitHistory();
-                        if (visits) data.visits = visits;
-                    } catch (e) {
-                         console.log("Visit history fetch failed, using default data");
-                    }
-                    setPatient(data);
-                } else {
-                    console.error('Patient record not found');
-                }
-            } catch (error) {
-                console.error('Failed to fetch patient detail:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-        fetchPatient();
+    const loadPatientData = async () => {
+        if (!id) return;
+        setLoading(true);
+        try {
+            // Fetch patient by ID or National ID (searching via SearchKey)
+            const data = await patientApi.getPatientById(id);
+            if (data) {
+                // Supplement with visit history if available
+                try {
+                    const visits = await patientApi.getVisitHistory();
+                    if (visits) data.visits = visits;
+                } catch (e) {
+                     console.log("Visit history fetch failed, using default data");
+                }
+                setPatient(data);
+            } else {
+                console.error('Patient record not found');
+            }
+        } catch (error) {
+            console.error('Failed to fetch patient detail:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadPatientData();
     }, [id]);
+
+    const onDeleteSuccess = () => {
+        navigate('/dashboard/users');
+    };
 
     const breadcrumb: React.ReactNode = (
         <span className="text-slate-400">
@@ -380,13 +390,18 @@ const PatientProfileDetail = ({ onMenuClick }: { onMenuClick: () => void }) => {
                                     Back
                                 </Button>
                                 <Button
+                                    variant="danger"
+                                    size="sm"
+                                    icon={<Trash2 size={14} />}
+                                    onClick={() => setDeleteModalOpen(true)}
+                                >
+                                    Delete
+                                </Button>
+                                <Button
                                     variant="primary"
                                     size="sm"
                                     icon={<Pencil size={14} />}
-                                    onClick={() => {
-                                        // TODO: navigate to edit patient page
-                                        console.log('Edit patient', patient.id);
-                                    }}
+                                    onClick={() => setEditModalOpen(true)}
                                 >
                                     Edit Patient
                                 </Button>
@@ -423,6 +438,23 @@ const PatientProfileDetail = ({ onMenuClick }: { onMenuClick: () => void }) => {
                     {activeTab === 'prescriptions' && <PrescriptionsTab patient={patient} />}
                 </div>
             </div>
+
+            <EditUserModal 
+                isOpen={editModalOpen} 
+                onClose={() => setEditModalOpen(false)} 
+                userType="patient" 
+                userId={patient.id} 
+                onSuccess={loadPatientData} 
+            />
+
+            <DeleteConfirmModal 
+                isOpen={deleteModalOpen} 
+                onClose={() => setDeleteModalOpen(false)} 
+                userType="patient" 
+                userId={patient.id} 
+                userName={patient.name} 
+                onSuccess={onDeleteSuccess} 
+            />
         </div>
     );
 };

@@ -37,18 +37,42 @@ export const staffApi = {
   getStaffById: async (idOrNationalId: string): Promise<StaffProfile | null> => {
     // We fetch a small batch and find the exact match to prevent partial search matches returning the wrong staff member
     try {
-      const response = await fetchApi<StaffListResponse>(`/Admin/Staffs?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=20`);
+      const response = await fetchApi<StaffListResponse>(`/Admin/Staffs?SearchKey=${encodeURIComponent(idOrNationalId)}&PageIndex=0&PageSize=20`);
       
       const list = response.data?.staffs || (response.data as any)?.items || (response.data as any)?.data || [];
       
       // Find the exact match in the returned search results
-      const item = list.find((s: any) => 
-        String(s.id || s.Id || '') === idOrNationalId || 
-        String(s.nationalId || s.NationalId || '') === idOrNationalId || 
-        String(s.username || s.userName || '') === idOrNationalId
-      ) || list[0];
+      const searchId = idOrNationalId.toLowerCase().trim();
+      let item = list.find((s: any) => {
+        return Object.values(s).some(val => 
+          val !== null && 
+          val !== undefined && 
+          String(val).toLowerCase().trim() === searchId
+        );
+      });
       
-      if (!item) return null;
+      // Fallback: If only one result is returned by an ID/National ID search, it's likely our staff member
+      if (!item && list.length === 1) {
+        item = list[0];
+      }
+      
+      // Secondary Fallback: If SearchKey failed entirely (backend doesn't search by ID), fetch recent staff and search locally
+      if (!item) {
+        const fallbackResponse = await fetchApi<StaffListResponse>(`/Admin/Staffs?PageIndex=0&PageSize=100`);
+        const fallbackList = fallbackResponse.data?.staffs || (fallbackResponse.data as any)?.items || (fallbackResponse.data as any)?.data || [];
+        item = fallbackList.find((s: any) => {
+          return Object.values(s).some(val => 
+            val !== null && 
+            val !== undefined && 
+            String(val).toLowerCase().trim() === searchId
+          );
+        });
+      }
+      
+      if (!item) {
+        console.warn(`No exact identity match found in search results for: ${idOrNationalId}.`);
+        return null;
+      }
 
       const rolesMap: Record<string, string> = {
         '1': 'Admin', '2': 'Doctor', '3': 'Nurse', '4': 'Pharmacist', '5': 'Radiologist', '6': 'Lab Technician',
@@ -139,5 +163,18 @@ export const staffApi = {
       body: JSON.stringify({ status: activate ? "Active" : "Disabled" }),
     });
   },
+
+  updateStaff: async (id: string, payload: any): Promise<void> => {
+    await fetchApi(`/Staff/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  deleteStaff: async (id: string): Promise<void> => {
+    await fetchApi(`/Staff/${id}`, {
+      method: "DELETE",
+    });
+  }
 };
 
