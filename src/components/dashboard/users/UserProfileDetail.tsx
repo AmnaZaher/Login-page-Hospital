@@ -13,7 +13,6 @@ import {
     AlertTriangle,
     Trash2,
 } from 'lucide-react';
-import { PATHS } from '../../../routes/routePaths';
 import type { StaffProfile } from '../../../types/staff.types';
 import { EditUserModal } from './EditUserModal';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
