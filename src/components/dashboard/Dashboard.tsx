@@ -16,12 +16,14 @@ import UserManagementList from "./users/UserManagementList";
 import UserProfileDetail from "./users/UserProfileDetail";
 import PatientProfileDetail from "./users/PatientProfileDetail";
 import LabResultDetail from "./users/LabResultDetail";
+import DrSchedulePage from "./schedule/DrSchedulePage";
 import RadiologyReportDetail from "./users/RadiologyReportDetail";
 import PrescriptionDetail from "./users/PrescriptionDetail";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 interface DashboardProps {
   onLogout?: () => void;
+  //onAddUserClick?: (type: 'patient' | 'staff', role?: string) => void;
 }
 
 const Dashboard = ({ onLogout }: DashboardProps) => {
@@ -39,19 +41,20 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Sync activeTab with URL
   useEffect(() => {
     const path = location.pathname;
     if (path.includes("/dashboard/users")) {
       setActiveTab("users");
-    } else if (path.includes("/dashboard/reports")) {
-      setActiveTab("reports");
     } else if (path.includes("/dashboard/appointments")) {
       setActiveTab("appointments");
-    } else if (path.includes("/dashboard/departments")) {
-      setActiveTab("departments");
-    } else if (path.includes("/dashboard/billing")) {
-      setActiveTab("billing");
+    } else if (path.includes("/dashboard/dr-schedule")) {
+      setActiveTab("dr-schedule");
+    } else if (path.includes("/dashboard/radiology")) {
+      setActiveTab("radiology");
+    } else if (path.includes("/dashboard/lab-catalog")) {
+      setActiveTab("lab-catalog");
+    } else if (path.includes("/dashboard/clinics")) {
+      setActiveTab("clinics");
     } else if (path.includes("/dashboard/settings")) {
       setActiveTab("settings");
     } else {
@@ -77,7 +80,9 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
     try {
       const decoded: any = jwtDecode(token);
       const role =
-        decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
+        decoded[
+          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        ] ||
         decoded.role ||
         "";
       const name =
@@ -154,26 +159,6 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
         onLogout={() => {
           onLogout?.();
         }}
-        // onTabChange={(tab) => {
-        //   setActiveTab(tab);
-        //   if (tab === "users") {
-        //     setUserViewMode("list");
-        //     navigate("/dashboard/users");
-        //   } else if (tab === "dashboard") {
-        //     navigate("/dashboard");
-        //   } else if (tab === "reports") {
-        //     navigate("/dashboard/reports");
-        //   } else if (tab === "appointments") {
-        //     navigate("/dashboard/appointments");
-        //   } else if (tab === "departments") {
-        //     navigate("/dashboard/departments");
-        //   } else if (tab === "billing") {
-        //     navigate("/dashboard/billing");
-        //   } else if (tab === "settings") {
-        //     navigate("/dashboard/settings");
-        //   }
-        //   setIsSidebarOpen(false);
-        // }}
         onTabChange={(tab) => {
           setActiveTab(tab);
           if (tab === "users") {
@@ -184,7 +169,8 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {activeTab !== "users" &&
-          !location.pathname.includes("/dashboard/users") && (
+          !location.pathname.includes("/dashboard/users") &&
+          !location.pathname.includes("/dashboard/dr-schedule") && (
             <TopBar
               onMenuClick={() => setIsSidebarOpen(true)}
               onAddUserClick={(type, role) => {
@@ -220,9 +206,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
           <Route
             path="users/patient/:id/lab/:labId"
             element={
-              <LabResultDetail
-                onMenuClick={() => setIsSidebarOpen(true)}
-              />
+              <LabResultDetail onMenuClick={() => setIsSidebarOpen(true)} />
             }
           />
 
@@ -240,9 +224,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
           <Route
             path="users/patient/:id/prescription/:prescriptionId"
             element={
-              <PrescriptionDetail
-                onMenuClick={() => setIsSidebarOpen(true)}
-              />
+              <PrescriptionDetail onMenuClick={() => setIsSidebarOpen(true)} />
             }
           />
 
@@ -284,6 +266,16 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
             }
           />
 
+          {/* DR. Schedule */}
+          <Route
+            path="dr-schedule"
+            element={
+              <div className="flex-1 overflow-y-auto w-full h-full">
+                <DrSchedulePage onMenuClick={() => setIsSidebarOpen(true)} onAddUserClick={() => {}} />
+              </div>
+            }
+          />
+
           {/* Dashboard Home */}
           <Route
             path="*"
@@ -298,9 +290,9 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                       Good Morning Dr. {userName}
                     </h2>
                   </div>
-                  
+
                   <StatCards />
-                  
+
                   <div className="flex flex-col lg:flex-row gap-4">
                     {/* Left Column: Chart & Quick Actions */}
                     <div className="flex-1 space-y-4 min-w-0">
@@ -319,7 +311,6 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
               </main>
             }
           />
-
         </Routes>
       </div>
     </div>
