@@ -8,7 +8,16 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
+
+    // Wait for token check to finish before deciding to redirect
+    if (isLoading) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-slate-50">
+                <div className="animate-spin w-8 h-8 border-4 border-[#1A6FC4] border-t-transparent rounded-full" />
+            </div>
+        );
+    }
 
     if (!isAuthenticated) {
         return <Navigate to={PATHS.LOGIN} replace />;
@@ -18,3 +27,5 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 };
 
 export default ProtectedRoute;
+
+

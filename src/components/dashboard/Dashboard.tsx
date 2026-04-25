@@ -18,6 +18,7 @@ import PatientProfileDetail from "./users/PatientProfileDetail";
 import LabResultDetail from "./users/LabResultDetail";
 import RadiologyReportDetail from "./users/RadiologyReportDetail";
 import PrescriptionDetail from "./users/PrescriptionDetail";
+import ClinicsContainer from "./clinics/ClinicsContainer";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 interface DashboardProps {
@@ -54,6 +55,8 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
       setActiveTab("billing");
     } else if (path.includes("/dashboard/settings")) {
       setActiveTab("settings");
+    } else if (path.includes("/dashboard/clinics")) {
+      setActiveTab("clinics");
     } else {
       setActiveTab("dashboard");
     }
@@ -184,7 +187,9 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {activeTab !== "users" &&
-          !location.pathname.includes("/dashboard/users") && (
+          activeTab !== "clinics" &&
+          !location.pathname.includes("/dashboard/users") &&
+          !location.pathname.includes("/dashboard/clinics") && (
             <TopBar
               onMenuClick={() => setIsSidebarOpen(true)}
               onAddUserClick={(type, role) => {
@@ -244,6 +249,12 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                 onMenuClick={() => setIsSidebarOpen(true)}
               />
             }
+          />
+
+          {/* Clinics */}
+          <Route
+            path="clinics"
+            element={<ClinicsContainer />}
           />
 
           {/* User Management List + Register */}

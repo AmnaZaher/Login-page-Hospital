@@ -11,6 +11,7 @@ interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isAdmin: boolean;
+    isLoading: boolean;
     login: (accessToken: string, refreshToken: string) => void;
     logout: () => void;
 }
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     // On mount — check if token exists in localStorage
     useEffect(() => {
@@ -39,6 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 localStorage.removeItem('refreshToken');
             }
         }
+        setIsLoading(false);
     }, []);
 
     // Decode JWT token
@@ -94,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const isAdmin = user?.role === 'Admin';
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, login, logout }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, isLoading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
