@@ -19,6 +19,7 @@ import LabResultDetail from "./users/LabResultDetail";
 import DrSchedulePage from "./schedule/DrSchedulePage";
 import RadiologyReportDetail from "./users/RadiologyReportDetail";
 import PrescriptionDetail from "./users/PrescriptionDetail";
+import ClinicsContainer from "./clinics/ClinicsContainer";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 interface DashboardProps {
@@ -264,6 +265,12 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                 )}
               </div>
             }
+          />
+
+          {/* Clinics */}
+          <Route
+            path="clinics"
+            element={<ClinicsContainer />}
           />
 
           {/* DR. Schedule */}
