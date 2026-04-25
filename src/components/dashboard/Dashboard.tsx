@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 import Sidebar from "../../components/dashboard/Sidebar";
 import TopBar from "../../components/dashboard/TopBar";
 import StatCards from "../../components/dashboard/StatCards";
@@ -15,44 +16,50 @@ import UserManagementList from "./users/UserManagementList";
 import UserProfileDetail from "./users/UserProfileDetail";
 import PatientProfileDetail from "./users/PatientProfileDetail";
 import LabResultDetail from "./users/LabResultDetail";
+import DrSchedulePage from "./schedule/DrSchedulePage";
 import RadiologyReportDetail from "./users/RadiologyReportDetail";
 import PrescriptionDetail from "./users/PrescriptionDetail";
-import ClinicsContainer from "./clinics/ClinicsContainer";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 
 interface DashboardProps {
   onLogout?: () => void;
+  //onAddUserClick?: (type: 'patient' | 'staff', role?: string) => void;
 }
 
 const Dashboard = ({ onLogout }: DashboardProps) => {
-  const { user } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // Initialize activeTab based on current path to avoid flickering on refresh
-  const getInitialTab = (pathname: string) => {
-    if (pathname.includes("/dashboard/users")) return "users";
-    if (pathname.includes("/dashboard/clinics")) return "clinics";
-    if (pathname.includes("/dashboard/reports")) return "reports";
-    if (pathname.includes("/dashboard/appointments")) return "appointments";
-    if (pathname.includes("/dashboard/departments")) return "departments";
-    if (pathname.includes("/dashboard/billing")) return "billing";
-    if (pathname.includes("/dashboard/settings")) return "settings";
-    return "dashboard";
-  };
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>(getInitialTab(location.pathname));
+  const [userName, setUserName] = useState<string>("User");
+  const [currentDate, setCurrentDate] = useState<string>("");
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
   const [userViewMode, setUserViewMode] = useState<"list" | "register">("list");
-  const [registerMode, setRegisterMode] = useState<"patient" | "staff">("patient");
+  const [registerMode, setRegisterMode] = useState<"patient" | "staff">(
+    "patient",
+  );
   const [registerRole, setRegisterRole] = useState<string>("Doctor");
 
-  const [currentDate, setCurrentDate] = useState<string>("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Sync activeTab with URL
   useEffect(() => {
-    setActiveTab(getInitialTab(location.pathname));
+    const path = location.pathname;
+    if (path.includes("/dashboard/users")) {
+      setActiveTab("users");
+    } else if (path.includes("/dashboard/appointments")) {
+      setActiveTab("appointments");
+    } else if (path.includes("/dashboard/dr-schedule")) {
+      setActiveTab("dr-schedule");
+    } else if (path.includes("/dashboard/radiology")) {
+      setActiveTab("radiology");
+    } else if (path.includes("/dashboard/lab-catalog")) {
+      setActiveTab("lab-catalog");
+    } else if (path.includes("/dashboard/clinics")) {
+      setActiveTab("clinics");
+    } else if (path.includes("/dashboard/settings")) {
+      setActiveTab("settings");
+    } else {
+      setActiveTab("dashboard");
+    }
   }, [location.pathname]);
 
   useEffect(() => {
@@ -63,10 +70,78 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
       day: "numeric",
     };
     setCurrentDate(new Date().toLocaleDateString("en-US", options));
+
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      setAuthError("No authentication token found. Please log in.");
+      return;
+    }
+
+    try {
+      const decoded: any = jwtDecode(token);
+      const role =
+        decoded[
+          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        ] ||
+        decoded.role ||
+        "";
+      const name =
+        decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
+        decoded.unique_name ||
+        decoded.name;
+
+      // If user is not admin (check for string "Admin" or integer 1), restricted access
+      if (role !== "Admin" && role !== "1") {
+        setAuthError("This dashboard is for administrative use only.");
+        return;
+      }
+
+      if (name) {
+        const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+        setUserName(formattedName);
+      }
+    } catch (err) {
+      setAuthError("Invalid authentication token. Please log in again.");
+    }
   }, []);
 
-  const userName = user?.name || "User";
-
+  if (authError) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50 font-sans p-4 text-center">
+        <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg border border-red-100">
+          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">
+            Access Restricted
+          </h2>
+          <p className="text-slate-500 mb-8">{authError}</p>
+          <button
+            onClick={() => {
+              localStorage.removeItem("accessToken");
+              localStorage.removeItem("refreshToken");
+              onLogout?.();
+            }}
+            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl transition-colors"
+          >
+            Return to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-sans relative">
@@ -84,26 +159,6 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
         onLogout={() => {
           onLogout?.();
         }}
-        // onTabChange={(tab) => {
-        //   setActiveTab(tab);
-        //   if (tab === "users") {
-        //     setUserViewMode("list");
-        //     navigate("/dashboard/users");
-        //   } else if (tab === "dashboard") {
-        //     navigate("/dashboard");
-        //   } else if (tab === "reports") {
-        //     navigate("/dashboard/reports");
-        //   } else if (tab === "appointments") {
-        //     navigate("/dashboard/appointments");
-        //   } else if (tab === "departments") {
-        //     navigate("/dashboard/departments");
-        //   } else if (tab === "billing") {
-        //     navigate("/dashboard/billing");
-        //   } else if (tab === "settings") {
-        //     navigate("/dashboard/settings");
-        //   }
-        //   setIsSidebarOpen(false);
-        // }}
         onTabChange={(tab) => {
           setActiveTab(tab);
           if (tab === "users") {
@@ -114,9 +169,8 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {activeTab !== "users" &&
-          activeTab !== "clinics" &&
           !location.pathname.includes("/dashboard/users") &&
-          !location.pathname.includes("/dashboard/clinics") && (
+          !location.pathname.includes("/dashboard/dr-schedule") && (
             <TopBar
               onMenuClick={() => setIsSidebarOpen(true)}
               onAddUserClick={(type, role) => {
@@ -152,9 +206,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
           <Route
             path="users/patient/:id/lab/:labId"
             element={
-              <LabResultDetail
-                onMenuClick={() => setIsSidebarOpen(true)}
-              />
+              <LabResultDetail onMenuClick={() => setIsSidebarOpen(true)} />
             }
           />
 
@@ -172,16 +224,8 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
           <Route
             path="users/patient/:id/prescription/:prescriptionId"
             element={
-              <PrescriptionDetail
-                onMenuClick={() => setIsSidebarOpen(true)}
-              />
+              <PrescriptionDetail onMenuClick={() => setIsSidebarOpen(true)} />
             }
-          />
-
-          {/* Clinics */}
-          <Route
-            path="clinics"
-            element={<ClinicsContainer />}
           />
 
           {/* User Management List + Register */}
@@ -222,6 +266,16 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
             }
           />
 
+          {/* DR. Schedule */}
+          <Route
+            path="dr-schedule"
+            element={
+              <div className="flex-1 overflow-y-auto w-full h-full">
+                <DrSchedulePage onMenuClick={() => setIsSidebarOpen(true)} onAddUserClick={() => {}} />
+              </div>
+            }
+          />
+
           {/* Dashboard Home */}
           <Route
             path="*"
@@ -236,9 +290,9 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                       Good Morning Dr. {userName}
                     </h2>
                   </div>
-                  
+
                   <StatCards />
-                  
+
                   <div className="flex flex-col lg:flex-row gap-4">
                     {/* Left Column: Chart & Quick Actions */}
                     <div className="flex-1 space-y-4 min-w-0">
@@ -257,7 +311,6 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
               </main>
             }
           />
-
         </Routes>
       </div>
     </div>

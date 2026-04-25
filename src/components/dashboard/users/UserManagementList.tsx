@@ -16,8 +16,6 @@ interface UserManagementListProps {
     onAddUserClick: (type: 'patient' | 'staff', role?: string) => void;
 }
 
-
-
 // ==================== Filter Configs ====================
 const staffFilterConfig: FilterConfig[] = [
     {
