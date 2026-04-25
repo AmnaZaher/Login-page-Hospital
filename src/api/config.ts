@@ -24,10 +24,18 @@ export const fetchApi = async <T = any>(
         headers,
     });
 
-    const data = await response.json().catch(() => null);
+    let data: any = null;
+    const text = await response.text();
+    try {
+        data = text ? JSON.parse(text) : {};
+    } catch {
+        data = { message: text };
+    }
 
     if (!response.ok) {
-        let errorMsg = data?.message || `API Error: ${response.status}`;
+        let errorMsg = (data as any)?.message || data?.error || 'API Request Failed';
+        if (response.status === 401) errorMsg = 'Unauthorized access. Please login.';
+        if (response.status === 403) errorMsg = 'Access forbidden.';
         if (data?.errors) {
             const validationErrors = Object.entries(data.errors)
                 .map(([field, msgs]) => `${field}: ${(msgs as string[]).join(', ')}`)

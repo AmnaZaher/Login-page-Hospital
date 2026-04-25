@@ -11,9 +11,12 @@ import {
     History,
     Pencil,
     AlertTriangle,
+    Trash2,
 } from 'lucide-react';
 import { PATHS } from '../../../routes/routePaths';
 import type { StaffProfile } from '../../../types/staff.types';
+import { EditUserModal } from './EditUserModal';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 // ==================== Helper Components ====================
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
@@ -58,27 +61,34 @@ const UserProfileDetail = ({ onMenuClick }: { onMenuClick: () => void }) => {
     const [deactivateModal, setDeactivateModal] = useState(false);
     const [isDeactivating, setIsDeactivating] = useState(false);
 
-    useEffect(() => {
-        const fetchStaff = async () => {
-            if (!id) return;
-            setLoading(true);
-            try {
-                // Fetch staff by ID or Username (searching via SearchKey)
-                const data = await staffApi.getStaffById(id);
-                if (data) {
-                    setUser(data);
-                } else {
-                    console.error('Staff member not found');
-                }
-            } catch (error) {
-                console.error('Failed to fetch staff profile:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-        fetchStaff();
+    const loadStaffData = async () => {
+        if (!id) return;
+        setLoading(true);
+        try {
+            // Fetch staff by ID or Username (searching via SearchKey)
+            const data = await staffApi.getStaffById(id);
+            if (data) {
+                setUser(data);
+            } else {
+                console.error('Staff member not found');
+            }
+        } catch (error) {
+            console.error('Failed to fetch staff profile:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadStaffData();
     }, [id]);
+
+    const onDeleteSuccess = () => {
+        navigate('/dashboard/users');
+    };
 
     const handleDeactivate = async () => {
         setIsDeactivating(true);
@@ -138,15 +148,24 @@ const UserProfileDetail = ({ onMenuClick }: { onMenuClick: () => void }) => {
                 <div className="max-w-[1200px] mx-auto space-y-6 md:space-y-8 pb-10">
                     {/* Header Section */}
                     <Card className="p-6 lg:p-10 flex flex-col md:flex-row items-center gap-6 md:gap-8 relative">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            icon={<Pencil size={14} />}
-                            className="absolute top-6 right-6"
-                            onClick={() => navigate(`${PATHS.EDIT_STAFF}/${user.id}`)}
-                        >
-                            Edit
-                        </Button>
+                        <div className="absolute top-6 right-6 flex items-center gap-3">
+                            <Button
+                                variant="danger"
+                                size="sm"
+                                icon={<Trash2 size={14} />}
+                                onClick={() => setDeleteModalOpen(true)}
+                            >
+                                Delete
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                icon={<Pencil size={14} />}
+                                onClick={() => setEditModalOpen(true)}
+                            >
+                                Edit
+                            </Button>
+                        </div>
 
                         <div className="relative shrink-0">
                             <div className="w-28 h-28 md:w-36 md:h-36 rounded-full p-2 border-2 border-blue-50">
@@ -315,6 +334,23 @@ const UserProfileDetail = ({ onMenuClick }: { onMenuClick: () => void }) => {
                     </div>
                 </div>
             </Modal>
+
+            <EditUserModal 
+                isOpen={editModalOpen} 
+                onClose={() => setEditModalOpen(false)} 
+                userType="staff" 
+                userId={user.id} 
+                onSuccess={loadStaffData} 
+            />
+
+            <DeleteConfirmModal 
+                isOpen={deleteModalOpen} 
+                onClose={() => setDeleteModalOpen(false)} 
+                userType="staff" 
+                userId={user.id} 
+                userName={user.name} 
+                onSuccess={onDeleteSuccess} 
+            />
         </div>
     );
 };

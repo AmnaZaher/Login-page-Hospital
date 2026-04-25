@@ -33,18 +33,42 @@ export const patientApi = {
   getPatientById: async (idOrNationalId: string): Promise<PatientProfile | null> => {
     // We fetch a small batch and find the exact match to prevent partial search matches returning the wrong patient
     try {
-      const response = await fetchApi<PatientListResponse>(`/Admin/Patients?SearchKey=${idOrNationalId}&PageIndex=0&PageSize=20`);
+      const response = await fetchApi<PatientListResponse>(`/Admin/Patients?SearchKey=${encodeURIComponent(idOrNationalId)}&PageIndex=0&PageSize=20`);
       
       const list = response.data?.patients || (response.data as any)?.items || (response.data as any)?.data || [];
       
       // Find the exact match in the returned search results
-      const item = list.find((p: any) => 
-        String(p.id || p.Id || '') === idOrNationalId || 
-        String(p.nationalId || p.NationalId || '') === idOrNationalId || 
-        String(p.patientId || p.PatientId || '') === idOrNationalId
-      ) || list[0];
+      const searchId = idOrNationalId.toLowerCase().trim();
+      let item = list.find((p: any) => {
+        return Object.values(p).some(val => 
+          val !== null && 
+          val !== undefined && 
+          String(val).toLowerCase().trim() === searchId
+        );
+      });
       
-      if (!item) return null;
+      // Fallback: If only one result is returned by an ID/National ID search, it's likely our patient
+      if (!item && list.length === 1) {
+        item = list[0];
+      }
+      
+      // Secondary Fallback: If SearchKey failed entirely (backend doesn't search by ID), fetch recent patients and search locally
+      if (!item) {
+        const fallbackResponse = await fetchApi<PatientListResponse>(`/Admin/Patients?PageIndex=0&PageSize=100`);
+        const fallbackList = fallbackResponse.data?.patients || (fallbackResponse.data as any)?.items || (fallbackResponse.data as any)?.data || [];
+        item = fallbackList.find((p: any) => {
+          return Object.values(p).some(val => 
+            val !== null && 
+            val !== undefined && 
+            String(val).toLowerCase().trim() === searchId
+          );
+        });
+      }
+      
+      if (!item) {
+        console.warn(`No exact identity match found in search results for: ${idOrNationalId}.`);
+        return null;
+      }
 
       // Helper to calculate age if not provided by backend
       const calculateAge = (dob: string) => {
@@ -118,12 +142,25 @@ export const patientApi = {
   },
 
   getVisitHistory: async (): Promise<Visit[]> => {
-      const response = await fetchApi<Visit[]>('/MedicalRecorde/VisitHistory');
+      const response = await fetchApi<Visit[]>('/MedicalRecords/VisitHistory');
       return response.data!;
   },
 
   getVisitDetails: async (visitId: string | number): Promise<any> => {
       const response = await fetchApi<any>(`/Visit/${visitId}`);
       return response.data!;
+  },
+
+  updatePatient: async (id: string, payload: any): Promise<void> => {
+    await fetchApi(`/Patient/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+    });
+  },
+
+  deletePatient: async (id: string): Promise<void> => {
+    await fetchApi(`/Patient/${id}`, {
+        method: 'DELETE'
+    });
   }
 };
