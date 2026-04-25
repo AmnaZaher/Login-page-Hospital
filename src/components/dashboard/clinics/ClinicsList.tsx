@@ -23,21 +23,32 @@ const ClinicsList: React.FC<ClinicsListProps> = ({ onAddClinic, onEditClinic }) 
     try {
       setLoading(true);
       const [clinicsRes, statsRes] = await Promise.all([
-        getClinics({ PageIndex: page, PageSize: pageSize, search: searchTerm }),
+        getClinics({ PageIndex: page - 1, PageSize: pageSize, search: searchTerm }),
         getClinicStats()
       ]);
       
-      if (Array.isArray(clinicsRes)) {
-        setClinics(clinicsRes);
-      } else if (clinicsRes.data) {
-        setClinics(clinicsRes.data);
-        const dataWithPages = clinicsRes as any;
-        if (dataWithPages.totalPages) setTotalPages(dataWithPages.totalPages);
-      } else {
-         setClinics((clinicsRes as any)?.data || (clinicsRes as any) || []);
+      let validClinics: Clinic[] = [];
+      const extractedList = 
+         clinicsRes?.data?.data || 
+         clinicsRes?.data?.clinics ||
+         clinicsRes?.clinics || 
+         clinicsRes?.items || 
+         clinicsRes?.data?.items ||
+         (Array.isArray(clinicsRes?.data) ? clinicsRes.data : []) ||
+         (Array.isArray(clinicsRes) ? clinicsRes : []);
+         
+      if (Array.isArray(extractedList)) {
+         validClinics = extractedList;
       }
       
-      setStats(statsRes as any);
+      const totalPagesValue = clinicsRes?.data?.totalPages || clinicsRes?.totalPages;
+      if (totalPagesValue) {
+         setTotalPages(totalPagesValue);
+      }
+      
+      setClinics(validClinics);
+      
+      setStats(statsRes?.data || statsRes || null);
     } catch (err) {
       console.error('Error fetching clinics data:', err);
     } finally {

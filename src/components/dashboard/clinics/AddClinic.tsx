@@ -42,7 +42,12 @@ const AddClinic: React.FC<AddClinicProps> = ({ onCancel, onSuccess }) => {
     try {
       setSubmitting(true);
       const workingDays = selectedDays.join(',');
-      await createClinic({ ...form, workingDays });
+      const res: any = await createClinic({ ...form, workingDays });
+      
+      if (res && res.isSuccess === false) {
+          throw new Error(res.message || 'Failed to create clinic due to server validation.');
+      }
+      
       onSuccess();
     } catch (err: any) {
       setError(err?.message || 'Failed to create clinic. Please try again.');

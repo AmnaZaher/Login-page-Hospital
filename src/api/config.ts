@@ -34,7 +34,11 @@ export const fetchApi = async <T = any>(
 
     if (!response.ok) {
         let errorMsg = (data as any)?.message || data?.error || 'API Request Failed';
-        if (response.status === 401) errorMsg = 'Unauthorized access. Please login.';
+        if (response.status === 401) {
+            errorMsg = 'Unauthorized access. Please login.';
+            // Dispatch a global event so AuthContext can log the user out
+            window.dispatchEvent(new Event('auth:unauthorized'));
+        }
         if (response.status === 403) errorMsg = 'Access forbidden.';
         if (data?.errors) {
             const validationErrors = Object.entries(data.errors)
