@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-    Plus, Search, Edit2, Trash2, Loader2, CalendarCheck,
-    ChevronLeft, ChevronRight, X, Calendar, User, Stethoscope, Building2, FileText
+    Search, Edit2, Trash2, Loader2, CalendarCheck,
+    ChevronLeft, ChevronRight
 } from 'lucide-react';
 import {
     listAppointments, deleteAppointment, type Appointment
 } from '../../../api/appointments';
 import { getClinics } from '../../../api/clinics';
-import { patientApi } from '../../../api/patient';
 import { staffApi } from '../../../api/staff';
 
 /* ─────────────── helpers ─────────────── */
@@ -74,7 +73,6 @@ const AppointmentManagementPage: React.FC = () => {
     // Dropdowns for modal
     const [doctors, setDoctors] = useState<any[]>([]);
     const [clinics, setClinics] = useState<any[]>([]);
-    const [patients, setPatients] = useState<any[]>([]);
 
     /* ── Fetch appointments ── */
     const fetchAppointments = useCallback(async () => {
@@ -121,10 +119,9 @@ const AppointmentManagementPage: React.FC = () => {
     useEffect(() => {
         const load = async () => {
             try {
-                const [drRes, clinicRes, ptRes] = await Promise.all([
+                const [drRes, clinicRes] = await Promise.all([
                     staffApi.getStaffs({ PageIndex: 0, PageSize: 100 }),
                     getClinics({ PageIndex: 0, PageSize: 100 }),
-                    patientApi.getPatients({ PageIndex: 0, PageSize: 100 }),
                 ]);
 
                 const staffList = (drRes as any)?.staffs ?? (drRes as any)?.items ?? (drRes as any)?.data ?? (drRes as any)?.data?.data ?? (Array.isArray(drRes) ? drRes : []);
@@ -156,8 +153,7 @@ const AppointmentManagementPage: React.FC = () => {
                     (Array.isArray((clinicRes as any)?.data) ? (clinicRes as any).data : []);
                 setClinics(clinicList);
 
-                const ptList = (ptRes as any)?.patients ?? (ptRes as any)?.items ?? (Array.isArray(ptRes) ? ptRes : []);
-                setPatients(ptList);
+
             } catch (e) {
                 console.error('Failed to load dropdown data:', e);
             }

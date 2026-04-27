@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronRight, User, Stethoscope, Building2, Calendar as CalendarIcon, Clock, Lock, FileText, Loader2 } from 'lucide-react';
-import { getAppointmentDetails, updateAppointment, type AppointmentStatus } from '../../../api/appointments';
+import { getAppointmentDetails, updateAppointment } from '../../../api/appointments';
 import { patientApi } from '../../../api/patient';
 import { getClinics } from '../../../api/clinics';
 import { staffApi } from '../../../api/staff';
