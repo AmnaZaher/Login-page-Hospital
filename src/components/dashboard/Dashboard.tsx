@@ -20,6 +20,8 @@ import DrSchedulePage from "./schedule/DrSchedulePage";
 import RadiologyReportDetail from "./users/RadiologyReportDetail";
 import PrescriptionDetail from "./users/PrescriptionDetail";
 import ClinicsContainer from "./clinics/ClinicsContainer";
+import AppointmentManagementPage from "./appointments/AppointmentManagementPage";
+import EditAppointmentPage from "./appointments/EditAppointmentPage";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 interface DashboardProps {
@@ -171,7 +173,8 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {activeTab !== "users" &&
           !location.pathname.includes("/dashboard/users") &&
-          !location.pathname.includes("/dashboard/dr-schedule") && (
+          !location.pathname.includes("/dashboard/dr-schedule") &&
+          !location.pathname.includes("/dashboard/appointments") && (
             <TopBar
               onMenuClick={() => setIsSidebarOpen(true)}
               onAddUserClick={(type, role) => {
@@ -263,6 +266,25 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                     )}
                   </div>
                 )}
+              </div>
+            }
+          />
+
+          {/* Appointments */}
+          <Route
+            path="appointments"
+            element={
+              <div className="flex-1 overflow-y-auto w-full h-full">
+                <AppointmentManagementPage />
+              </div>
+            }
+          />
+
+          <Route
+            path="appointments/edit/:id"
+            element={
+              <div className="flex-1 overflow-y-auto w-full h-full">
+                <EditAppointmentPage />
               </div>
             }
           />
