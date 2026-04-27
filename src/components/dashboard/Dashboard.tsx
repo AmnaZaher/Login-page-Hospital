@@ -97,8 +97,11 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
         decoded.unique_name ||
         decoded.name;
 
-      // If user is not admin (check for string "Admin" or integer 1), restricted access
-      if (role !== "Admin" && role !== "1") {
+      // Handle single role string or array of roles
+      const roles = Array.isArray(role) ? role : [role];
+      const isAdmin = roles.some(r => r === "Admin" || r === "1");
+
+      if (!isAdmin) {
         setAuthError("This dashboard is for administrative use only.");
         return;
       }
@@ -178,7 +181,8 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
         {activeTab !== "users" &&
           !location.pathname.includes("/dashboard/users") &&
           !location.pathname.includes("/dashboard/dr-schedule") &&
-          !location.pathname.includes("/dashboard/appointments") && (
+          !location.pathname.includes("/dashboard/appointments") &&
+          !location.pathname.includes("/dashboard/users/patient/edit") && (
             <TopBar
               onMenuClick={() => setIsSidebarOpen(true)}
               onAddUserClick={(type, role) => {
@@ -200,6 +204,12 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
             }
           />
 
+          {/* Edit Patient Profile - Move above detail to ensure specificity */}
+          <Route
+            path="users/patient/edit/:id"
+            element={<EditPatientProfilePage />}
+          />
+
           {/* Patient Profile */}
           <Route
             path="users/patient/:id"
@@ -208,12 +218,6 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                 onMenuClick={() => setIsSidebarOpen(true)}
               />
             }
-          />
-
-          {/* Edit Patient Profile */}
-          <Route
-            path="users/patient/edit/:id"
-            element={<EditPatientProfilePage />}
           />
 
           {/* Lab Result Detail */}

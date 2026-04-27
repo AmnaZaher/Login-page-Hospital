@@ -89,15 +89,21 @@ export default function EditPatientProfilePage() {
         setSaving(true);
         setError('');
         try {
-            // Helper to format MM/DD/YYYY to YYYY-MM-DD
             const formatDate = (dateStr: string) => {
-                if (!dateStr) return null;
-                // If already in YYYY-MM-DD format, return it
-                if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) return dateStr;
+                if (!dateStr) return '';
+                if (dateStr.includes('T')) return dateStr;
                 
-                const parts = dateStr.split('/');
+                // Handle YYYY-MM-DD (native picker)
+                if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                    return `${dateStr}T00:00:00`;
+                }
+                
+                // Handle MM-DD-YYYY or MM/DD/YYYY
+                const parts = dateStr.split(/[-/]/);
                 if (parts.length === 3) {
-                    const [m, d, y] = parts;
+                    let [m, d, y] = parts;
+                    // Detect if YYYY is at the start (already handled but just in case)
+                    if (m.length === 4) return `${m}-${d.padStart(2, '0')}-${y.padStart(2, '0')}T00:00:00`;
                     return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}T00:00:00`;
                 }
                 return dateStr;
@@ -162,7 +168,11 @@ export default function EditPatientProfilePage() {
     if (loading) {
         return (
             <div className="flex flex-col h-full bg-slate-50 w-full relative">
-                <TopBar title={breadcrumb} onMenuClick={() => {}} onAddUserClick={() => navigate('/dashboard/users')} />
+                <TopBar 
+                    title={breadcrumb} 
+                    onMenuClick={() => {}} 
+                    showAddUser={false}
+                />
                 <div className="flex-1 flex items-center justify-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
@@ -172,7 +182,11 @@ export default function EditPatientProfilePage() {
 
     return (
         <div className="flex flex-col flex-1 h-full w-full bg-slate-50 relative font-sans overflow-hidden">
-            <TopBar title={breadcrumb} onMenuClick={() => {}} onAddUserClick={() => navigate('/dashboard/users')} />
+            <TopBar 
+                title={breadcrumb} 
+                onMenuClick={() => {}} 
+                showAddUser={false} 
+            />
 
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-[1200px] mx-auto flex flex-col lg:flex-row gap-6 pb-10">
