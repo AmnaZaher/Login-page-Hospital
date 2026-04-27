@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Save, Info, Clock, Share2 } from 'lucide-react';
 import { createClinic } from '../../../api/clinics';
 import type { CreateClinicDto } from '../../../types/clinics.types';
+import { useNavigate } from 'react-router-dom';
 
 interface AddClinicProps {
   onCancel: () => void;
@@ -22,6 +23,7 @@ const AddClinic: React.FC<AddClinicProps> = ({ onCancel, onSuccess }) => {
   const [selectedDays, setSelectedDays] = useState<string[]>(['Monday']);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -63,7 +65,7 @@ const AddClinic: React.FC<AddClinicProps> = ({ onCancel, onSuccess }) => {
         {/* Breadcrumb & Header */}
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-            <span>Dashboards</span>
+            <span className="text-slate-500 cursor-pointer hover:text-[#1A6FC4] transition-colors" onClick={() => navigate('/dashboard')}>Dashboards</span>
             <span>{"\u203A"}</span>
             <span
               className="text-slate-500 cursor-pointer hover:text-[#1A6FC4] transition-colors"

@@ -20,6 +20,9 @@ import DrSchedulePage from "./schedule/DrSchedulePage";
 import RadiologyReportDetail from "./users/RadiologyReportDetail";
 import PrescriptionDetail from "./users/PrescriptionDetail";
 import ClinicsContainer from "./clinics/ClinicsContainer";
+import ClinicDetails from "./clinics/ClinicDetails";
+import EditClinic from "./clinics/EditClinic";
+import AssignStaff from "./clinics/AssignStaff";
 import AppointmentManagementPage from "./appointments/AppointmentManagementPage";
 import EditAppointmentPage from "./appointments/EditAppointmentPage";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
@@ -290,17 +293,22 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
           />
 
           {/* Clinics */}
-          <Route
-            path="clinics"
-            element={<ClinicsContainer />}
-          />
+          <Route path="clinics" element={<ClinicsContainer />} />
+          <Route path="clinics/:id" element={<ClinicDetails />} />
+
+          <Route path="clinics/edit/:id" element={<EditClinic />} />
+
+          <Route path="clinics/assign/:id" element={<AssignStaff />} />
 
           {/* DR. Schedule */}
           <Route
             path="dr-schedule"
             element={
               <div className="flex-1 overflow-y-auto w-full h-full">
-                <DrSchedulePage onMenuClick={() => setIsSidebarOpen(true)} onAddUserClick={() => {}} />
+                <DrSchedulePage
+                  onMenuClick={() => setIsSidebarOpen(true)}
+                  onAddUserClick={() => {}}
+                />
               </div>
             }
           />
