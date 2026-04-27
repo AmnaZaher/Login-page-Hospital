@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { 
   Plus, Search, Trash2, Info, 
   ChevronRight, CheckCircle2 
 } from 'lucide-react';
 
 const AssignStaff: React.FC = () => {
-  useParams();
+
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'Doctors' | 'Nurses'>('Doctors');
 
@@ -34,9 +35,13 @@ const AssignStaff: React.FC = () => {
         {/* 3. اختيار العيادة */}
         <div className="max-w-md space-y-2">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Select Target Clinic</label>
-          <select className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 shadow-sm outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all cursor-pointer">
-            <option>Cardiology Outpatient - West Wing</option>
+          <select 
+            className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 shadow-sm outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all cursor-pointer"
+            defaultValue={id || "Cardiology Outpatient - West Wing"}
+          >
+            <option value="WWD-482">{id === "WWD-482" ? "Metropolitan Cardiac Center" : "Cardiology Outpatient - West Wing"}</option>
             <option>Neurology Lab - East Wing</option>
+            {id && id !== "WWD-482" && <option value={id}>Clinic ID: {id}</option>}
           </select>
         </div>
 
