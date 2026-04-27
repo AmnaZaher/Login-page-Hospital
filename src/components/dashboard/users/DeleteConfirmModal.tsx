@@ -29,9 +29,9 @@ export const DeleteConfirmModal = ({ isOpen, onClose, userType, userId, userName
             }
             onSuccess();
             onClose();
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to delete user:", err);
-            setError('Failed to delete user.');
+            setError(err?.message || 'Failed to delete user.');
         } finally {
             setDeleting(false);
         }

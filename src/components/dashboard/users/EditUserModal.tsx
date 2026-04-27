@@ -65,9 +65,9 @@ export const EditUserModal = ({ isOpen, onClose, userType, userId, onSuccess }: 
             }
             onSuccess();
             onClose();
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to save changes:", err);
-            setError('Failed to save changes.');
+            setError(err?.message || 'Failed to save changes.');
         } finally {
             setSaving(false);
         }

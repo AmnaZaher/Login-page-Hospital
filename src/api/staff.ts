@@ -165,16 +165,30 @@ export const staffApi = {
   },
 
   updateStaff: async (id: string, payload: any): Promise<void> => {
-    await fetchApi(`/Staff/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(payload),
-    });
+    // Try Admin endpoint first
+    try {
+      await fetchApi(`/Admin/Staff/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+      return;
+    } catch (adminErr: any) {
+      console.warn('Admin Staff PUT failed:', adminErr.message);
+      throw new Error(adminErr.message || 'Staff update is not supported by the current API.');
+    }
   },
 
   deleteStaff: async (id: string): Promise<void> => {
-    await fetchApi(`/Staff/${id}`, {
-      method: "DELETE",
-    });
+    // Try Admin endpoint first
+    try {
+      await fetchApi(`/Admin/Staff/${id}`, {
+        method: "DELETE",
+      });
+      return;
+    } catch (adminErr: any) {
+      console.warn('Admin Staff DELETE failed:', adminErr.message);
+      throw new Error(adminErr.message || 'Staff deletion is not supported by the current API.');
+    }
   }
 };
 

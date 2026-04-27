@@ -522,7 +522,7 @@ const UserManagementList = ({ onMenuClick, onAddUserClick }: UserManagementListP
                     ) : (
                         <DataTable<PatientListItem>
                             columns={getPatientColumns(
-                                (patient) => handleEdit('patient', patient.id),
+                                (patient) => navigate(`/dashboard/users/patient/edit/${patient.id}`),
                                 (patient) => handleDelete('patient', patient.id, patient.name)
                             )}
                             data={patientData}

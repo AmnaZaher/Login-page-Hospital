@@ -25,6 +25,7 @@ import EditClinic from "./clinics/EditClinic";
 import AssignStaff from "./clinics/AssignStaff";
 import AppointmentManagementPage from "./appointments/AppointmentManagementPage";
 import EditAppointmentPage from "./appointments/EditAppointmentPage";
+import EditPatientProfilePage from "./users/EditPatientProfilePage";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 interface DashboardProps {
@@ -207,6 +208,12 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                 onMenuClick={() => setIsSidebarOpen(true)}
               />
             }
+          />
+
+          {/* Edit Patient Profile */}
+          <Route
+            path="users/patient/edit/:id"
+            element={<EditPatientProfilePage />}
           />
 
           {/* Lab Result Detail */}

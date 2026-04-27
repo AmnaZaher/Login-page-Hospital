@@ -401,7 +401,7 @@ const PatientProfileDetail = ({ onMenuClick }: { onMenuClick: () => void }) => {
                                     variant="primary"
                                     size="sm"
                                     icon={<Pencil size={14} />}
-                                    onClick={() => setEditModalOpen(true)}
+                                    onClick={() => navigate(`/dashboard/users/patient/edit/${patient.id}`)}
                                 >
                                     Edit Patient
                                 </Button>

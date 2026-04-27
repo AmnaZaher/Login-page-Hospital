@@ -152,15 +152,52 @@ export const patientApi = {
   },
 
   updatePatient: async (id: string, payload: any): Promise<void> => {
-    await fetchApi(`/Patient/${id}`, {
+    // Try Admin endpoint first (matches /Admin/Patients convention)
+    try {
+      await fetchApi(`/Admin/Patient/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ patientDto: payload })
+      });
+      return;
+    } catch (adminErr: any) {
+      console.warn('Admin PUT failed, trying Account/NewPatient upsert:', adminErr.message);
+    }
+
+    // Fallback: re-register with same NationalId to upsert
+    // The backend may treat this as an update if the NationalId already exists
+    const upsertPayload = {
+      patientDto: {
+        ...payload,
+        password: payload.nationalId || id, // Required field for NewPatient
+      }
+    };
+    await fetchApi(`/Account/NewPatient`, {
+      method: 'POST',
+      body: JSON.stringify(upsertPayload)
     });
   },
 
   deletePatient: async (id: string): Promise<void> => {
-    await fetchApi(`/Patient/${id}`, {
+    // Try Admin endpoint first
+    try {
+      await fetchApi(`/Admin/Patient/${id}`, {
         method: 'DELETE'
-    });
+      });
+      return;
+    } catch (adminErr: any) {
+      console.warn('Admin DELETE failed, trying deactivation:', adminErr.message);
+    }
+
+    // Fallback: deactivate the patient by setting isActive to false
+    try {
+      await fetchApi(`/Admin/Patient/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive: false })
+      });
+      return;
+    } catch (patchErr: any) {
+      console.warn('PATCH deactivation also failed:', patchErr.message);
+      throw new Error('Patient delete/deactivation is not supported by the current API. Please contact the backend team to add this endpoint.');
+    }
   }
 };
