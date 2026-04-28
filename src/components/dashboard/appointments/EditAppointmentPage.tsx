@@ -1,3 +1,4 @@
+// EditAppointmentPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronRight, User, Stethoscope, Building2, Calendar as CalendarIcon, Clock, Lock, FileText, Loader2 } from 'lucide-react';
@@ -156,7 +157,7 @@ const EditAppointmentPage: React.FC = () => {
                 
                 {/* Header */}
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider mb-2">
-                    <span className="text-slate-900 cursor-pointer hover:text-[#1A6FC4]" onClick={() => navigate('/dashboard/appointments')}>APPOINTMENT MANAGMENT</span>
+                    <span className="text-slate-900 cursor-pointer hover:text-[#1A6FC4]" onClick={() => navigate('/dashboard/appointments')}>Appointments Management</span>
                     <ChevronRight size={14} className="text-slate-400" />
                     <span className="text-[#1A6FC4]">EDIT APPOINTMENT</span>
                 </div>
