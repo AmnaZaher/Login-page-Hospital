@@ -44,9 +44,46 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
     "patient",
   );
   const [registerRole, setRegisterRole] = useState<string>("Doctor");
-
   const navigate = useNavigate();
   const location = useLocation();
+
+  const getPageTitle = () => {
+    const path = location.pathname;
+
+    // حالات خاصة للمسارات التفصيلية
+    if (
+      path.includes("/dashboard/clinics/details") ||
+      path.includes("/dashboard/clinics/WWD")
+    )
+      return "Clinic Details";
+    if (path.includes("/dashboard/clinics/edit")) return "Edit Clinic";
+    if (path.includes("/dashboard/clinics/assign")) return "Assign Staff";
+    if (path.includes("/dashboard/users/patient/edit")) return "Edit Patient Profile";
+    if (path.includes("/dashboard/users/patient/")) return "Patient Profile";
+    if (path.includes("/dashboard/users/staff/")) return "Staff Profile";
+    if (path.includes("/dashboard/appointments")) return "Appointments";
+    if (path.includes("/dashboard/appointments/edit")) return "Appointment Management";
+
+    // حالات الـ Tabs الأساسية
+    switch (activeTab) {
+      case "users":
+        return "User Management";
+      case "clinics":
+        return "Clinics Management";
+      case "appointments":
+        return "Appointments";
+      case "dr-schedule":
+        return "Doctor Schedule";
+      case "radiology":
+        return "Radiology Center";
+      case "lab-catalog":
+        return "Lab Catalog";
+      case "settings":
+        return "Settings";
+      default:
+        return "Dashboard Overview";
+    }
+  };
 
   useEffect(() => {
     const path = location.pathname;
@@ -99,7 +136,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
 
       // Handle single role string or array of roles
       const roles = Array.isArray(role) ? role : [role];
-      const isAdmin = roles.some(r => r === "Admin" || r === "1");
+      const isAdmin = roles.some((r) => r === "Admin" || r === "1");
 
       if (!isAdmin) {
         setAuthError("This dashboard is for administrative use only.");
@@ -181,9 +218,10 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
         {activeTab !== "users" &&
           !location.pathname.includes("/dashboard/users") &&
           !location.pathname.includes("/dashboard/dr-schedule") &&
-          !location.pathname.includes("/dashboard/appointments") &&
+          //!location.pathname.includes("/dashboard/appointments") &&
           !location.pathname.includes("/dashboard/users/patient/edit") && (
             <TopBar
+              title={getPageTitle()}
               onMenuClick={() => setIsSidebarOpen(true)}
               onAddUserClick={(type, role) => {
                 setActiveTab("users");
@@ -192,6 +230,7 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
                 if (role) setRegisterRole(role);
                 navigate("/dashboard/users");
               }}
+              showAddUser={true}
             />
           )}
 

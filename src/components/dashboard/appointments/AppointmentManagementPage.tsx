@@ -184,7 +184,7 @@ const AppointmentManagementPage: React.FC = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                            <span>Dashboards</span><span>›</span>
+                            <span className="cursor-pointer hover:text-[#1A6FC4]" onClick={() => navigate('/dashboard')}>Dashboards</span><span>›</span>
                             <span className="text-[#1A6FC4]">Appointments</span>
                         </div>
                         <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Appointment Management</h1>
