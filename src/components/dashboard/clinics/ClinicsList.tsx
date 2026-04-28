@@ -7,6 +7,8 @@ import {
   Zap,
   Search,
   Loader2,
+  Users,
+  Activity,
 } from "lucide-react";
 import {
   getClinics,
@@ -16,11 +18,27 @@ import {
 } from "../../../api/clinics";
 import type { Clinic, ClinicStats } from "../../../types/clinics.types";
 import { useNavigate } from "react-router-dom";
+import DeleteModal from "./DeleteModal";
 
 interface ClinicsListProps {
   onAddClinic: () => void;
   onEditClinic?: (clinic: Clinic) => void;
 }
+
+const StatCard = ({ label, value, icon, trend }: { label: string; value: string; icon: React.ReactNode; trend: string }) => (
+  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 hover:border-blue-100 transition-all">
+    <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600 border border-slate-100">
+      {icon}
+    </div>
+    <div>
+      <div className="text-2xl font-black text-slate-900">{value}</div>
+      <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</div>
+      <div className="text-[10px] font-bold text-blue-500 uppercase tracking-tighter bg-blue-50/50 px-2 py-0.5 rounded-full inline-block">
+        {trend}
+      </div>
+    </div>
+  </div>
+);
 
 const ClinicsList: React.FC<ClinicsListProps> = ({
   onAddClinic,
@@ -31,6 +49,10 @@ const ClinicsList: React.FC<ClinicsListProps> = ({
   const [stats, setStats] = useState<ClinicStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Delete Modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [clinicToDelete, setClinicToDelete] = useState<Clinic | null>(null);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -96,20 +118,45 @@ const ClinicsList: React.FC<ClinicsListProps> = ({
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this clinic?")) {
-      try {
-        await deleteClinic(id);
-        fetchData();
-      } catch (err) {
-        console.error("Failed to delete clinic", err);
-      }
+  const handleDeleteClick = (e: React.MouseEvent, clinic: Clinic) => {
+    e.stopPropagation();
+    setClinicToDelete(clinic);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!clinicToDelete) return;
+    try {
+      await deleteClinic(clinicToDelete.id);
+      setIsDeleteModalOpen(false);
+      setClinicToDelete(null);
+      fetchData();
+    } catch (err) {
+      console.error("Failed to delete clinic", err);
+      alert("Failed to delete clinic. Please try again.");
     }
   };
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50 font-sans">
       <div className="max-w-[1200px] mx-auto space-y-6">
+        
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <StatCard
+            label="Total Registered Clinics"
+            value={(stats?.totalClinics || 0).toString()}
+            icon={<Users className="text-blue-600" size={24} />}
+            trend="All system facilities"
+          />
+          <StatCard
+            label="Active Clinical Units"
+            value={(stats?.activeUnits || 0).toString()}
+            icon={<Activity className="text-emerald-600" size={24} />}
+            trend="Currently operational"
+          />
+        </div>
+
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -233,7 +280,10 @@ const ClinicsList: React.FC<ClinicsListProps> = ({
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => handleToggleStatus(clinic)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleStatus(clinic);
+                            }}
                             className={`w-10 h-5 rounded-full relative transition-colors ${clinic.isActive ? "bg-[#1A6FC4]" : "bg-slate-300"}`}
                           >
                             <div
@@ -250,13 +300,16 @@ const ClinicsList: React.FC<ClinicsListProps> = ({
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3 text-slate-400">
                           <button
-                            onClick={() => onEditClinic?.(clinic)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditClinic?.(clinic);
+                            }}
                             className="hover:text-[#1A6FC4] transition-colors"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
-                            onClick={() => handleDelete(clinic.id)}
+                            onClick={(e) => handleDeleteClick(e, clinic)}
                             className="hover:text-red-500 transition-colors"
                           >
                             <Trash2 size={16} />
@@ -306,37 +359,15 @@ const ClinicsList: React.FC<ClinicsListProps> = ({
           )}
         </div>
 
-        {/* Stats Cards Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#1A6FC4]/10 rounded-xl flex items-center justify-center text-[#1A6FC4]">
-              <Building2 size={24} />
-            </div>
-            <div>
-              <div className="text-2xl font-black text-slate-900">
-                {stats?.totalClinics || 0}
-              </div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Total Clinics
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
-            <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500">
-              <Zap size={24} className="fill-current" />
-            </div>
-            <div>
-              <div className="text-2xl font-black text-slate-900">
-                {stats?.activeUnits || 0}
-              </div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Active Units
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
+
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        itemName={clinicToDelete?.clinicNameEn || clinicToDelete?.clinicNameAr || "Clinic"}
+        itemId={clinicToDelete?.id.toString() || ""}
+      />
     </div>
   );
 };

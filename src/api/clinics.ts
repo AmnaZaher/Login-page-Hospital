@@ -24,27 +24,47 @@ export const getClinics = async (params?: {
 };
 
 export const getClinicStats = async () => {
-    return fetchApi<ClinicStats>('/Clinics/ClinicStatistical', {
+    return fetchApi('/Clinics/ClinicStatistical', {
         method: 'GET',
     });
 };
 
-export const createClinic = async (data: CreateClinicDto) => {
-    return fetchApi<Clinic>('/Clinics', {
+export const createClinic = async (clinic: CreateClinicDto) => {
+    return fetchApi('/Clinics', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+            ClinicCode: clinic.clinicCode,
+            ClinicNameAr: clinic.clinicNameAr,
+            ClinicNameEn: clinic.clinicNameEn,
+            Specialization: clinic.specialization,
+            WorkingDays: clinic.workingDays,
+            IsActive: clinic.isActive
+        }),
     });
 };
 
-export const updateClinic = async (id: number, data: UpdateClinicDto) => {
-    return fetchApi<Clinic>(`/Clinics/${id}`, {
+export const updateClinic = async (id: number, clinic: UpdateClinicDto) => {
+    return fetchApi(`/Clinics/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+            ClinicCode: clinic.clinicCode,
+            ClinicNameAr: clinic.clinicNameAr,
+            ClinicNameEn: clinic.clinicNameEn,
+            Specialization: clinic.specialization,
+            WorkingDays: clinic.workingDays,
+            IsActive: clinic.isActive
+        }),
     });
 };
 
 export const deleteClinic = async (id: number) => {
-    return fetchApi<void>(`/Clinics/${id}`, {
+    return fetchApi(`/Clinics/${id}`, {
         method: 'DELETE',
+    });
+};
+
+export const getClinicById = async (id: number) => {
+    return fetchApi<Clinic>(`/Clinics/${id}`, {
+        method: 'GET',
     });
 };

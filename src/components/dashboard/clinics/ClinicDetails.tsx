@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -10,29 +10,101 @@ import {
   Info,
   MapPin,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import DeleteModal from "./DeleteModal";
+import { getClinicById, deleteClinic } from "../../../api/clinics";
+import type { Clinic } from "../../../types/clinics.types";
 
 const ClinicDetails: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [clinic, setClinic] = useState<Clinic | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const clinicData = {
-    name: "Metropolitan Cardiac Center",
-    id: id || "WWD-482",
-    status: "Active",
-    code: "23836",
-    specialization: "Cardiology Center",
-    createdDate: "October 24, 2022",
-    doctorsCount: 42,
-    appointmentsToday: 156,
-    address: "1221 Medical District, New York, NY 10019",
+  useEffect(() => {
+    const fetchClinic = async () => {
+      if (!id) return;
+      try {
+        setLoading(true);
+        const response = await getClinicById(Number(id));
+        // The API might return the clinic directly, wrapped in a data object, or even data.data
+        const clinicData = (response as any)?.data?.data || (response as any)?.data || response;
+        
+        // Final safety check to ensure we actually have a clinic object
+        if (clinicData && (clinicData.id !== undefined || (clinicData as any).Id !== undefined)) {
+          setClinic(clinicData);
+        } else {
+          console.error("Received invalid clinic data format:", response);
+          setError("Clinic data is unavailable or incorrectly formatted.");
+        }
+      } catch (err) {
+        console.error("Error fetching clinic details:", err);
+        setError("Failed to load clinic details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClinic();
+  }, [id]);
+
+  const handleDeleteConfirm = async () => {
+    if (!id) return;
+    try {
+      await deleteClinic(Number(id));
+      setIsDeleteModalOpen(false);
+      navigate("/dashboard/clinics");
+    } catch (err) {
+      console.error("Failed to delete clinic:", err);
+      alert("Failed to delete clinic. Please try again.");
+    }
   };
 
-  const handleDeleteConfirm = () => {
-    setIsDeleteModalOpen(false);
-    navigate("/dashboard/clinics");
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin text-[#1A6FC4]" size={48} />
+          <p className="text-slate-500 font-bold">Loading clinic details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !clinic) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-slate-50">
+        <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 text-center max-w-md">
+          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Info size={32} />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Error</h2>
+          <p className="text-slate-500 mb-8">{error || "Clinic not found"}</p>
+          <button
+            onClick={() => navigate("/dashboard/clinics")}
+            className="w-full py-3 bg-[#1A6FC4] text-white rounded-xl font-bold hover:bg-blue-700 transition-all"
+          >
+            Back to Clinics
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const clinicInfo = {
+    name: clinic.clinicNameEn || clinic.clinicNameAr || "Unnamed Clinic",
+    nameAr: clinic.clinicNameAr || "غير مسمى",
+    id: (clinic.id || (clinic as any).Id || id || "").toString(),
+    status: clinic.isActive ? "Active" : "Inactive",
+    code: clinic.clinicCode || "N/A",
+    specialization: clinic.specialization || "General",
+    createdDate: "October 24, 2022", // Fallback since it's not in the type
+    doctorsCount: 0, // Fallback
+    appointmentsToday: 0, // Fallback
+    address: "1221 Medical District, New York, NY 10019", // Fallback
   };
 
   return (
@@ -69,9 +141,9 @@ const ClinicDetails: React.FC = () => {
           {/* Title & Actions Bar */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight">{clinicData.name}</h1>
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight">{clinicInfo.name}</h1>
               <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-full border border-blue-100 flex items-center gap-1 shadow-sm">
-                <span className="text-[8px]">●</span> {clinicData.status.toUpperCase()}
+                <span className="text-[8px]">●</span> {clinicInfo.status.toUpperCase()}
               </span>
             </div>
             
@@ -100,12 +172,12 @@ const ClinicDetails: React.FC = () => {
                 <h3 className="text-xl">Basic Information</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-y-12 gap-x-6">
-                <InfoItem label="CLINIC NAME EN" value={clinicData.name} />
-                <InfoItem label="CLINIC NAME AR" value="مركز ميتوبوليتان للقلب" />
-                <InfoItem label="CLINIC CODE" value={clinicData.code} />
-                <InfoItem label="SPECIALIZATION" value={clinicData.specialization} />
-                <InfoItem label="STATUS" value={clinicData.status} highlight />
-                <InfoItem label="CREATED DATE" value={clinicData.createdDate} />
+                <InfoItem label="CLINIC NAME EN" value={clinicInfo.name} />
+                <InfoItem label="CLINIC NAME AR" value={clinicInfo.nameAr} />
+                <InfoItem label="CLINIC CODE" value={clinicInfo.code} />
+                <InfoItem label="SPECIALIZATION" value={clinicInfo.specialization} />
+                <InfoItem label="STATUS" value={clinicInfo.status} highlight />
+                <InfoItem label="CREATED DATE" value={clinicInfo.createdDate} />
               </div>
             </div>
 
@@ -114,7 +186,7 @@ const ClinicDetails: React.FC = () => {
               <div className="bg-[#1A6FC4] p-8 rounded-3xl text-white relative overflow-hidden h-[160px] flex flex-col justify-center shadow-xl shadow-blue-100">
                 <p className="text-blue-100 text-[10px] font-black mb-2 tracking-[0.2em]">DOCTORS REGISTERED</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-black">{clinicData.doctorsCount}</span>
+                  <span className="text-5xl font-black">{clinicInfo.doctorsCount}</span>
                   <span className="text-blue-200 text-xs font-bold">+3 new</span>
                 </div>
                 <Users className="absolute bottom-[-20px] right-[-20px] opacity-10" size={140} />
@@ -123,7 +195,7 @@ const ClinicDetails: React.FC = () => {
               <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm h-[160px] flex flex-col justify-center">
                 <p className="text-slate-400 text-[10px] font-black mb-2 tracking-[0.2em]">APPOINTMENTS TODAY</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-black text-slate-900">{clinicData.appointmentsToday}</span>
+                  <span className="text-5xl font-black text-slate-900">{clinicInfo.appointmentsToday}</span>
                   <span className="text-emerald-500 text-xs font-bold">Healthy</span>
                 </div>
               </div>
@@ -195,7 +267,7 @@ const ClinicDetails: React.FC = () => {
                 </div>
                 <div>
                   <p className="font-black text-2xl tracking-tight mb-1">Main Campus Location</p>
-                  <p className="text-slate-300 font-medium text-lg">{clinicData.address}</p>
+                  <p className="text-slate-300 font-medium text-lg">{clinicInfo.address}</p>
                 </div>
               </div>
             </div>
@@ -210,8 +282,8 @@ const ClinicDetails: React.FC = () => {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}
-        itemName={clinicData.name}
-        itemId={clinicData.id}
+        itemName={clinicInfo.name}
+        itemId={clinicInfo.id}
       />
     </div>
   );

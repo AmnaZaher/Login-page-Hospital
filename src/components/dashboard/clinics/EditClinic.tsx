@@ -1,22 +1,107 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  Info, MapPin, Trash2, CheckCircle2, Circle, ChevronRight 
+  Info, MapPin, Trash2, CheckCircle2, Circle, ChevronRight, Loader2, AlertCircle
 } from 'lucide-react';
+import { getClinicById, updateClinic } from '../../../api/clinics';
+import type { Clinic, UpdateClinicDto } from '../../../types/clinics.types';
 
 const EditClinic: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [originalClinic, setOriginalClinic] = useState<Clinic | null>(null);
+
   const [formData, setFormData] = useState({
-    nameEn: "North Wing Cardiology",
-    nameAr: "North Wing Cardiology",
-    specialization: "Cardiology",
-    status: "Active",
+    clinicNameEn: "",
+    clinicNameAr: "",
+    specialization: "",
+    isActive: true,
+    clinicCode: "",
+    // The building/floor fields aren't in the standard API yet but we'll keep them in state for UI
     building: "Main Campus - North Wing",
     floorRoom: "Floor 4, Suite 402",
-    leadClinician: "Dr. Elena Rodriguez"
   });
+
+  useEffect(() => {
+    const fetchClinic = async () => {
+      if (!id) return;
+      try {
+        setLoading(true);
+        const response = await getClinicById(Number(id));
+        
+        // Handle different response formats
+        const clinicData = (response as any)?.data?.data || (response as any)?.data || (response as any)?.clinic || response;
+        
+        if (clinicData && (clinicData.id !== undefined || clinicData.Id !== undefined)) {
+          const c = clinicData;
+          setOriginalClinic(c);
+          setFormData({
+            clinicNameEn: c.clinicNameEn || c.ClinicNameEn || "",
+            clinicNameAr: c.clinicNameAr || c.ClinicNameAr || "",
+            specialization: c.specialization || c.Specialization || "",
+            isActive: c.isActive !== undefined ? c.isActive : (c.IsActive !== undefined ? c.IsActive : true),
+            clinicCode: c.clinicCode || c.ClinicCode || "",
+            building: "Main Campus - North Wing",
+            floorRoom: "Floor 4, Suite 402",
+          });
+          setError(null);
+        } else {
+          setError("Failed to find clinic data in response.");
+        }
+      } catch (err: any) {
+        console.error("Fetch error:", err);
+        setError(err.message || "Failed to fetch clinic details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClinic();
+  }, [id]);
+
+  const handleSave = async () => {
+    if (!id) return;
+    try {
+      setSaving(true);
+      setError(null);
+      
+      const updateData: UpdateClinicDto = {
+        clinicNameEn: formData.clinicNameEn,
+        clinicNameAr: formData.clinicNameAr,
+        specialization: formData.specialization,
+        isActive: formData.isActive,
+        clinicCode: formData.clinicCode,
+      };
+
+      const res = await updateClinic(Number(id), updateData);
+      
+      if (res.isSuccess !== false) {
+        navigate(`/dashboard/clinics/${id}`);
+      } else {
+        setError(res.message || "Failed to update clinic");
+      }
+    } catch (err: any) {
+      console.error("Save error:", err);
+      setError(err.message || "Failed to save changes");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex-1 bg-[#F8FAFC] min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+          <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">Loading Clinic...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 bg-[#F8FAFC] min-h-screen overflow-y-auto font-sans pb-20">
@@ -32,18 +117,31 @@ const EditClinic: React.FC = () => {
         </div>
         <div className="flex items-center gap-6">
           <button onClick={() => navigate(-1)} className="text-slate-400 font-black text-sm hover:text-slate-600 transition-colors uppercase tracking-widest">Cancel</button>
-          <button className="bg-[#1A6FC4] text-white px-10 py-3 rounded-xl font-black text-sm shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all uppercase tracking-widest">
-            Save Changes
+          <button 
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-[#1A6FC4] text-white px-10 py-3 rounded-xl font-black text-sm shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all uppercase tracking-widest flex items-center gap-2 disabled:opacity-50"
+          >
+            {saving ? <Loader2 size={16} className="animate-spin" /> : null}
+            {saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
 
       <main className="p-8 max-w-[1500px] mx-auto space-y-8">
+        {/* Error Alert */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-center gap-4">
+            <AlertCircle className="text-red-500" />
+            <p className="text-red-700 font-bold text-sm">{error}</p>
+          </div>
+        )}
+
         {/* عنوان الصفحة */}
         <div className="space-y-1">
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Edit Clinic Details</h1>
           <p className="text-sm text-slate-500 font-medium">
-            Modify core information for <span className="text-blue-600 font-bold underline decoration-2 underline-offset-4">{formData.nameEn}</span>
+            Modify core information for <span className="text-blue-600 font-bold underline decoration-2 underline-offset-4">{formData.clinicNameEn || "Clinic"}</span>
           </p>
         </div>
 
@@ -63,42 +161,37 @@ const EditClinic: React.FC = () => {
               <div className="grid grid-cols-1 gap-8">
                 <InputField 
                     label="Clinic Name EN" 
-                    value={formData.nameEn} 
-                    onChange={(val: string) => setFormData({...formData, nameEn: val})}
+                    value={formData.clinicNameEn} 
+                    onChange={(val: string) => setFormData({...formData, clinicNameEn: val})}
                 />
                 <InputField 
                     label="Clinic Name AR" 
-                    value={formData.nameAr} 
-                    onChange={(val: string) => setFormData({...formData, nameAr: val})}
+                    value={formData.clinicNameAr} 
+                    onChange={(val: string) => setFormData({...formData, clinicNameAr: val})}
                 />
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <SelectField 
                     label="Specialization" 
                     value={formData.specialization} 
-                    options={['Cardiology', 'Neurology', 'Oncology']}
+                    onChange={(val: string) => setFormData({...formData, specialization: val})}
+                    options={['Cardiology', 'Neurology', 'Oncology', 'Pediatrics', 'Orthopedics']}
                   />
-                  <InputField label="Clinic Code" value="CL-NW-0042" disabled />
+                  <InputField label="Clinic Code" value={formData.clinicCode} disabled />
                 </div>
-                <InputField label="Created Date" value="October 24, 2022" disabled />
+                <InputField label="ID" value={id} disabled />
               </div>
             </div>
 
-            {/* جدول الطاقم الطبي (Medical Staff) بملء العرض */}
+            {/* Medical Staff (Placeholder for now) */}
             <div className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden">
               <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-100"><Info size={18}/></div>
                   <h3 className="font-black text-slate-800 text-base">Medical Staff</h3>
                 </div>
-                <button 
-                    onClick={() => navigate(`/dashboard/clinics/assign/${id}`)} 
-                    className="text-blue-600 font-bold text-l hover:underline"
-                >
-                  Assign New
-                </button>
+                <button className="text-blue-600 font-bold text-l hover:underline">Assign New</button>
               </div>
-              
               <table className="w-full text-left">
                 <thead className="bg-slate-50/50 border-b border-slate-100">
                   <tr>
@@ -108,10 +201,10 @@ const EditClinic: React.FC = () => {
                     <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
-                  <StaffRow name="Dr. Sarah Jenkins" role="Senior Cardiologist" spec="Electrophysiology" status="On-Duty" />
-                  <StaffRow name="Dr. Michael Chen" role="Cardiac Surgeon" spec="Valve Surgery" status="Offline" />
-                  <StaffRow name="Dr. Elena Rodriguez" role="Lead Clinician" spec="Angioplasty" status="Emergency" />
+                <tbody className="divide-y divide-slate-100 text-slate-400">
+                  <tr>
+                    <td colSpan={4} className="px-10 py-8 text-center font-bold text-sm">Staff management is handled in User Management</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -129,19 +222,16 @@ const EditClinic: React.FC = () => {
                 <StatusOption 
                     label="Active" 
                     desc="Accepting new appointments" 
-                    isActive={formData.status === 'Active'} 
-                    onClick={() => setFormData({...formData, status: 'Active'})} 
+                    isActive={formData.isActive} 
+                    onClick={() => setFormData({...formData, isActive: true})} 
                 />
                 <StatusOption 
                     label="Inactive" 
                     desc="Hidden from scheduling" 
-                    isActive={formData.status === 'Inactive'} 
-                    onClick={() => setFormData({...formData, status: 'Inactive'})} 
+                    isActive={!formData.isActive} 
+                    onClick={() => setFormData({...formData, isActive: false})} 
                 />
               </div>
-              <p className="text-[11px] text-slate-400 mt-8 leading-relaxed font-bold italic">
-                * Inactive clinics retain historical data but cannot be booked by patients.
-              </p>
             </div>
 
             {/* بطاقة الموقع (Location) */}
@@ -152,11 +242,6 @@ const EditClinic: React.FC = () => {
               </div>
               <InputField label="Building/Wing" value={formData.building} onChange={(v: string) => setFormData({...formData, building: v})} />
               <InputField label="Floor & Room" value={formData.floorRoom} onChange={(v: string) => setFormData({...formData, floorRoom: v})} />
-              <SelectField 
-                label="Lead Clinician" 
-                value={formData.leadClinician} 
-                options={['Dr. Elena Rodriguez', 'Dr. Michael Chen']}
-              />
             </div>
           </div>
         </div>
@@ -164,8 +249,6 @@ const EditClinic: React.FC = () => {
     </div>
   );
 };
-
-// --- المكونات الفرعية (Helper Components) - كاملة التفاصيل ---
 
 const InputField = ({ label, value, onChange, disabled = false }: any) => (
   <div className="w-full group">
@@ -181,17 +264,20 @@ const InputField = ({ label, value, onChange, disabled = false }: any) => (
             className={`w-full rounded-2xl px-6 py-4 text-sm font-black outline-none border transition-all shadow-sm
             ${disabled ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed shadow-none' : 'bg-white border-slate-200 text-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5'}`}
         />
-        {disabled && <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20"><Info size={14}/></div>}
     </div>
   </div>
 );
 
-const SelectField = ({ label, value, options }: any) => (
+const SelectField = ({ label, value, options, onChange }: any) => (
   <div className="w-full">
     <label className="text-[10px] font-black text-slate-400 uppercase mb-3 block tracking-[0.2em] ml-1">{label}</label>
     <div className="relative">
-        <select className="w-full bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black text-slate-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 appearance-none cursor-pointer shadow-sm">
-            {options?.map((opt: string) => <option key={opt}>{opt}</option>) || <option>{value}</option>}
+        <select 
+          value={value}
+          onChange={(e) => onChange && onChange(e.target.value)}
+          className="w-full bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black text-slate-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 appearance-none cursor-pointer shadow-sm"
+        >
+            {options?.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
         </select>
         <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
             <ChevronRight size={16} className="rotate-90" />
@@ -213,34 +299,6 @@ const StatusOption = ({ label, desc, isActive, onClick }: any) => (
         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-1 block">{desc}</span>
     </div>
   </div>
-);
-
-const StaffRow = ({ name, role, spec, status }: any) => (
-  <tr className="group hover:bg-slate-50 transition-colors">
-    <td className="px-10 py-6">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xs border border-blue-100 shadow-inner group-hover:scale-110 transition-transform">
-          {name.split(' ').map((n:any) => n[0]).join('').slice(1)}
-        </div>
-        <div>
-          <p className="text-sm font-black text-slate-800 leading-none mb-1.5">{name}</p>
-          <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{role}</p>
-        </div>
-      </div>
-    </td>
-    <td className="px-10 py-6 text-sm font-bold text-slate-600">{spec}</td>
-    <td className="px-10 py-6">
-      <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-        status === 'On-Duty' ? 'bg-teal-50 text-teal-600 border-teal-100' : 
-        status === 'Emergency' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-slate-50 text-slate-400 border-slate-100'
-      }`}>
-        ● {status}
-      </span>
-    </td>
-    <td className="px-10 py-6 text-right">
-      <button className="text-red-200 hover:text-red-500 p-2.5 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18}/></button>
-    </td>
-  </tr>
 );
 
 export default EditClinic;
