@@ -24,45 +24,59 @@ export const getClinics = async (params?: {
 };
 
 export const getClinicStats = async () => {
-    return fetchApi('/Clinics/ClinicStatistical', {
+    return fetchApi<ClinicStats>('/Clinics/ClinicStatistical', {
         method: 'GET',
     });
 };
 
-export const createClinic = async (clinic: CreateClinicDto) => {
-    return fetchApi('/Clinics', {
+export const createClinic = async (data: CreateClinicDto) => {
+    return fetchApi<Clinic>('/Clinics', {
         method: 'POST',
-        body: JSON.stringify({
-            ClinicCode: clinic.clinicCode,
-            ClinicNameAr: clinic.clinicNameAr,
-            ClinicNameEn: clinic.clinicNameEn,
-            Specialization: clinic.specialization,
-            WorkingDays: clinic.workingDays,
-            IsActive: clinic.isActive
-        }),
+        body: JSON.stringify(data),
     });
 };
 
-export const updateClinic = async (id: number, clinic: UpdateClinicDto) => {
-    return fetchApi(`/Clinics/${id}`, {
+export const updateClinic = async (id: number, data: UpdateClinicDto) => {
+    return fetchApi<Clinic>(`/Clinics/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({
-            ClinicCode: clinic.clinicCode,
-            ClinicNameAr: clinic.clinicNameAr,
-            ClinicNameEn: clinic.clinicNameEn,
-            Specialization: clinic.specialization,
-            WorkingDays: clinic.workingDays,
-            IsActive: clinic.isActive
-        }),
+        body: JSON.stringify(data),
     });
 };
 
-export const deleteClinic = async (id: number) => {
-    return fetchApi(`/Clinics/${id}`, {
-        method: 'DELETE',
-    });
-};
+export const deleteClinic = async (id: number | string) => {
+    console.log(`[ClinicAPI] Attempting to delete clinic with ID: ${id}`);
+    
+    // 1. Try standard endpoint
+    try {
+        console.log(`[ClinicAPI] DELETE /Clinics/${id}`);
+        return await fetchApi<void>(`/Clinics/${id}`, {
+            method: 'DELETE',
+        });
+    } catch (err: any) {
+        console.warn(`[ClinicAPI] Standard DELETE failed for ID ${id}:`, err.message);
+    }
+    
+    // 2. Try Admin (Singular)
+    try {
+        console.log(`[ClinicAPI] DELETE /Admin/Clinic/${id}`);
+        return await fetchApi<void>(`/Admin/Clinic/${id}`, {
+            method: 'DELETE',
+        });
+    } catch (err: any) {
+        console.warn(`[ClinicAPI] Admin (singular) DELETE failed for ID ${id}:`, err.message);
+    }
 
+    // 3. Try Admin (Plural)
+    try {
+        console.log(`[ClinicAPI] DELETE /Admin/Clinics/${id}`);
+        return await fetchApi<void>(`/Admin/Clinics/${id}`, {
+            method: 'DELETE',
+        });
+    } catch (err: any) {
+        console.error(`[ClinicAPI] All DELETE attempts failed for clinic ${id}:`, err.message);
+        throw new Error(`Clinic deletion failed. The server might not permit deleting this record. Error: ${err.message}`);
+    }
+};
 export const getClinicById = async (id: number) => {
     return fetchApi<Clinic>(`/Clinics/${id}`, {
         method: 'GET',

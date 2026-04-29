@@ -14,61 +14,74 @@ import {
 } from "lucide-react";
 import DeleteModal from "./DeleteModal";
 import { getClinicById, deleteClinic } from "../../../api/clinics";
+import { scheduleApi } from "../../../api/schedules";
 import type { Clinic } from "../../../types/clinics.types";
+import type { DoctorSchedule } from "../../../api/schedules";
 
 const ClinicDetails: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [clinic, setClinic] = useState<Clinic | null>(null);
+  const [schedules, setSchedules] = useState<DoctorSchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchClinic = async () => {
-      if (!id) return;
-      try {
-        setLoading(true);
-        const response = await getClinicById(Number(id));
-        // The API might return the clinic directly, wrapped in a data object, or even data.data
-        const clinicData = (response as any)?.data?.data || (response as any)?.data || response;
-        
-        // Final safety check to ensure we actually have a clinic object
-        if (clinicData && (clinicData.id !== undefined || (clinicData as any).Id !== undefined)) {
-          setClinic(clinicData);
-        } else {
-          console.error("Received invalid clinic data format:", response);
-          setError("Clinic data is unavailable or incorrectly formatted.");
-        }
-      } catch (err) {
-        console.error("Error fetching clinic details:", err);
-        setError("Failed to load clinic details");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const [clinicRes, scheduleRes] = await Promise.all([
+        getClinicById(Number(id)),
+        scheduleApi.getSchedules({ ClinicId: Number(id), PageSize: 50 })
+      ]);
 
-    fetchClinic();
+      if (clinicRes.data) {
+        const data = clinicRes.data as any;
+        setClinic({
+          ...data,
+          id: data.id || data.Id || Number(id)
+        });
+      } else {
+        throw new Error("Clinic not found");
+      }
+
+      const scheduleData = (scheduleRes as any).data?.data || (scheduleRes as any).data || [];
+      setSchedules(Array.isArray(scheduleData) ? scheduleData : []);
+
+    } catch (err: any) {
+      console.error("Error fetching clinic details:", err);
+      setError(err.message || "Failed to load clinic details");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
   }, [id]);
 
   const handleDeleteConfirm = async () => {
-    if (!id) return;
+    const idToDelete = clinic?.id || id;
+    if (!idToDelete) return;
+    
     try {
-      await deleteClinic(Number(id));
+      await deleteClinic(idToDelete);
       setIsDeleteModalOpen(false);
       navigate("/dashboard/clinics");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to delete clinic:", err);
-      alert("Failed to delete clinic. Please try again.");
+      alert(`Failed to delete clinic: ${err.message || 'Unknown error'}`);
     }
   };
 
   if (loading) {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin text-[#1A6FC4]" size={48} />
-          <p className="text-slate-500 font-bold">Loading clinic details...</p>
+        <div className="text-center">
+          <Loader2 className="animate-spin mx-auto text-[#1A6FC4] mb-4" size={48} />
+          <p className="text-slate-600 font-bold">Loading clinic details...</p>
         </div>
       </div>
     );
@@ -77,15 +90,15 @@ const ClinicDetails: React.FC = () => {
   if (error || !clinic) {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-slate-50">
-        <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 text-center max-w-md">
-          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Info size={32} />
+        <div className="text-center max-w-md p-8 bg-white rounded-3xl shadow-sm border border-slate-200">
+          <div className="text-red-500 mb-4">
+            <Info size={48} className="mx-auto" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Error</h2>
-          <p className="text-slate-500 mb-8">{error || "Clinic not found"}</p>
-          <button
+          <h2 className="text-2xl font-black text-slate-900 mb-2">Error Occurred</h2>
+          <p className="text-slate-500 mb-6">{error || "Clinic data could not be retrieved."}</p>
+          <button 
             onClick={() => navigate("/dashboard/clinics")}
-            className="w-full py-3 bg-[#1A6FC4] text-white rounded-xl font-bold hover:bg-blue-700 transition-all"
+            className="px-6 py-2 bg-[#1A6FC4] text-white rounded-xl font-bold hover:bg-blue-700 transition-all"
           >
             Back to Clinics
           </button>
@@ -94,23 +107,19 @@ const ClinicDetails: React.FC = () => {
     );
   }
 
-  const clinicInfo = {
-    name: clinic.clinicNameEn || clinic.clinicNameAr || "Unnamed Clinic",
-    nameAr: clinic.clinicNameAr || "غير مسمى",
-    id: (clinic.id || (clinic as any).Id || id || "").toString(),
-    status: clinic.isActive ? "Active" : "Inactive",
-    code: clinic.clinicCode || "N/A",
-    specialization: clinic.specialization || "General",
-    createdDate: "October 24, 2022", // Fallback since it's not in the type
-    doctorsCount: 0, // Fallback
-    appointmentsToday: 0, // Fallback
-    address: "1221 Medical District, New York, NY 10019", // Fallback
-  };
+  // Get unique doctors from schedules
+  const uniqueDoctors = Array.from(new Set(schedules.map(s => s.doctorId)))
+    .map(docId => {
+      const schedule = schedules.find(s => s.doctorId === docId);
+      return {
+        id: docId,
+        name: schedule?.doctorName || `Doctor #${docId}`,
+        specialization: clinic.specialization || "Medical Specialist",
+        status: "Active" // Mock status for now
+      };
+    });
 
   return (
-    /* تعديل جوهري: أضفت h-screen و overflow-y-auto هنا 
-       لضمان أن الصفحة هي التي تتحكم في السكرول الخاص بها
-    */
     <div className="relative w-full h-screen overflow-y-auto bg-slate-50 font-sans scroll-smooth">
       <div
         className={`flex flex-col min-h-full transition-all duration-300 ${
@@ -141,9 +150,15 @@ const ClinicDetails: React.FC = () => {
           {/* Title & Actions Bar */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight">{clinicInfo.name}</h1>
-              <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-full border border-blue-100 flex items-center gap-1 shadow-sm">
-                <span className="text-[8px]">●</span> {clinicInfo.status.toUpperCase()}
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+                {clinic.clinicNameEn || clinic.clinicNameAr || "Unnamed Clinic"}
+              </h1>
+              <span className={`px-3 py-1 text-[10px] font-black rounded-full border flex items-center gap-1 shadow-sm ${
+                clinic.isActive 
+                ? "bg-blue-50 text-blue-600 border-blue-100" 
+                : "bg-slate-50 text-slate-500 border-slate-100"
+              }`}>
+                <span className="text-[8px]">●</span> {clinic.isActive ? "ACTIVE" : "INACTIVE"}
               </span>
             </div>
             
@@ -151,13 +166,13 @@ const ClinicDetails: React.FC = () => {
               <button onClick={() => setIsDeleteModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-bold hover:bg-red-100 transition-all border border-red-100">
                 <Trash2 size={16} /> Delete
               </button>
-              <button onClick={() => navigate(-1)} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all shadow-sm">
+              <button onClick={() => navigate("/dashboard/clinics")} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all shadow-sm">
                 <ArrowLeft size={16} /> Back
               </button>
               <button onClick={() => navigate(`/dashboard/clinics/edit/${id}`)} className="flex items-center gap-2 px-6 py-2 bg-[#1A6FC4] text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">
                 <Edit2 size={16} /> Edit Clinic
               </button>
-              <button onClick={() => navigate(`/dashboard/clinics/AddClinic/${id}`)} className="p-2 bg-[#1A6FC4] text-white rounded-xl shadow-lg shadow-blue-100 hover:scale-105 transition-all">
+              <button onClick={() => navigate(`/dashboard/clinics/AddClinic`)} className="p-2 bg-[#1A6FC4] text-white rounded-xl shadow-lg shadow-blue-100 hover:scale-105 transition-all">
                 <Plus size={24} />
               </button>
             </div>
@@ -172,31 +187,30 @@ const ClinicDetails: React.FC = () => {
                 <h3 className="text-xl">Basic Information</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-y-12 gap-x-6">
-                <InfoItem label="CLINIC NAME EN" value={clinicInfo.name} />
-                <InfoItem label="CLINIC NAME AR" value={clinicInfo.nameAr} />
-                <InfoItem label="CLINIC CODE" value={clinicInfo.code} />
-                <InfoItem label="SPECIALIZATION" value={clinicInfo.specialization} />
-                <InfoItem label="STATUS" value={clinicInfo.status} highlight />
-                <InfoItem label="CREATED DATE" value={clinicInfo.createdDate} />
+                <InfoItem label="CLINIC NAME EN" value={clinic.clinicNameEn || "N/A"} />
+                <InfoItem label="CLINIC NAME AR" value={clinic.clinicNameAr || "N/A"} />
+                <InfoItem label="CLINIC CODE" value={clinic.clinicCode || `C-${clinic.id}`} />
+                <InfoItem label="SPECIALIZATION" value={clinic.specialization || "General"} />
+                <InfoItem label="STATUS" value={clinic.isActive ? "Active" : "Inactive"} highlight />
+                <InfoItem label="WORKING DAYS" value={clinic.workingDays || "Not Set"} />
               </div>
             </div>
 
             {/* Side Stats */}
             <div className="xl:col-span-1 space-y-6">
               <div className="bg-[#1A6FC4] p-8 rounded-3xl text-white relative overflow-hidden h-[160px] flex flex-col justify-center shadow-xl shadow-blue-100">
-                <p className="text-blue-100 text-[10px] font-black mb-2 tracking-[0.2em]">DOCTORS REGISTERED</p>
+                <p className="text-blue-100 text-[10px] font-black mb-2 tracking-[0.2em]">DOCTORS ASSIGNED</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-black">{clinicInfo.doctorsCount}</span>
-                  <span className="text-blue-200 text-xs font-bold">+3 new</span>
+                  <span className="text-5xl font-black">{uniqueDoctors.length}</span>
                 </div>
                 <Users className="absolute bottom-[-20px] right-[-20px] opacity-10" size={140} />
               </div>
               
               <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm h-[160px] flex flex-col justify-center">
-                <p className="text-slate-400 text-[10px] font-black mb-2 tracking-[0.2em]">APPOINTMENTS TODAY</p>
+                <p className="text-slate-400 text-[10px] font-black mb-2 tracking-[0.2em]">SCHEDULED SLOTS</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-black text-slate-900">{clinicInfo.appointmentsToday}</span>
-                  <span className="text-emerald-500 text-xs font-bold">Healthy</span>
+                  <span className="text-5xl font-black text-slate-900">{schedules.length}</span>
+                  <span className="text-emerald-500 text-xs font-bold">Active</span>
                 </div>
               </div>
             </div>
@@ -224,9 +238,24 @@ const ClinicDetails: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    <StaffRow name="Dr. Sarah Jenkins" role="Senior Cardiologist" spec="Electrophysiology" status="On-Duty" statusColor="text-blue-600 bg-blue-50" />
-                    <StaffRow name="Dr. Michael Chen" role="Cardiac Surgeon" spec="Valve Surgery" status="Offline" statusColor="text-slate-400 bg-slate-50" />
-                    <StaffRow name="Dr. Elena Rodriguez" role="Interventionalist" spec="Angioplasty" status="On-Duty" statusColor="text-blue-600 bg-blue-50" />
+                    {uniqueDoctors.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-8 py-10 text-center text-slate-400 font-medium">
+                          No staff assigned to this clinic yet.
+                        </td>
+                      </tr>
+                    ) : (
+                      uniqueDoctors.map(doc => (
+                        <StaffRow 
+                          key={doc.id}
+                          name={doc.name} 
+                          role="Doctor" 
+                          spec={doc.specialization} 
+                          status={doc.status} 
+                          statusColor="text-blue-600 bg-blue-50" 
+                        />
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -240,15 +269,25 @@ const ClinicDetails: React.FC = () => {
                </div>
                <div className="p-8 flex-1">
                   <div className="space-y-5">
-                    <HourRow day="Monday" from="08:00 AM" to="08:00 PM" />
-                    <HourRow day="Tuesday" from="08:00 AM" to="08:00 PM" />
-                    <HourRow day="Wednesday" from="08:00 AM" to="08:00 PM" />
-                    <HourRow day="Thursday" from="08:00 AM" to="08:00 PM" />
+                    {schedules.length === 0 ? (
+                       <p className="text-slate-400 text-sm italic">No schedules set for this clinic.</p>
+                    ) : (
+                      schedules.slice(0, 7).map((s, idx) => (
+                        <HourRow 
+                          key={idx}
+                          day={['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][s.dayOfWeek]} 
+                          from={s.startTime} 
+                          to={s.endTime} 
+                        />
+                      ))
+                    )}
                   </div>
-                  <div className="mt-8 p-4 bg-red-50 rounded-2xl flex justify-between items-center border border-red-100/50">
-                    <span className="text-red-700 font-black text-xs uppercase tracking-widest">Weekend</span>
-                    <span className="text-red-600 text-[9px] font-black uppercase bg-white px-2 py-1 rounded-lg">Emergencies</span>
-                  </div>
+                  {clinic.workingDays && (
+                    <div className="mt-8 p-4 bg-blue-50 rounded-2xl flex flex-col gap-2 border border-blue-100/50">
+                      <span className="text-blue-700 font-black text-xs uppercase tracking-widest">Active Days</span>
+                      <span className="text-blue-600 text-[11px] font-bold uppercase">{clinic.workingDays}</span>
+                    </div>
+                  )}
                </div>
             </div>
           </div>
@@ -266,14 +305,13 @@ const ClinicDetails: React.FC = () => {
                   <MapPin size={28} className="text-blue-400" />
                 </div>
                 <div>
-                  <p className="font-black text-2xl tracking-tight mb-1">Main Campus Location</p>
-                  <p className="text-slate-300 font-medium text-lg">{clinicInfo.address}</p>
+                  <p className="font-black text-2xl tracking-tight mb-1">Clinic Location</p>
+                  <p className="text-slate-300 font-medium text-lg">Hospital Main Campus - {clinic.specialization || "General"} Department</p>
                 </div>
               </div>
             </div>
           </div>
           
-          {/* Padding Bottom for extra scroll space */}
           <div className="h-4"></div>
         </main>
       </div>
@@ -282,12 +320,13 @@ const ClinicDetails: React.FC = () => {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}
-        itemName={clinicInfo.name}
-        itemId={clinicInfo.id}
+        itemName={clinic.clinicNameEn || clinic.clinicNameAr || "Clinic"}
+        itemId={clinic.id?.toString() || id || ""}
       />
     </div>
   );
 };
+
 
 // --- المكونات المساعدة ---
 
