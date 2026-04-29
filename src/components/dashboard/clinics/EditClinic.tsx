@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Info, MapPin, Trash2, CheckCircle2, Circle, ChevronRight, Loader2, Save 
-} from 'lucide-react';
+import { Info, CheckCircle2, Circle, ChevronRight, Loader2, Save, Trash2 } from 'lucide-react';
 import { getClinicById, updateClinic } from '../../../api/clinics';
 import { scheduleApi } from '../../../api/schedules';
 import type { Clinic } from '../../../types/clinics.types';
@@ -291,19 +289,7 @@ const InputField = ({ label, value, onChange, disabled = false }: any) => (
   </div>
 );
 
-const SelectField = ({ label, value, options }: any) => (
-  <div className="w-full">
-    <label className="text-[10px] font-black text-slate-400 uppercase mb-3 block tracking-[0.2em] ml-1">{label}</label>
-    <div className="relative">
-        <select className="w-full bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-black text-slate-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 appearance-none cursor-pointer shadow-sm">
-            {options?.map((opt: string) => <option key={opt}>{opt}</option>) || <option>{value}</option>}
-        </select>
-        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-            <ChevronRight size={16} className="rotate-90" />
-        </div>
-    </div>
-  </div>
-);
+
 
 const StatusOption = ({ label, desc, isActive, onClick }: any) => (
   <div 

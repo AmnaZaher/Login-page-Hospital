@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  Plus, Search, Trash2, Info, 
-  ChevronRight, CheckCircle2, Loader2
-} from 'lucide-react';
+import { Info, CheckCircle2, ChevronRight, Loader2, Search, Plus } from 'lucide-react';
 import { getClinics } from '../../../api/clinics';
 import { staffApi } from '../../../api/staff.ts';
 import type { Clinic } from '../../../types/clinics.types';
@@ -58,8 +55,6 @@ const AssignStaff: React.FC = () => {
   }, [activeTab, searchTerm]);
 
   const handleAssign = (staffMember: StaffMember) => {
-    // In a real app, this would call an API like scheduleApi.createSchedule
-    // or a dedicated clinic-staff assignment endpoint.
     alert(`Assigning ${staffMember.name} to clinic ${selectedClinicId}`);
   };
 
