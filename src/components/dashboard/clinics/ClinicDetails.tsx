@@ -231,7 +231,7 @@ const ClinicDetails: React.FC = () => {
                 <table className="w-full text-left border-collapse">
                   <thead className="bg-slate-50/50 text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black">
                     <tr>
-                      <th className="px-8 py-5">Doctor Name</th>
+                      <th className="px-8 py-5">Staff Name</th>
                       <th className="px-8 py-5">Specialization</th>
                       <th className="px-8 py-5">Status</th>
                       <th className="px-8 py-5 text-center">Action</th>
@@ -246,11 +246,11 @@ const ClinicDetails: React.FC = () => {
                       </tr>
                     ) : (
                       uniqueDoctors.map(doc => (
-                        <StaffRow 
-                          key={doc.id}
-                          name={doc.name} 
-                          role="Doctor" 
-                          spec={doc.specialization} 
+                          <StaffRow 
+                            key={doc.id}
+                            name={doc.name} 
+                            role="Medical Staff" 
+                            spec={doc.specialization} 
                           status={doc.status} 
                           statusColor="text-blue-600 bg-blue-50" 
                         />

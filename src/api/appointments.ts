@@ -1,7 +1,7 @@
 import { fetchApi } from './config';
 
 // ----- Types -----
-export type AppointmentStatus = 0 | 1 | 2 | 3; // 0=Scheduled, 1=Completed, 2=NoShow, 3=Cancelled
+export type AppointmentStatus = 1 | 2 | 3 | 4 | 5 | 6; // 1=Scheduled, 2=InProgress, 3=Completed, 4=NoShow, 5=Cancelled, 6=WaitingList
 
 export interface Appointment {
     id: number;

@@ -11,22 +11,47 @@ import { staffApi } from '../../../api/staff';
 
 /* ─────────────── helpers ─────────────── */
 const STATUS_MAP: Record<number, { label: string; color: string; bg: string }> = {
-    0: { label: 'Scheduled', color: '#1A6FC4', bg: '#EFF6FF' },
-    1: { label: 'Completed', color: '#16a34a', bg: '#F0FDF4' },
-    2: { label: 'No Show',   color: '#b45309', bg: '#FFFBEB' },
-    3: { label: 'Cancelled', color: '#dc2626', bg: '#FEF2F2' },
+    1: { label: 'Scheduled', color: '#1A6FC4', bg: '#EFF6FF' },
+    2: { label: 'In Progress', color: '#8b5cf6', bg: '#F5F3FF' },
+    3: { label: 'Completed', color: '#16a34a', bg: '#F0FDF4' },
+    4: { label: 'No Show',   color: '#b45309', bg: '#FFFBEB' },
+    5: { label: 'Cancelled', color: '#dc2626', bg: '#FEF2F2' },
+    6: { label: 'Waiting List', color: '#eab308', bg: '#FEFCE8' },
 };
 
 const STATUS_OPTIONS = [
     { value: '', label: 'All Statuses' },
-    { value: '0', label: 'Scheduled' },
-    { value: '1', label: 'Completed' },
-    { value: '2', label: 'No Show' },
-    { value: '3', label: 'Cancelled' },
+    { value: '1', label: 'Scheduled' },
+    { value: '2', label: 'In Progress' },
+    { value: '3', label: 'Completed' },
+    { value: '4', label: 'No Show' },
+    { value: '5', label: 'Cancelled' },
+    { value: '6', label: 'Waiting List' },
 ];
 
-function StatusBadge({ status }: { status: number }) {
-    const s = STATUS_MAP[status] ?? { label: 'Unknown', color: '#64748b', bg: '#F1F5F9' };
+function StatusBadge({ status }: { status: any }) {
+    let s = STATUS_MAP[status as number];
+    
+    // If not found by number, try to match by string value or label
+    if (!s) {
+        const matchingKey = Object.keys(STATUS_MAP).find(
+            k => STATUS_MAP[Number(k)].label.replace(' ', '').toLowerCase() === String(status).replace(' ', '').toLowerCase() || 
+                 k === String(status)
+        );
+        if (matchingKey) s = STATUS_MAP[Number(matchingKey)];
+    }
+
+    // Fallback if status is a string but not in map
+    if (!s && typeof status === 'string' && status.trim() !== '') {
+        return (
+            <span style={{ color: '#64748b', background: '#F1F5F9' }}
+                className="text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                {status}
+            </span>
+        );
+    }
+
+    s = s ?? { label: 'Unknown', color: '#64748b', bg: '#F1F5F9' };
     return (
         <span style={{ color: s.color, background: s.bg }}
             className="text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
@@ -36,17 +61,20 @@ function StatusBadge({ status }: { status: number }) {
 }
 
 function initials(name: string) {
+    if (!name) return 'U';
     return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
 
-function fmtDateTime(iso: string) {
+function fmtDateTime(iso: any) {
+    if (!iso) return { date: 'N/A', time: '' };
     try {
         const d = new Date(iso);
+        if (isNaN(d.getTime())) return { date: String(iso), time: '' };
         return {
             date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             time: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
         };
-    } catch { return { date: iso, time: '' }; }
+    } catch { return { date: String(iso), time: '' }; }
 }
 
 import { useNavigate } from 'react-router-dom';
@@ -297,6 +325,9 @@ const AppointmentManagementPage: React.FC = () => {
                                 ) : (
                                     appointments.map((apt) => {
                                         const { date, time } = fmtDateTime(apt.dateTime);
+                                        const foundDoctor = doctors.find(d => String(d.id) === String(apt.doctorId));
+                                        const displayDoctorName = foundDoctor ? foundDoctor.name : (apt.doctorName || '—');
+
                                         return (
                                             <tr key={apt.id} className="hover:bg-slate-50/60 transition-colors">
                                                 {/* ID */}
@@ -317,7 +348,7 @@ const AppointmentManagementPage: React.FC = () => {
                                                     </div>
                                                 </td>
                                                 {/* Doctor */}
-                                                <td className="px-5 py-3.5 text-sm text-slate-700">{apt.doctorName || '—'}</td>
+                                                <td className="px-5 py-3.5 text-sm text-slate-700">{displayDoctorName}</td>
                                                 {/* Clinic */}
                                                 <td className="px-5 py-3.5 text-sm text-slate-600">
                                                     {apt.clinicName

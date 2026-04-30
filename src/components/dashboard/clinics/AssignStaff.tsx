@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Info, CheckCircle2, ChevronRight, Loader2, Search, Plus } from 'lucide-react';
 import { getClinics } from '../../../api/clinics';
 import { staffApi } from '../../../api/staff.ts';
+import { scheduleApi } from '../../../api/schedules';
 import type { Clinic } from '../../../types/clinics.types';
 import type { StaffMember } from '../../../types/staff.types';
 
@@ -54,8 +55,26 @@ const AssignStaff: React.FC = () => {
     return () => clearTimeout(timeoutId);
   }, [activeTab, searchTerm]);
 
-  const handleAssign = (staffMember: StaffMember) => {
-    alert(`Assigning ${staffMember.name} to clinic ${selectedClinicId}`);
+  const handleAssign = async (staffMember: StaffMember) => {
+    if (!selectedClinicId) {
+      alert("Please select a clinic first.");
+      return;
+    }
+    
+    try {
+      await scheduleApi.createSchedule({
+        doctorId: Number(staffMember.id),
+        clinicId: Number(selectedClinicId),
+        dayOfWeek: 0, // Default to Sunday
+        startTime: "08:00:00",
+        endTime: "16:00:00",
+        isActive: true
+      });
+      alert(`Successfully assigned ${staffMember.name} to the clinic.`);
+    } catch (err: any) {
+      console.error("Failed to assign staff:", err);
+      alert(`Failed to assign staff: ${err.message || 'Unknown error'}`);
+    }
   };
 
   return (
